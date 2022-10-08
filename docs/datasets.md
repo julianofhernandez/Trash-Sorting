@@ -5,5 +5,5 @@ How many images do we need? Well, previous research used around 1,000 to 5,000 i
    - COCO format
  2. [TrashNet](https://github.com/garythung/trashnet)
     - 2527 images
- 3. [TrashBox] (https://github.com/nikhilvenkatkumsetty/TrashBox)
+ 3. [TrashBox](https://github.com/nikhilvenkatkumsetty/TrashBox)
     - 17785 images - webscraped
