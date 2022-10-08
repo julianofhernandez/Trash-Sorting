@@ -14,7 +14,7 @@ How many images do we need? Well, previous research used around 1,000 to 5,000 i
     - Dataset from Kaggle. 
     - Clear back ground
     - Mostly container for fluids(Plastic, aluminum cans)
- 6. [wate_pictures](https://www.kaggle.com/datasets/wangziang/waste-pictures
+ 6. [wate_pictures](https://www.kaggle.com/datasets/wangziang/waste-pictures)
     - ~26000 images
     - product images that could end up on the street. 
     - WebScraped 
