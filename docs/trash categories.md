@@ -28,7 +28,7 @@ Challenges:
 cereal box plastic, bubble wrap, clear plastic wrap, some department store bags, potato chip bags, single
 cheese wrappers, 6-pack plastic and candy wrappers.)
 - paper takeout with wax or plastic lining
-- Shipping packaging
+- Clothing (should suggest donation if it's not ruined)
 </details>
 
 
