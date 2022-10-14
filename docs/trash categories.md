@@ -15,7 +15,7 @@ Challenges:
 - Total categories ~45
 
 <details open>
-  <h2><summary>trash (10)</summary></h2>
+<summary><h2>trash (10)</h2></summary>
   
 - garbage bag
 - face masks
@@ -33,7 +33,7 @@ cheese wrappers, 6-pack plastic and candy wrappers.)
 
 
 <details open>
-<h2><summary>recycling (20)</summary></h2>
+<summary><h2>recycling (20)</h2></summary>
 
 - **Glass** (4) (lables okay but make sure they empty/rinsed and remove the lid)
   - Clear glass
@@ -66,7 +66,7 @@ cheese wrappers, 6-pack plastic and candy wrappers.)
 
 
 <details open>
-<h2><summary>compost (5)</summary></h2>
+<summary><h2>compost (5)</h2></summary>
   
 - food products (fruits, veggies, etc)
 - greasy paper containers such as a pizza box
@@ -78,7 +78,7 @@ cheese wrappers, 6-pack plastic and candy wrappers.)
   
   
 <details open>
-<h2><summary>not trash or hazardous waste (10)</summary></h2>
+<summary><h2>not trash or hazardous waste (10)</h2></summary>
   
 - electronic waste
 - people
