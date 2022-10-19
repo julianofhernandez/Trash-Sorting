@@ -16,12 +16,12 @@ Previous efforts leveraging computer vision for automated trash sorted have fail
 [Fig1]
 
 
-[Fig2]
+[Fig2] [TACO]
 
 
 [Fig3]
 
-There are three primary levels of computer vision we can use with increasing accuracy: classification [Fig 1], object detection [fig 2], and instance segmentation [fig 3]. Classification is simplest, returning one predicted class per image, but it can’t differentiate between two objects in the same picture. Object detection takes this one step further, by predicting a class and an associated bounding box around it. This makes annotating training data more complex, but allows all pictures to be used regardless of how many objects it has. This study will be annotating and training data using object detection, but there’s another level of detail that can be obtained using instance segmentation. This predicts pixel by pixel masks outlining the exact shape of the object, this could enable automated sorting to be done by a machine [TACO]. To do this the problem of dataset scaling has to be overcome first, because annotating these images takes a lot more time than simply dragging a box around each piece of litter. 
+There are three primary levels of computer vision we can use with increasing accuracy: classification [Fig 1], object detection [fig 2], and instance segmentation [fig 3]. Classification is simplest, returning one predicted class per image, but it can’t differentiate between two objects in the same picture. Object detection takes this one step further, by predicting a class and an associated bounding box around it. This makes annotating training data more complex, but allows all pictures to be used regardless of how many objects it has. This study will be annotating and training data using object detection, but there’s another level of detail that can be obtained using instance segmentation. This predicts pixel by pixel masks outlining the exact shape of the object, this could enable automated sorting to be done by a machine [TACO]. However, the problem of dataset scaling has to be overcome first, so using bounding boxes instead of masks needs to be done first. An expandable dataset should support all three types of annotations, so that it can be widely deployed.  
 
 
 References
