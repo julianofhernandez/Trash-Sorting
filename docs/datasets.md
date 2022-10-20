@@ -7,33 +7,33 @@ How many images do we need? Well, previous research used around 1,000 to 5,000 i
     - 2527 images
  3. [TrashBox](https://github.com/nikhilvenkatkumsetty/TrashBox)
     - 17785 images - webscraped
- 4. [WasteNet](https://recycleye.com/wastenet/)
-    - It says 3 million but needs request access. Might take sometime
- 5. [Drinking Waste Classification](https://www.kaggle.com/arkadiyhacks/drinking-waste-classification)
+ 4. [Drinking Waste Classification](https://www.kaggle.com/arkadiyhacks/drinking-waste-classification)
     - 9640 Images
     - Dataset from Kaggle. 
     - Clear back ground
     - Mostly container for fluids(Plastic, aluminum cans)
- 6. [wate_pictures](https://www.kaggle.com/datasets/wangziang/waste-pictures)
+ 5. [wate_pictures](https://www.kaggle.com/datasets/wangziang/waste-pictures)
     - ~26000 images
     - product images that could end up on the street. 
     - WebScraped 
 
 Datasets categories
 
-|  | [TACO](http://tacodataset.org/)  | [TrashNet](https://github.com/garythung/trashnet) | [TrashBox](https://github.com/nikhilvenkatkumsetty/TrashBox) | [Drinking Waste Classification](https://www.kaggle.com/arkadiyhacks/drinking-waste-classification) | [Trash-ICRA19](https://conservancy.umn.edu/handle/11299/214366) |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| Plastic | Yes  | Yes  | Yes | Yes | Yes |
-| Paper | Yes  | Yes  | Yes | Yes | No |
-| Metal | Yes  | Yes  | Yes | No | No |
-| E-Waste | Yes  | No  | Yes | No | No |
-| Mask | ???  | ???  | ??? | ??? | ??? |
-| Pet waste | ???  | ???  | ??? | ??? | ??? |
-| Medical equipment | ???  | ???  | ??? | ??? | ??? |
-| Fluorescent bulbs | ???  | ???  | ??? | ??? | ??? |
-| Batteries | ???  | ???  | ??? | ??? | ??? |
-| Fuel tanks | ???  | ???  | ??? | ??? | ??? |
-| Clothing | ???  | ???  | ??? | ??? | ??? |
-| Chemicals | ???  | ???  | ??? | ??? | ??? |
-| Paint | ???  | ???  | ??? | ??? | ??? |
-| CRV | ???  | ???  | ??? | ??? | ??? |
+| Supercategory | Subcategory | [TACO](http://tacodataset.org/)  | [TrashNet](https://github.com/garythung/trashnet) | [TrashBox](https://github.com/nikhilvenkatkumsetty/TrashBox) | [Drinking Waste Classification](https://www.kaggle.com/arkadiyhacks/drinking-waste-classification) | [Trash-ICRA19](https://conservancy.umn.edu/handle/11299/214366) |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| Recycle | Plastic | Yes  | Yes  | Yes | Yes | Yes |
+| Recycle | Paper | Yes  | Yes  | Yes | Yes | No |
+| Recycle | Metal | Yes  | Yes  | Yes | No | No |
+| Recycle | CRV | ???  | ???  | ??? | ??? | ??? |
+| Landfill | Mask | ???  | ???  | ??? | ??? | ??? |
+| Landfill | Pet waste | ???  | ???  | ??? | ??? | ??? |
+| Other | E-Waste | Yes  | No  | Yes | No | No |
+| Other | Clothing | ???  | ???  | ??? | ??? | ??? |
+| Compost | Leaves | ???  | ???  | ??? | ??? | ??? |
+| Hazard | Medical equipment | ???  | ???  | ??? | ??? | ??? |
+| Hazard | Fluorescent bulbs | ???  | ???  | ??? | ??? | ??? |
+| Hazard | Batteries | ???  | ???  | ??? | ??? | ??? |
+| Hazard | Fuel tanks | ???  | ???  | ??? | ??? | ??? |
+| Hazard | Chemicals | ???  | ???  | ??? | ??? | ??? |
+| Hazard | Paint | ???  | ???  | ??? | ??? | ??? |
+
