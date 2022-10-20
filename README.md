@@ -10,21 +10,21 @@ The World Bank’s 2012 study of MSW reported that the most important way to red
 
 ### Scope and Limitations
 
-Previous efforts leveraging computer vision for automated trash sorted have failed to scale their datasets to the size needed to teach the algorithm a properly generalized understanding of trash [NV Kumsetty]. Because different municipalities sort waste in different ways, previous researchers continually make new specialized datasets rather than adding to someone else’s. Combined, 17 open datasets contained well over 200,000 images, but using many different sources adds a great deal of complexity[NEEDED]. Continuing this trend will prevent meaningful deployment of this technology at scale. In contrast, this study seeks to outline best known methods for organizing volunteer events for image collection, providing freely available pre-trained models, and allowing inference to be done using an API. Having the widest array of images will increase the accuracy and generalization of the model, but only if datasets are scaled rather than dispersed. 
+Previous efforts leveraging computer vision for automated trash sorted have failed to scale their datasets to the size needed to teach the algorithm a properly generalized understanding of trash [NV Kumsetty]. Because different municipalities sort waste in different ways, previous researchers continually make new specialized datasets rather than adding to someone else’s. Combined, 17 open datasets contained well over 200,000 images, but using many different sources adds a great deal of complexity. Continuing this trend will prevent meaningful deployment of this technology at scale. In contrast, this study seeks to outline best known methods for organizing volunteer events for image collection, providing freely available pre-trained models, and allowing inference to be done using an API. Having the widest array of images will increase the accuracy and generalization of the model, but only if datasets are scaled rather than dispersed. 
 
 ![classification](https://user-images.githubusercontent.com/39971693/196785253-71e2d4eb-f1bc-48a3-8c18-ab56ff5fcfe3.png)
 
-[Fig1] Classification [TACO]
+[Fig 1] Classification [TACO]
 
 ![Screenshot 2022-10-19 121823](https://user-images.githubusercontent.com/39971693/196784358-e82e143e-fda5-4afe-9b0d-6ec584dbfd96.png)
 
-[Fig2] Object Detetion[TACO]
+[Fig 2] Object Detetion[TACO]
 
 ![image](https://user-images.githubusercontent.com/39971693/196784748-452d9202-69b0-4d2c-b14a-debbaefeaf6c.png)
 
-[Fig3] Instance segmentation [TACO]
+[Fig 3] Instance segmentation [TACO]
 
-There are three primary levels of computer vision we can use with increasing accuracy: classification [Fig 1], object detection [fig 2], and instance segmentation [fig 3]. Classification is simplest, returning one predicted class per image, but it can’t differentiate between two objects in the same picture. Object detection takes this one step further, by predicting a class and an associated bounding box around it. This makes annotating training data more complex, but allows all pictures to be used regardless of how many objects it has. This study will be annotating and training data using object detection, but there’s another level of detail that can be obtained using instance segmentation. This predicts pixel by pixel masks outlining the exact shape of the object, this could enable automated sorting to be done by a machine [TACO]. However, the problem of dataset scaling has to be overcome first, and using bounding boxes instead of masks will simplify this process. A future proof dataset should support all three types of annotations, so that it can be deployed for multiple use cases.  
+There are three primary levels of computer vision we can use with increasing accuracy: classification [Fig 1], object detection [Fig 2], and instance segmentation [Fig 3]. Classification is simplest, returning one predicted class per image, but it can’t differentiate between two objects in the same picture. Object detection takes this one step further, by predicting a class and an associated bounding box around it. This makes annotating training data more complex, but allows all pictures to be used regardless of how many objects it has. This study will be annotating and training data using object detection, but there’s another level of detail that can be obtained using instance segmentation. This predicts pixel by pixel masks outlining the exact shape of the object, this could enable automated sorting to be done by a machine [TACO]. However, the problem of dataset scaling has to be overcome first, and using bounding boxes instead of masks will simplify this process. A future proof dataset should support all three types of annotations, so that it can be deployed for multiple use cases.  
 
 
 ### References
