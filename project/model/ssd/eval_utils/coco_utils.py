@@ -137,7 +137,7 @@ def predict_all_to_json(out_file,
                                         returns={'processed_images',
                                                  'image_ids',
                                                  'inverse_transform'},
-                                        keep_images_without_gt=True)
+                                        keep_images_without_gt=False)
     # Put the results in this list.
     results = []
     # Compute the number of batches to iterate over the entire dataset.
