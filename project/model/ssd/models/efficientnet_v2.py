@@ -12,13 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-# THIS FILE HAS BEEN EDITED FROM THE ORIGINAL
 
+
+"""EfficientNet V2 models for Keras.
+
+Reference:
+- [EfficientNetV2: Smaller Models and Faster Training](
+    https://arxiv.org/abs/2104.00298) (ICML 2021)
+"""
 
 import copy
 import math
 
-import numpy as np
 import tensorflow.compat.v2 as tf
 
 from tensorflow.keras import backend
@@ -26,26 +31,438 @@ from tensorflow.keras import layers
 from tensorflow.keras.applications import imagenet_utils
 from tensorflow.keras import Model
 from tensorflow.keras.utils import (
-    get_file,
-    get_source_inputs
+    get_file
 )
 
-from keras_layers.keras_layer_AnchorBoxes import AnchorBoxes
-from keras_layers.keras_layer_L2Normalization import L2Normalization
-from keras_layers.keras_layer_DecodeDetections import DecodeDetections
-from keras_layers.keras_layer_DecodeDetectionsFast import DecodeDetectionsFast
-
+# isort: off
+from tensorflow.python.util.tf_export import keras_export
 
 BASE_WEIGHTS_PATH = "https://storage.googleapis.com/tensorflow/keras-applications/efficientnet_v2/"  # noqa: E501
 
 WEIGHTS_HASHES = {
+    "b0": (
+        "21ecbf6da12460d5c40bb2f29ceb2188",
+        "893217f2bb855e2983157299931e43ff",
+    ),
+    "b1": (
+        "069f0534ff22adf035c89e2d9547a9dc",
+        "0e80663031ca32d657f9caa404b6ec37",
+    ),
+    "b2": (
+        "424e49f28180edbde1e94797771950a7",
+        "1dfe2e7a5d45b6632553a8961ea609eb",
+    ),
     "b3": (
         "1f1fc43bd98a6e4fd8fdfd551e02c7a0",
         "f6abf7b5849ac99a89b50dd3fd532856",
-    )
+    ),
+    "-s": (
+        "e1d88a8495beba45748fedd0cecbe016",
+        "af0682fb74e8c54910f2d4393339c070",
+    ),
+    "-m": (
+        "a3bf6aa3276309f4fc6a34aa114c95cd",
+        "1b8dc055df72dde80d614482840fe342",
+    ),
+    "-l": (
+        "27e6d408b53c7ebc868fefa357689935",
+        "b0b66b5c863aef5b46e8608fe1711615",
+    ),
 }
 
 DEFAULT_BLOCKS_ARGS = {
+    "efficientnetv2-s": [
+        {
+            "kernel_size": 3,
+            "num_repeat": 2,
+            "input_filters": 24,
+            "output_filters": 24,
+            "expand_ratio": 1,
+            "se_ratio": 0.0,
+            "strides": 1,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 4,
+            "input_filters": 24,
+            "output_filters": 48,
+            "expand_ratio": 4,
+            "se_ratio": 0.0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "conv_type": 1,
+            "expand_ratio": 4,
+            "input_filters": 48,
+            "kernel_size": 3,
+            "num_repeat": 4,
+            "output_filters": 64,
+            "se_ratio": 0,
+            "strides": 2,
+        },
+        {
+            "conv_type": 0,
+            "expand_ratio": 4,
+            "input_filters": 64,
+            "kernel_size": 3,
+            "num_repeat": 6,
+            "output_filters": 128,
+            "se_ratio": 0.25,
+            "strides": 2,
+        },
+        {
+            "conv_type": 0,
+            "expand_ratio": 6,
+            "input_filters": 128,
+            "kernel_size": 3,
+            "num_repeat": 9,
+            "output_filters": 160,
+            "se_ratio": 0.25,
+            "strides": 1,
+        },
+        {
+            "conv_type": 0,
+            "expand_ratio": 6,
+            "input_filters": 160,
+            "kernel_size": 3,
+            "num_repeat": 15,
+            "output_filters": 256,
+            "se_ratio": 0.25,
+            "strides": 2,
+        },
+    ],
+    "efficientnetv2-m": [
+        {
+            "kernel_size": 3,
+            "num_repeat": 3,
+            "input_filters": 24,
+            "output_filters": 24,
+            "expand_ratio": 1,
+            "se_ratio": 0,
+            "strides": 1,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 5,
+            "input_filters": 24,
+            "output_filters": 48,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 5,
+            "input_filters": 48,
+            "output_filters": 80,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 7,
+            "input_filters": 80,
+            "output_filters": 160,
+            "expand_ratio": 4,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 14,
+            "input_filters": 160,
+            "output_filters": 176,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 1,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 18,
+            "input_filters": 176,
+            "output_filters": 304,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 5,
+            "input_filters": 304,
+            "output_filters": 512,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 1,
+            "conv_type": 0,
+        },
+    ],
+    "efficientnetv2-l": [
+        {
+            "kernel_size": 3,
+            "num_repeat": 4,
+            "input_filters": 32,
+            "output_filters": 32,
+            "expand_ratio": 1,
+            "se_ratio": 0,
+            "strides": 1,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 7,
+            "input_filters": 32,
+            "output_filters": 64,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 7,
+            "input_filters": 64,
+            "output_filters": 96,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 10,
+            "input_filters": 96,
+            "output_filters": 192,
+            "expand_ratio": 4,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 19,
+            "input_filters": 192,
+            "output_filters": 224,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 1,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 25,
+            "input_filters": 224,
+            "output_filters": 384,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 7,
+            "input_filters": 384,
+            "output_filters": 640,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 1,
+            "conv_type": 0,
+        },
+    ],
+    "efficientnetv2-b0": [
+        {
+            "kernel_size": 3,
+            "num_repeat": 1,
+            "input_filters": 32,
+            "output_filters": 16,
+            "expand_ratio": 1,
+            "se_ratio": 0,
+            "strides": 1,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 2,
+            "input_filters": 16,
+            "output_filters": 32,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 2,
+            "input_filters": 32,
+            "output_filters": 48,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 3,
+            "input_filters": 48,
+            "output_filters": 96,
+            "expand_ratio": 4,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 5,
+            "input_filters": 96,
+            "output_filters": 112,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 1,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 8,
+            "input_filters": 112,
+            "output_filters": 192,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+    ],
+    "efficientnetv2-b1": [
+        {
+            "kernel_size": 3,
+            "num_repeat": 1,
+            "input_filters": 32,
+            "output_filters": 16,
+            "expand_ratio": 1,
+            "se_ratio": 0,
+            "strides": 1,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 2,
+            "input_filters": 16,
+            "output_filters": 32,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 2,
+            "input_filters": 32,
+            "output_filters": 48,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 3,
+            "input_filters": 48,
+            "output_filters": 96,
+            "expand_ratio": 4,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 5,
+            "input_filters": 96,
+            "output_filters": 112,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 1,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 8,
+            "input_filters": 112,
+            "output_filters": 192,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+    ],
+    "efficientnetv2-b2": [
+        {
+            "kernel_size": 3,
+            "num_repeat": 1,
+            "input_filters": 32,
+            "output_filters": 16,
+            "expand_ratio": 1,
+            "se_ratio": 0,
+            "strides": 1,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 2,
+            "input_filters": 16,
+            "output_filters": 32,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 2,
+            "input_filters": 32,
+            "output_filters": 48,
+            "expand_ratio": 4,
+            "se_ratio": 0,
+            "strides": 2,
+            "conv_type": 1,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 3,
+            "input_filters": 48,
+            "output_filters": 96,
+            "expand_ratio": 4,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 5,
+            "input_filters": 96,
+            "output_filters": 112,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 1,
+            "conv_type": 0,
+        },
+        {
+            "kernel_size": 3,
+            "num_repeat": 8,
+            "input_filters": 112,
+            "output_filters": 192,
+            "expand_ratio": 6,
+            "se_ratio": 0.25,
+            "strides": 2,
+            "conv_type": 0,
+        },
+    ],
     "efficientnetv2-b3": [
         {
             "kernel_size": 3,
@@ -127,6 +544,73 @@ DENSE_KERNEL_INITIALIZER = {
         "distribution": "uniform",
     },
 }
+
+BASE_DOCSTRING = """Instantiates the {name} architecture.
+
+  Reference:
+  - [EfficientNetV2: Smaller Models and Faster Training](
+      https://arxiv.org/abs/2104.00298) (ICML 2021)
+
+  This function returns a Keras image classification model,
+  optionally loaded with weights pre-trained on ImageNet.
+
+  For image classification use cases, see
+  [this page for detailed examples](
+    https://keras.io/api/applications/#usage-examples-for-image-classification-models).
+
+  For transfer learning use cases, make sure to read the
+  [guide to transfer learning & fine-tuning](
+    https://keras.io/guides/transfer_learning/).
+
+  Note: each Keras Application expects a specific kind of input preprocessing.
+  For EfficientNetV2, by default input preprocessing is included as a part of
+  the model (as a `Rescaling` layer), and thus
+  `tf.keras.applications.efficientnet_v2.preprocess_input` is actually a
+  pass-through function. In this use case, EfficientNetV2 models expect their
+  inputs to be float tensors of pixels with values in the [0-255] range.
+  At the same time, preprocessing as a part of the model (i.e. `Rescaling`
+  layer) can be disabled by setting `include_preprocessing` argument to False.
+  With preprocessing disabled EfficientNetV2 models expect their inputs to be
+  float tensors of pixels with values in the [-1, 1] range.
+
+  Args:
+    include_top: Boolean, whether to include the fully-connected
+      layer at the top of the network. Defaults to True.
+    weights: One of `None` (random initialization),
+      `"imagenet"` (pre-training on ImageNet),
+      or the path to the weights file to be loaded. Defaults to `"imagenet"`.
+    input_tensor: Optional Keras tensor
+      (i.e. output of `layers.Input()`)
+      to use as image input for the model.
+    input_shape: Optional shape tuple, only to be specified
+      if `include_top` is False.
+      It should have exactly 3 inputs channels.
+    pooling: Optional pooling mode for feature extraction
+      when `include_top` is `False`. Defaults to None.
+      - `None` means that the output of the model will be
+          the 4D tensor output of the
+          last convolutional layer.
+      - `"avg"` means that global average pooling
+          will be applied to the output of the
+          last convolutional layer, and thus
+          the output of the model will be a 2D tensor.
+      - `"max"` means that global max pooling will
+          be applied.
+    classes: Optional number of classes to classify images
+      into, only to be specified if `include_top` is True, and
+      if no `weights` argument is specified. Defaults to 1000 (number of
+      ImageNet classes).
+    classifier_activation: A string or callable. The activation function to use
+      on the `"top"` layer. Ignored unless `include_top=True`. Set
+      `classifier_activation=None` to return the logits of the "top" layer.
+      Defaults to `"softmax"`.
+      When loading pretrained weights, `classifier_activation` can only
+      be `None` or `"softmax"`.
+
+  Returns:
+    A `keras.Model` instance.
+"""
+
 
 def round_filters(filters, width_coefficient, min_depth, depth_divisor):
     """Round number of filters based on depth multiplier."""
@@ -363,44 +847,75 @@ def FusedMBConvBlock(
 
 
 def EfficientNetV2(
-    n_classes,
+    width_coefficient,
+    depth_coefficient,
+    default_size,
+    dropout_rate=0.2,
     drop_connect_rate=0.2,
     depth_divisor=8,
     min_depth=8,
     bn_momentum=0.9,
     activation="swish",
     blocks_args="default",
-    model_name="efficientnetv2-b3",
+    model_name="efficientnetv2",
+    include_top=True,
     weights="imagenet",
+    input_tensor=None,
+    input_shape=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",
     include_preprocessing=True,
-
-    mode='training',
-    min_scale=None,
-    max_scale=None,
-    scales=None,
-    aspect_ratios_global=None,
-    aspect_ratios_per_layer=[[1.0, 2.0, 0.5],
-                             [1.0, 2.0, 0.5, 3.0, 1.0/3.0],
-                             [1.0, 2.0, 0.5, 3.0, 1.0/3.0],
-                             [1.0, 2.0, 0.5, 3.0, 1.0/3.0],
-                             [1.0, 2.0, 0.5],
-                             [1.0, 2.0, 0.5]],
-    two_boxes_for_ar1=True,
-    steps=[8, 16, 32, 64, 100, 300],
-    offsets=None,
-    clip_boxes=False,
-    variances=[0.1, 0.1, 0.2, 0.2],
-    coords='centroids',
-    normalize_coords=True,
-    confidence_thresh=0.01,
-    iou_threshold=0.45,
-    top_k=200,
-    nms_max_output_size=400,
-    return_predictor_sizes=False
 ):
-    width_coefficient = 1.2
-    depth_coefficient = 1.4
-    default_size = 300
+    """Instantiates the EfficientNetV2 architecture using given scaling
+    coefficients.
+
+    Args:
+      width_coefficient: float, scaling coefficient for network width.
+      depth_coefficient: float, scaling coefficient for network depth.
+      default_size: integer, default input image size.
+      dropout_rate: float, dropout rate before final classifier layer.
+      drop_connect_rate: float, dropout rate at skip connections.
+      depth_divisor: integer, a unit of network width.
+      min_depth: integer, minimum number of filters.
+      bn_momentum: float. Momentum parameter for Batch Normalization layers.
+      activation: activation function.
+      blocks_args: list of dicts, parameters to construct block modules.
+      model_name: string, model name.
+      include_top: whether to include the fully-connected layer at the top of
+        the network.
+      weights: one of `None` (random initialization), `"imagenet"` (pre-training
+        on ImageNet), or the path to the weights file to be loaded.
+      input_tensor: optional Keras tensor (i.e. output of `layers.Input()`) or
+        numpy array to use as image input for the model.
+      input_shape: optional shape tuple, only to be specified if `include_top`
+        is False. It should have exactly 3 inputs channels.
+      pooling: optional pooling mode for feature extraction when `include_top`
+        is `False`.
+        - `None` means that the output of the model will be the 4D tensor output
+          of the last convolutional layer.
+        - "avg" means that global average pooling will be applied to the output
+          of the last convolutional layer, and thus the output of the model will
+          be a 2D tensor.
+        - `"max"` means that global max pooling will be applied.
+      classes: optional number of classes to classify images into, only to be
+        specified if `include_top` is True, and if no `weights` argument is
+        specified.
+      classifier_activation: A string or callable. The activation function to
+        use on the `"top"` layer. Ignored unless `include_top=True`. Set
+        `classifier_activation=None` to return the logits of the `"top"` layer.
+      include_preprocessing: Boolean, whether to include the preprocessing layer
+        (`Rescaling`) at the bottom of the network. Defaults to `True`.
+
+    Returns:
+      A `keras.Model` instance.
+
+    Raises:
+      ValueError: in case of invalid argument for `weights`,
+        or invalid input shape.
+      ValueError: if `classifier_activation` is not `"softmax"` or `None` when
+        using a pretrained top layer.
+    """
 
     if blocks_args == "default":
         blocks_args = DEFAULT_BLOCKS_ARGS[model_name]
@@ -414,72 +929,22 @@ def EfficientNetV2(
             f"Received: weights={weights}"
         )
 
-    input_shape = (default_size, default_size, 3)
-    
-    # SSD stuff
+    if weights == "imagenet" and include_top and classes != 1000:
+        raise ValueError(
+            "If using `weights` as `'imagenet'` with `include_top`"
+            " as true, `classes` should be 1000"
+            f"Received: classes={classes}"
+        )
 
-    img_height, img_width, img_channels = input_shape
-    n_predictor_layers = 6 # The number of predictor conv layers in the network is 6 for the original SSD300.
-    n_classes += 1 # Account for the background class.
-
-    if aspect_ratios_global is None and aspect_ratios_per_layer is None:
-        raise ValueError("`aspect_ratios_global` and `aspect_ratios_per_layer` cannot both be None. At least one needs to be specified.")
-    if aspect_ratios_per_layer:
-        if len(aspect_ratios_per_layer) != n_predictor_layers:
-            raise ValueError("It must be either aspect_ratios_per_layer is None or len(aspect_ratios_per_layer) == {}, but len(aspect_ratios_per_layer) == {}.".format(n_predictor_layers, len(aspect_ratios_per_layer)))
-
-    if (min_scale is None or max_scale is None) and scales is None:
-        raise ValueError("Either `min_scale` and `max_scale` or `scales` need to be specified.")
-    if scales:
-        if len(scales) != n_predictor_layers+1:
-            raise ValueError("It must be either scales is None or len(scales) == {}, but len(scales) == {}.".format(n_predictor_layers+1, len(scales)))
-    else: # If no explicit list of scaling factors was passed, compute the list of scaling factors from `min_scale` and `max_scale`
-        scales = np.linspace(min_scale, max_scale, n_predictor_layers+1)
-
-    if len(variances) != 4:
-        raise ValueError("4 variance values must be pased, but {} values were received.".format(len(variances)))
-    variances = np.array(variances)
-    if np.any(variances <= 0):
-        raise ValueError("All variances must be >0, but the variances given are {}".format(variances))
-
-    if (not (steps is None)) and (len(steps) != n_predictor_layers):
-        raise ValueError("You must provide at least one step value per predictor layer.")
-
-    if (not (offsets is None)) and (len(offsets) != n_predictor_layers):
-        raise ValueError("You must provide at least one offset value per predictor layer.")
-
-    ############################################################################
-    # Compute the anchor box parameters.
-    ############################################################################
-
-    # Set the aspect ratios for each predictor layer. These are only needed for the anchor box layers.
-    if aspect_ratios_per_layer:
-        aspect_ratios = aspect_ratios_per_layer
+    # Determine proper input shape
+    input_shape = (300, 300, 3)
+    if input_tensor is None:
+        img_input = layers.Input(shape=input_shape)
     else:
-        aspect_ratios = [aspect_ratios_global] * n_predictor_layers
-
-    # Compute the number of boxes to be predicted per cell for each predictor layer.
-    # We need this so that we know how many channels the predictor layers need to have.
-    if aspect_ratios_per_layer:
-        n_boxes = []
-        for ar in aspect_ratios_per_layer:
-            if (1 in ar) & two_boxes_for_ar1:
-                n_boxes.append(len(ar) + 1) # +1 for the second box for aspect ratio 1
-            else:
-                n_boxes.append(len(ar))
-    else: # If only a global aspect ratio list was passed, then the number of boxes is the same for each predictor layer
-        if (1 in aspect_ratios_global) & two_boxes_for_ar1:
-            n_boxes = len(aspect_ratios_global) + 1
+        if not backend.is_keras_tensor(input_tensor):
+            img_input = layers.Input(tensor=input_tensor, shape=input_shape)
         else:
-            n_boxes = len(aspect_ratios_global)
-        n_boxes = [n_boxes] * n_predictor_layers
-
-    if steps is None:
-        steps = [None] * n_predictor_layers
-    if offsets is None:
-        offsets = [None] * n_predictor_layers
-
-    img_input = layers.Input(shape=input_shape)
+            img_input = input_tensor
 
     bn_axis = 3 if backend.image_data_format() == "channels_last" else 1
 
@@ -515,7 +980,6 @@ def EfficientNetV2(
         use_bias=False,
         name="stem_conv",
     )(x)
-    stride_counter = 1  # used to tell when to take info from a layer for SSD
     x = layers.BatchNormalization(
         axis=bn_axis,
         momentum=bn_momentum,
@@ -557,13 +1021,6 @@ def EfficientNetV2(
                 args["strides"] = 1
                 args["input_filters"] = args["output_filters"]
 
-            if args["strides"] == 2:
-                if stride_counter in [3, 4]:
-                    # SSD Shortcut
-                    pass
-                print(i, j, stride_counter)
-                stride_counter += 1
-
             x = block(
                 activation=activation,
                 bn_momentum=bn_momentum,
@@ -573,169 +1030,53 @@ def EfficientNetV2(
             )(x)
             b += 1
 
-    # SSD Shortcut (10)
+    # Build top
+    top_filters = round_filters(
+        filters=1280,
+        width_coefficient=width_coefficient,
+        min_depth=min_depth,
+        depth_divisor=depth_divisor,
+    )
+    x = layers.Conv2D(
+        filters=top_filters,
+        kernel_size=1,
+        strides=1,
+        kernel_initializer=CONV_KERNEL_INITIALIZER,
+        padding="same",
+        data_format="channels_last",
+        use_bias=False,
+        name="top_conv",
+    )(x)
+    x = layers.BatchNormalization(
+        axis=bn_axis,
+        momentum=bn_momentum,
+        name="top_bn",
+    )(x)
+    x = layers.Activation(activation=activation, name="top_activation")(x)
 
-    x = layers.Conv2D(128, (1, 1), activation=activation, padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name='aconv7_1')(x)
-    x = layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name='conv7_padding')(x)
-    x = layers.Conv2D(256, (3, 3), strides=(2, 2), activation=activation, padding='valid', kernel_initializer=CONV_KERNEL_INITIALIZER, name='aconv7_2')(x)
-
-    # SSD Shortcut 5
-
-    conv8_1 = layers.Conv2D(128, (1, 1), activation=activation, padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name='aconv8_1')(conv7_2)
-    conv8_2 = layers.Conv2D(256, (3, 3), strides=(1, 1), activation=activation, padding='valid', kernel_initializer=CONV_KERNEL_INITIALIZER, name='aconv8_2')(conv8_1)
-
-    # SSD Shortcut 3
-    
-    conv9_1 = layers.Conv2D(128, (1, 1), activation=activation, padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name='aconv9_1')(conv8_2)
-    conv9_2 = layers.Conv2D(256, (3, 3), strides=(1, 1), activation=activation, padding='valid', kernel_initializer=CONV_KERNEL_INITIALIZER, name='aconv9_2')(conv9_1)
-
-    # SSD Shortcut 1
-
-    # Feed conv4_3 into the L2 normalization layer
-    conv4_3_norm = L2Normalization(gamma_init=20, name='conv4_3_norm')(conv4_3)
-
-    ### Build the convolutional predictor layers on top of the base network
-
-    # We precidt `n_classes` confidence values for each box, hence the confidence predictors have depth `n_boxes * n_classes`
-    # Output shape of the confidence layers: `(batch, height, width, n_boxes * n_classes)`
-    conv4_3_norm_mbox_conf = Conv2D(n_boxes[0] * n_classes, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv4_3_norm_mbox_conf')(conv4_3_norm)
-    fc7_mbox_conf = Conv2D(n_boxes[1] * n_classes, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='fc7_mbox_conf')(fc7)
-    conv6_2_mbox_conf = Conv2D(n_boxes[2] * n_classes, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv6_2_mbox_conf')(conv6_2)
-    conv7_2_mbox_conf = Conv2D(n_boxes[3] * n_classes, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv7_2_mbox_conf')(conv7_2)
-    conv8_2_mbox_conf = Conv2D(n_boxes[4] * n_classes, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv8_2_mbox_conf')(conv8_2)
-    conv9_2_mbox_conf = Conv2D(n_boxes[5] * n_classes, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv9_2_mbox_conf')(conv9_2)
-    # We predict 4 box coordinates for each box, hence the localization predictors have depth `n_boxes * 4`
-    # Output shape of the localization layers: `(batch, height, width, n_boxes * 4)`
-    conv4_3_norm_mbox_loc = Conv2D(n_boxes[0] * 4, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv4_3_norm_mbox_loc')(conv4_3_norm)
-    fc7_mbox_loc = Conv2D(n_boxes[1] * 4, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='fc7_mbox_loc')(fc7)
-    conv6_2_mbox_loc = Conv2D(n_boxes[2] * 4, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv6_2_mbox_loc')(conv6_2)
-    conv7_2_mbox_loc = Conv2D(n_boxes[3] * 4, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv7_2_mbox_loc')(conv7_2)
-    conv8_2_mbox_loc = Conv2D(n_boxes[4] * 4, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv8_2_mbox_loc')(conv8_2)
-    conv9_2_mbox_loc = Conv2D(n_boxes[5] * 4, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name='conv9_2_mbox_loc')(conv9_2)
-
-    ### Generate the anchor boxes (called "priors" in the original Caffe/C++ implementation, so I'll keep their layer names)
-
-    # Output shape of anchors: `(batch, height, width, n_boxes, 8)`
-    conv4_3_norm_mbox_priorbox = AnchorBoxes(img_height, img_width, this_scale=scales[0], next_scale=scales[1], aspect_ratios=aspect_ratios[0],
-                                             two_boxes_for_ar1=two_boxes_for_ar1, this_steps=steps[0], this_offsets=offsets[0], clip_boxes=clip_boxes,
-                                             variances=variances, coords=coords, normalize_coords=normalize_coords, name='conv4_3_norm_mbox_priorbox')(conv4_3_norm_mbox_loc)
-    fc7_mbox_priorbox = AnchorBoxes(img_height, img_width, this_scale=scales[1], next_scale=scales[2], aspect_ratios=aspect_ratios[1],
-                                    two_boxes_for_ar1=two_boxes_for_ar1, this_steps=steps[1], this_offsets=offsets[1], clip_boxes=clip_boxes,
-                                    variances=variances, coords=coords, normalize_coords=normalize_coords, name='fc7_mbox_priorbox')(fc7_mbox_loc)
-    conv6_2_mbox_priorbox = AnchorBoxes(img_height, img_width, this_scale=scales[2], next_scale=scales[3], aspect_ratios=aspect_ratios[2],
-                                        two_boxes_for_ar1=two_boxes_for_ar1, this_steps=steps[2], this_offsets=offsets[2], clip_boxes=clip_boxes,
-                                        variances=variances, coords=coords, normalize_coords=normalize_coords, name='conv6_2_mbox_priorbox')(conv6_2_mbox_loc)
-    conv7_2_mbox_priorbox = AnchorBoxes(img_height, img_width, this_scale=scales[3], next_scale=scales[4], aspect_ratios=aspect_ratios[3],
-                                        two_boxes_for_ar1=two_boxes_for_ar1, this_steps=steps[3], this_offsets=offsets[3], clip_boxes=clip_boxes,
-                                        variances=variances, coords=coords, normalize_coords=normalize_coords, name='conv7_2_mbox_priorbox')(conv7_2_mbox_loc)
-    conv8_2_mbox_priorbox = AnchorBoxes(img_height, img_width, this_scale=scales[4], next_scale=scales[5], aspect_ratios=aspect_ratios[4],
-                                        two_boxes_for_ar1=two_boxes_for_ar1, this_steps=steps[4], this_offsets=offsets[4], clip_boxes=clip_boxes,
-                                        variances=variances, coords=coords, normalize_coords=normalize_coords, name='conv8_2_mbox_priorbox')(conv8_2_mbox_loc)
-    conv9_2_mbox_priorbox = AnchorBoxes(img_height, img_width, this_scale=scales[5], next_scale=scales[6], aspect_ratios=aspect_ratios[5],
-                                        two_boxes_for_ar1=two_boxes_for_ar1, this_steps=steps[5], this_offsets=offsets[5], clip_boxes=clip_boxes,
-                                        variances=variances, coords=coords, normalize_coords=normalize_coords, name='conv9_2_mbox_priorbox')(conv9_2_mbox_loc)
-
-    ### Reshape
-
-    # Reshape the class predictions, yielding 3D tensors of shape `(batch, height * width * n_boxes, n_classes)`
-    # We want the classes isolated in the last axis to perform softmax on them
-    conv4_3_norm_mbox_conf_reshape = Reshape((-1, n_classes), name='conv4_3_norm_mbox_conf_reshape')(conv4_3_norm_mbox_conf)
-    fc7_mbox_conf_reshape = Reshape((-1, n_classes), name='fc7_mbox_conf_reshape')(fc7_mbox_conf)
-    conv6_2_mbox_conf_reshape = Reshape((-1, n_classes), name='conv6_2_mbox_conf_reshape')(conv6_2_mbox_conf)
-    conv7_2_mbox_conf_reshape = Reshape((-1, n_classes), name='conv7_2_mbox_conf_reshape')(conv7_2_mbox_conf)
-    conv8_2_mbox_conf_reshape = Reshape((-1, n_classes), name='conv8_2_mbox_conf_reshape')(conv8_2_mbox_conf)
-    conv9_2_mbox_conf_reshape = Reshape((-1, n_classes), name='conv9_2_mbox_conf_reshape')(conv9_2_mbox_conf)
-    # Reshape the box predictions, yielding 3D tensors of shape `(batch, height * width * n_boxes, 4)`
-    # We want the four box coordinates isolated in the last axis to compute the smooth L1 loss
-    conv4_3_norm_mbox_loc_reshape = Reshape((-1, 4), name='conv4_3_norm_mbox_loc_reshape')(conv4_3_norm_mbox_loc)
-    fc7_mbox_loc_reshape = Reshape((-1, 4), name='fc7_mbox_loc_reshape')(fc7_mbox_loc)
-    conv6_2_mbox_loc_reshape = Reshape((-1, 4), name='conv6_2_mbox_loc_reshape')(conv6_2_mbox_loc)
-    conv7_2_mbox_loc_reshape = Reshape((-1, 4), name='conv7_2_mbox_loc_reshape')(conv7_2_mbox_loc)
-    conv8_2_mbox_loc_reshape = Reshape((-1, 4), name='conv8_2_mbox_loc_reshape')(conv8_2_mbox_loc)
-    conv9_2_mbox_loc_reshape = Reshape((-1, 4), name='conv9_2_mbox_loc_reshape')(conv9_2_mbox_loc)
-    # Reshape the anchor box tensors, yielding 3D tensors of shape `(batch, height * width * n_boxes, 8)`
-    conv4_3_norm_mbox_priorbox_reshape = Reshape((-1, 8), name='conv4_3_norm_mbox_priorbox_reshape')(conv4_3_norm_mbox_priorbox)
-    fc7_mbox_priorbox_reshape = Reshape((-1, 8), name='fc7_mbox_priorbox_reshape')(fc7_mbox_priorbox)
-    conv6_2_mbox_priorbox_reshape = Reshape((-1, 8), name='conv6_2_mbox_priorbox_reshape')(conv6_2_mbox_priorbox)
-    conv7_2_mbox_priorbox_reshape = Reshape((-1, 8), name='conv7_2_mbox_priorbox_reshape')(conv7_2_mbox_priorbox)
-    conv8_2_mbox_priorbox_reshape = Reshape((-1, 8), name='conv8_2_mbox_priorbox_reshape')(conv8_2_mbox_priorbox)
-    conv9_2_mbox_priorbox_reshape = Reshape((-1, 8), name='conv9_2_mbox_priorbox_reshape')(conv9_2_mbox_priorbox)
-
-    ### Concatenate the predictions from the different layers
-
-    # Axis 0 (batch) and axis 2 (n_classes or 4, respectively) are identical for all layer predictions,
-    # so we want to concatenate along axis 1, the number of boxes per layer
-    # Output shape of `mbox_conf`: (batch, n_boxes_total, n_classes)
-    mbox_conf = Concatenate(axis=1, name='mbox_conf')([conv4_3_norm_mbox_conf_reshape,
-                                                       fc7_mbox_conf_reshape,
-                                                       conv6_2_mbox_conf_reshape,
-                                                       conv7_2_mbox_conf_reshape,
-                                                       conv8_2_mbox_conf_reshape,
-                                                       conv9_2_mbox_conf_reshape])
-
-    # Output shape of `mbox_loc`: (batch, n_boxes_total, 4)
-    mbox_loc = Concatenate(axis=1, name='mbox_loc')([conv4_3_norm_mbox_loc_reshape,
-                                                     fc7_mbox_loc_reshape,
-                                                     conv6_2_mbox_loc_reshape,
-                                                     conv7_2_mbox_loc_reshape,
-                                                     conv8_2_mbox_loc_reshape,
-                                                     conv9_2_mbox_loc_reshape])
-
-    # Output shape of `mbox_priorbox`: (batch, n_boxes_total, 8)
-    mbox_priorbox = Concatenate(axis=1, name='mbox_priorbox')([conv4_3_norm_mbox_priorbox_reshape,
-                                                               fc7_mbox_priorbox_reshape,
-                                                               conv6_2_mbox_priorbox_reshape,
-                                                               conv7_2_mbox_priorbox_reshape,
-                                                               conv8_2_mbox_priorbox_reshape,
-                                                               conv9_2_mbox_priorbox_reshape])
-
-    # The box coordinate predictions will go into the loss function just the way they are,
-    # but for the class predictions, we'll apply a softmax activation layer first
-    mbox_conf_softmax = Activation('softmax', name='mbox_conf_softmax')(mbox_conf)
-
-    # Concatenate the class and box predictions and the anchors to one large predictions vector
-    # Output shape of `predictions`: (batch, n_boxes_total, n_classes + 4 + 8)
-    predictions = Concatenate(axis=2, name='predictions')([mbox_conf_softmax, mbox_loc, mbox_priorbox])
-
-    if mode == 'training':
-        model = Model(inputs=x, outputs=predictions)
-    elif mode == 'inference':
-        decoded_predictions = DecodeDetections(confidence_thresh=confidence_thresh,
-                                               iou_threshold=iou_threshold,
-                                               top_k=top_k,
-                                               nms_max_output_size=nms_max_output_size,
-                                               coords=coords,
-                                               normalize_coords=normalize_coords,
-                                               img_height=img_height,
-                                               img_width=img_width,
-                                               name='decoded_predictions')(predictions)
-        model = Model(inputs=x, outputs=decoded_predictions)
-    elif mode == 'inference_fast':
-        decoded_predictions = DecodeDetectionsFast(confidence_thresh=confidence_thresh,
-                                                   iou_threshold=iou_threshold,
-                                                   top_k=top_k,
-                                                   nms_max_output_size=nms_max_output_size,
-                                                   coords=coords,
-                                                   normalize_coords=normalize_coords,
-                                                   img_height=img_height,
-                                                   img_width=img_width,
-                                                   name='decoded_predictions')(predictions)
-        model = Model(inputs=x, outputs=decoded_predictions)
+    if include_top:
+        x = layers.GlobalAveragePooling2D(name="avg_pool")(x)
+        if dropout_rate > 0:
+            x = layers.Dropout(dropout_rate, name="top_dropout")(x)
+        #imagenet_utils.validate_activation(classifier_activation, weights)
+        x = layers.Dense(
+            classes,
+            activation=classifier_activation,
+            kernel_initializer=DENSE_KERNEL_INITIALIZER,
+            bias_initializer=tf.constant_initializer(0),
+            name="predictions",
+        )(x)
     else:
-        raise ValueError("`mode` must be one of 'training', 'inference' or 'inference_fast', but received '{}'.".format(mode))
+        if pooling == "avg":
+            x = layers.GlobalAveragePooling2D(name="avg_pool")(x)
+        elif pooling == "max":
+            x = layers.GlobalMaxPooling2D(name="max_pool")(x)
 
-    if return_predictor_sizes:
-        predictor_sizes = np.array([conv4_3_norm_mbox_conf._keras_shape[1:3],
-                                     fc7_mbox_conf._keras_shape[1:3],
-                                     conv6_2_mbox_conf._keras_shape[1:3],
-                                     conv7_2_mbox_conf._keras_shape[1:3],
-                                     conv8_2_mbox_conf._keras_shape[1:3],
-                                     conv9_2_mbox_conf._keras_shape[1:3]])
-        return model, predictor_sizes
-    else:
-        return model
+    inputs = img_input
 
-    """
+    # Create model.
+    model = Model(inputs, x, name=model_name)
+
     # Load weights.
     if weights == "imagenet":
         if include_top:
@@ -755,11 +1096,229 @@ def EfficientNetV2(
     elif weights is not None:
         model.load_weights(weights)
 
-
     return model
-    """
 
 
+@keras_export(
+    "keras.applications.efficientnet_v2.EfficientNetV2B0",
+    "keras.applications.EfficientNetV2B0",
+)
+def EfficientNetV2B0(
+    include_top=True,
+    weights="imagenet",
+    input_tensor=None,
+    input_shape=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",
+    include_preprocessing=True,
+):
+    return EfficientNetV2(
+        width_coefficient=1.0,
+        depth_coefficient=1.0,
+        default_size=224,
+        model_name="efficientnetv2-b0",
+        include_top=include_top,
+        weights=weights,
+        input_tensor=input_tensor,
+        input_shape=input_shape,
+        pooling=pooling,
+        classes=classes,
+        classifier_activation=classifier_activation,
+        include_preprocessing=include_preprocessing,
+    )
+
+
+@keras_export(
+    "keras.applications.efficientnet_v2.EfficientNetV2B1",
+    "keras.applications.EfficientNetV2B1",
+)
+def EfficientNetV2B1(
+    include_top=True,
+    weights="imagenet",
+    input_tensor=None,
+    input_shape=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",
+    include_preprocessing=True,
+):
+    return EfficientNetV2(
+        width_coefficient=1.0,
+        depth_coefficient=1.1,
+        default_size=240,
+        model_name="efficientnetv2-b1",
+        include_top=include_top,
+        weights=weights,
+        input_tensor=input_tensor,
+        input_shape=input_shape,
+        pooling=pooling,
+        classes=classes,
+        classifier_activation=classifier_activation,
+        include_preprocessing=include_preprocessing,
+    )
+
+
+@keras_export(
+    "keras.applications.efficientnet_v2.EfficientNetV2B2",
+    "keras.applications.EfficientNetV2B2",
+)
+def EfficientNetV2B2(
+    include_top=True,
+    weights="imagenet",
+    input_tensor=None,
+    input_shape=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",
+    include_preprocessing=True,
+):
+    return EfficientNetV2(
+        width_coefficient=1.1,
+        depth_coefficient=1.2,
+        default_size=260,
+        model_name="efficientnetv2-b2",
+        include_top=include_top,
+        weights=weights,
+        input_tensor=input_tensor,
+        input_shape=input_shape,
+        pooling=pooling,
+        classes=classes,
+        classifier_activation=classifier_activation,
+        include_preprocessing=include_preprocessing,
+    )
+
+
+@keras_export(
+    "keras.applications.efficientnet_v2.EfficientNetV2B3",
+    "keras.applications.EfficientNetV2B3",
+)
+def EfficientNetV2B3(
+    include_top=True,
+    weights="imagenet",
+    input_tensor=None,
+    input_shape=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",
+    include_preprocessing=True,
+):
+    return EfficientNetV2(
+        width_coefficient=1.2,
+        depth_coefficient=1.4,
+        default_size=300,
+        model_name="efficientnetv2-b3",
+        include_top=include_top,
+        weights=weights,
+        input_tensor=input_tensor,
+        input_shape=input_shape,
+        pooling=pooling,
+        classes=classes,
+        classifier_activation=classifier_activation,
+        include_preprocessing=include_preprocessing,
+    )
+
+
+@keras_export(
+    "keras.applications.efficientnet_v2.EfficientNetV2S",
+    "keras.applications.EfficientNetV2S",
+)
+def EfficientNetV2S(
+    include_top=True,
+    weights="imagenet",
+    input_tensor=None,
+    input_shape=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",
+    include_preprocessing=True,
+):
+    return EfficientNetV2(
+        width_coefficient=1.0,
+        depth_coefficient=1.0,
+        default_size=384,
+        model_name="efficientnetv2-s",
+        include_top=include_top,
+        weights=weights,
+        input_tensor=input_tensor,
+        input_shape=input_shape,
+        pooling=pooling,
+        classes=classes,
+        classifier_activation=classifier_activation,
+        include_preprocessing=include_preprocessing,
+    )
+
+
+@keras_export(
+    "keras.applications.efficientnet_v2.EfficientNetV2M",
+    "keras.applications.EfficientNetV2M",
+)
+def EfficientNetV2M(
+    include_top=True,
+    weights="imagenet",
+    input_tensor=None,
+    input_shape=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",
+    include_preprocessing=True,
+):
+    return EfficientNetV2(
+        width_coefficient=1.0,
+        depth_coefficient=1.0,
+        default_size=480,
+        model_name="efficientnetv2-m",
+        include_top=include_top,
+        weights=weights,
+        input_tensor=input_tensor,
+        input_shape=input_shape,
+        pooling=pooling,
+        classes=classes,
+        classifier_activation=classifier_activation,
+        include_preprocessing=include_preprocessing,
+    )
+
+
+@keras_export(
+    "keras.applications.efficientnet_v2.EfficientNetV2L",
+    "keras.applications.EfficientNetV2L",
+)
+def EfficientNetV2L(
+    include_top=True,
+    weights="imagenet",
+    input_tensor=None,
+    input_shape=None,
+    pooling=None,
+    classes=1000,
+    classifier_activation="softmax",
+    include_preprocessing=True,
+):
+    return EfficientNetV2(
+        width_coefficient=1.0,
+        depth_coefficient=1.0,
+        default_size=480,
+        model_name="efficientnetv2-l",
+        include_top=include_top,
+        weights=weights,
+        input_tensor=input_tensor,
+        input_shape=input_shape,
+        pooling=pooling,
+        classes=classes,
+        classifier_activation=classifier_activation,
+        include_preprocessing=include_preprocessing,
+    )
+
+
+EfficientNetV2B0.__doc__ = BASE_DOCSTRING.format(name="EfficientNetV2B0")
+EfficientNetV2B1.__doc__ = BASE_DOCSTRING.format(name="EfficientNetV2B1")
+EfficientNetV2B2.__doc__ = BASE_DOCSTRING.format(name="EfficientNetV2B2")
+EfficientNetV2B3.__doc__ = BASE_DOCSTRING.format(name="EfficientNetV2B3")
+EfficientNetV2S.__doc__ = BASE_DOCSTRING.format(name="EfficientNetV2S")
+EfficientNetV2M.__doc__ = BASE_DOCSTRING.format(name="EfficientNetV2M")
+EfficientNetV2L.__doc__ = BASE_DOCSTRING.format(name="EfficientNetV2L")
+
+
+@keras_export("keras.applications.efficientnet_v2.preprocess_input")
 def preprocess_input(x, data_format=None):
     """A placeholder method for backward compatibility.
 
@@ -781,6 +1340,7 @@ def preprocess_input(x, data_format=None):
     return x
 
 
+@keras_export("keras.applications.efficientnet_v2.decode_predictions")
 def decode_predictions(preds, top=5):
     return imagenet_utils.decode_predictions(preds, top=top)
 
