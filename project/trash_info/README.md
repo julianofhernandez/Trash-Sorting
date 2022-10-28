@@ -2,9 +2,11 @@
 
 This is used to associate the categories that we will be using for SSD with results from the Sacramento Waste Wizard.
 
-searchList is a list of objects that we want to sort item categories which will be returned to the user with the associated description of the item.
+![image](https://user-images.githubusercontent.com/39971693/198422340-f0ffa437-c0ed-4e57-8f5a-feaa9d81baf6.png)
+
+searchList is a list of objects that will be converted to a dict such as:
 ```json
-searchList = {
+{
     "garbage": [
         "garbage bag", "face masks", "diapers","Styrofoam","pet waste","cooking oil","clam shell trays", "deli food containers", "Ziplock bags", "inside cereal box plastic", "bubble wrap", "clear plastic wrap"
     ],
