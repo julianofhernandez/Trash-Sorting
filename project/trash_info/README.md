@@ -2,15 +2,9 @@
 
 This is used to associate the categories that we will be using for SSD with results from the Sacramento Waste Wizard.
 
-searchList is a dict with sublists of objects to search in the Sacramento Waste Wizard.
+![image](https://user-images.githubusercontent.com/39971693/198422340-f0ffa437-c0ed-4e57-8f5a-feaa9d81baf6.png)
 
-searchList = {
-    'garbage': [
-        "garbage bag"]
-    ],
-    'recycling': [
-        'Clear glass']
-}
+searchList is a dict with sublists of objects to search in the Sacramento Waste Wizard.
 
 ## get_id(categoryStr)
 We first search the fuzzy search waste wizard by swapping our category with suggest=paper
