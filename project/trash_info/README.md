@@ -2,15 +2,23 @@
 
 This is used to associate the categories that we will be using for SSD with results from the Sacramento Waste Wizard.
 
-searchList is a dict with sublists of objects to search in the Sacramento Waste Wizard.
-
+searchList is a list of objects that we want to sort item categories which will be returned to the user with the associated description of the item.
+```json
 searchList = {
-    'garbage': [
-        "garbage bag"]
+    "garbage": [
+        "garbage bag", "face masks", "diapers","Styrofoam","pet waste","cooking oil","clam shell trays", "deli food containers", "Ziplock bags", "inside cereal box plastic", "bubble wrap", "clear plastic wrap"
     ],
-    'recycling': [
-        'Clear glass']
+    "recycling": [
+        "Clear glass","Green glass","Brown glass","Blue glass","Aluminum and tin cans","Aluminum trays and foil rinsed","Empty aerosol cans","Pots, pans and utensils","Lids from jars","Soda bottles", 
+        "milk jug", "shampoo bottles""Buckets, pails and crates","Cardboard","Cereal boxes","Paper bags","Paper packaging","Junk mail","Books","Office paper"],
+    "Compost": [
+        "fruit", "vegetable", "greasy paper container","paper towels and napkins","coffee filters and tea bags","paper takeout with no wax or plastic lining",
+    ],
+    "Other": [
+        "electronic waste","people","paint","batteries","chemicals","Motor oil","fluorescent bulbs","medical sharps","clothin","fuel tanks"
+    ],
 }
+```
 
 ## get_id(categoryStr)
 We first search the fuzzy search waste wizard by swapping our category with suggest=paper
@@ -22,9 +30,10 @@ This returns a list of suggestions, right now we just take the first id (eg 4730
 ## searchForBin(id)
 Then the id is passed to this query which will return a larger JSON with lots of trash metadata. Sorting is done to find the single string value of what to do. There is lots of other data that needs to be parsed and returned in a more meaningful pattern. Or we could actually return the waste wizard location.
 
-## searchForDescription(id)
+## searchForSpecialInstructions(id)
 TODO: Returns the description for an item
-https://api.recollect.net/api/areas/Sacramento/services/waste/pages/en-US/473087.json
+
+    https://api.recollect.net/api/areas/Sacramento/services/waste/pages/en-US/473087.json
 
 ## recollect_api(url)
 API calls code reuse
