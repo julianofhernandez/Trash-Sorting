@@ -22,76 +22,74 @@ import numpy as np
 
 from tensorflow.keras import backend
 from tensorflow.keras import layers
-from tensorflow.keras.regularizers import l2
 from tensorflow.keras import Model
 
 from ssd.keras_layers.keras_layer_AnchorBoxes import AnchorBoxes
-from ssd.keras_layers.keras_layer_L2Normalization import L2Normalization
 from ssd.keras_layers.keras_layer_DecodeDetections import DecodeDetections
 from ssd.keras_layers.keras_layer_DecodeDetectionsFast import DecodeDetectionsFast
 
 
 DEFAULT_BLOCKS_ARGS = {
-    "efficientnetv2-b3": [
+    "efficientnetv2-s": [
         {
             "kernel_size": 3,
-            "num_repeat": 1,
-            "input_filters": 32,
-            "output_filters": 16,
+            "num_repeat": 2,
+            "input_filters": 24,
+            "output_filters": 24,
             "expand_ratio": 1,
-            "se_ratio": 0,
+            "se_ratio": 0.0,
             "strides": 1,
             "conv_type": 1,
         },
         {
             "kernel_size": 3,
-            "num_repeat": 2,
-            "input_filters": 16,
-            "output_filters": 32,
-            "expand_ratio": 4,
-            "se_ratio": 0,
-            "strides": 2,
-            "conv_type": 1,
-        },
-        {
-            "kernel_size": 3,
-            "num_repeat": 2,
-            "input_filters": 32,
+            "num_repeat": 4,
+            "input_filters": 24,
             "output_filters": 48,
             "expand_ratio": 4,
-            "se_ratio": 0,
+            "se_ratio": 0.0,
             "strides": 2,
             "conv_type": 1,
         },
         {
-            "kernel_size": 3,
-            "num_repeat": 3,
-            "input_filters": 48,
-            "output_filters": 96,
+            "conv_type": 1,
             "expand_ratio": 4,
-            "se_ratio": 0.25,
+            "input_filters": 48,
+            "kernel_size": 3,
+            "num_repeat": 4,
+            "output_filters": 64,
+            "se_ratio": 0,
             "strides": 2,
-            "conv_type": 0,
         },
         {
+            "conv_type": 0,
+            "expand_ratio": 4,
+            "input_filters": 64,
             "kernel_size": 3,
-            "num_repeat": 5,
-            "input_filters": 96,
-            "output_filters": 112,
+            "num_repeat": 6,
+            "output_filters": 128,
+            "se_ratio": 0.25,
+            "strides": 2,
+        },
+        {
+            "conv_type": 0,
             "expand_ratio": 6,
+            "input_filters": 128,
+            "kernel_size": 3,
+            "num_repeat": 9,
+            "output_filters": 160,
             "se_ratio": 0.25,
             "strides": 1,
-            "conv_type": 0,
         },
         {
-            "kernel_size": 3,
-            "num_repeat": 8,
-            "input_filters": 112,
-            "output_filters": 192,
+            "conv_type": 0,
             "expand_ratio": 6,
+            "input_filters": 160,
+            "kernel_size": 3,
+            "num_repeat": 15,
+            "output_filters": 256,
             "se_ratio": 0.25,
             "strides": 2,
-            "conv_type": 0,
         },
     ],
 }
@@ -105,14 +103,6 @@ CONV_KERNEL_INITIALIZER = {
     },
 }
 
-DENSE_KERNEL_INITIALIZER = {
-    "class_name": "VarianceScaling",
-    "config": {
-        "scale": 1.0 / 3.0,
-        "mode": "fan_out",
-        "distribution": "uniform",
-    },
-}
 
 def round_filters(filters, width_coefficient, min_depth, depth_divisor):
     """Round number of filters based on depth multiplier."""
@@ -356,11 +346,10 @@ def EfficientNetV2(
     bn_momentum=0.9,
     activation="swish",
     blocks_args="default",
-    model_name="efficientnetv2-b3",
+    model_name="efficientnetv2-s",
     include_preprocessing=True,
 
     mode='training',
-    l2_regularization=0.0005,
     min_scale=None,
     max_scale=None,
     scales=None,
@@ -372,7 +361,6 @@ def EfficientNetV2(
                              [1.0, 2.0, 0.5],
                              [1.0, 2.0, 0.5]],
     two_boxes_for_ar1=True,
-    steps=[8, 16, 32, 64, 100, 300],
     offsets=None,
     clip_boxes=False,
     variances=[0.1, 0.1, 0.2, 0.2],
@@ -384,9 +372,9 @@ def EfficientNetV2(
     nms_max_output_size=400,
     return_predictor_sizes=False
 ):
-    width_coefficient = 1.2
-    depth_coefficient = 1.4
-    default_size = 300
+    width_coefficient = 1.
+    depth_coefficient = 1.
+    default_size = 384
 
     if blocks_args == "default":
         blocks_args = DEFAULT_BLOCKS_ARGS[model_name]
@@ -395,10 +383,10 @@ def EfficientNetV2(
     
     # SSD stuff
 
+    steps = [8, 16, 32, 64, 128, 384]
     img_height, img_width, img_channels = input_shape
     n_predictor_layers = 6 # The number of predictor conv layers in the network is 6 for the original SSD300.
     n_classes += 1 # Account for the background class.
-    l2_reg = l2_regularization
 
     if aspect_ratios_global is None and aspect_ratios_per_layer is None:
         raise ValueError("`aspect_ratios_global` and `aspect_ratios_per_layer` cannot both be None. At least one needs to be specified.")
@@ -464,18 +452,8 @@ def EfficientNetV2(
     x = img_input
 
     if include_preprocessing:
-        # Apply original V1 preprocessing for Bx variants
-        # if number of channels allows it
         num_channels = input_shape[bn_axis - 1]
-        if model_name.split("-")[-1].startswith("b") and num_channels == 3:
-            x = layers.Rescaling(scale=1.0 / 255)(x)
-            x = layers.Normalization(
-                mean=[0.485, 0.456, 0.406],
-                variance=[0.229**2, 0.224**2, 0.225**2],
-                axis=bn_axis,
-            )(x)
-        else:
-            x = layers.Rescaling(scale=1.0 / 128.0, offset=-1)(x)
+        x = layers.Rescaling(scale=1.0 / 128.0, offset=-1)(x)
 
     # Build stem
     stem_filters = round_filters(
@@ -540,7 +518,7 @@ def EfficientNetV2(
             if args["strides"] == 2:
                 if stride_counter in [3, 4]:
                     prepred_layers.append(x)
-                #print(i, j, stride_counter)
+                print(i, j, stride_counter)
                 stride_counter += 1
 
             x = block(
@@ -552,43 +530,36 @@ def EfficientNetV2(
             )(x)
             b += 1
 
-    # SSD Shortcut 10
     prepred_layers.append(x)
 
     x = layers.Conv2D(128, (1, 1), activation=activation, padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name='extra_conv_1_1')(x)
-    x = layers.ZeroPadding2D(padding=((1, 1), (1, 1)), name='extra_conv_1_padding')(x)
-    x = layers.Conv2D(256, (3, 3), strides=(2, 2), activation=activation, padding='valid', kernel_initializer=CONV_KERNEL_INITIALIZER, name='extra_conv_1_2')(x)
+    x = layers.Conv2D(256, (3, 3), strides=(2, 2), activation=activation, padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name='extra_conv_1_2')(x)
 
-    # SSD Shortcut 5
     prepred_layers.append(x)
 
     x = layers.Conv2D(128, (1, 1), activation=activation, padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name='extra_conv_2_1')(x)
-    x = layers.Conv2D(256, (3, 3), strides=(1, 1), activation=activation, padding='valid', kernel_initializer=CONV_KERNEL_INITIALIZER, name='extra_conv_2_2')(x)
+    x = layers.Conv2D(256, (3, 3), strides=(2, 2), activation=activation, padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name='extra_conv_2_2')(x)
 
-    # SSD Shortcut 3
     prepred_layers.append(x)
     
     x = layers.Conv2D(128, (1, 1), activation=activation, padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name='extra_conv_3_1')(x)
     x = layers.Conv2D(256, (3, 3), strides=(1, 1), activation=activation, padding='valid', kernel_initializer=CONV_KERNEL_INITIALIZER, name='extra_conv_3_2')(x)
 
-    # SSD Shortcut 1
     prepred_layers.append(x)
-
-    prepred_layers[0] = L2Normalization(gamma_init=20, name='prepred_norm')(prepred_layers[0])
 
     ### Build the convolutional predictor layers on top of the base network
     conv_pred_class_layers = []
-    for i in range(6):
-        x = layers.Conv2D(n_boxes[i] * n_classes, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name=f'conv_pred_class_{i}')(prepred_layers[i])
+    for i in range(n_predictor_layers):
+        x = layers.Conv2D(n_boxes[i] * n_classes, (3, 3), padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name=f'conv_pred_class_{i}')(prepred_layers[i])
         conv_pred_class_layers.append(x)
     conv_pred_loc_layers = []
-    for i in range(6):
-        x = layers.Conv2D(n_boxes[i] * 4, (3, 3), padding='same', kernel_initializer='he_normal', kernel_regularizer=l2(l2_reg), name=f'conv_pred_loc_{i}')(prepred_layers[i])
+    for i in range(n_predictor_layers):
+        x = layers.Conv2D(n_boxes[i] * 4, (3, 3), padding='same', kernel_initializer=CONV_KERNEL_INITIALIZER, name=f'conv_pred_loc_{i}')(prepred_layers[i])
         conv_pred_loc_layers.append(x)
 
     ### Generate the anchor boxes (called "priors" in the original Caffe/C++ implementation, so I'll keep their layer names)
     anchors = []
-    for i in range(6):
+    for i in range(n_predictor_layers):
         x = AnchorBoxes(img_height, img_width, this_scale=scales[i], next_scale=scales[i + 1], aspect_ratios=aspect_ratios[i],
                         two_boxes_for_ar1=two_boxes_for_ar1, this_steps=steps[i], this_offsets=offsets[i], clip_boxes=clip_boxes,
                         variances=variances, coords=coords, normalize_coords=normalize_coords, name=f'mbox_priorbox_{i}')(conv_pred_loc_layers[i])
@@ -596,15 +567,15 @@ def EfficientNetV2(
 
     ### Reshape
     conv_pred_class_layers_reshape = []
-    for i in range(6):
+    for i in range(n_predictor_layers):
         x = layers.Reshape((-1, n_classes), name=f'conv_pred_class_reshape_{i}')(conv_pred_class_layers[i])
         conv_pred_class_layers_reshape.append(x)
     conv_pred_loc_layers_reshape = []
-    for i in range(6):
+    for i in range(n_predictor_layers):
         x = layers.Reshape((-1, 4), name=f'conv_pred_loc_reshape_{i}')(conv_pred_loc_layers[i])
         conv_pred_loc_layers_reshape.append(x)
     anchors_reshape = []
-    for i in range(6):
+    for i in range(n_predictor_layers):
         x = layers.Reshape((-1, 8), name=f'mbox_priorbox_reshape_{i}')(anchors[i])
         anchors_reshape.append(x)
 
@@ -645,12 +616,10 @@ def EfficientNetV2(
         raise ValueError("`mode` must be one of 'training', 'inference' or 'inference_fast', but received '{}'.".format(mode))
 
     if return_predictor_sizes:
-        predictor_sizes = np.array([model.get_layer('conv_pred_class_0').output_shape[1:3],
-                                    model.get_layer('conv_pred_class_1').output_shape[1:3],
-                                    model.get_layer('conv_pred_class_2').output_shape[1:3],
-                                    model.get_layer('conv_pred_class_3').output_shape[1:3],
-                                    model.get_layer('conv_pred_class_4').output_shape[1:3],
-                                    model.get_layer('conv_pred_class_5').output_shape[1:3]])
+        predictor_sizes = np.array([
+            model.get_layer(f'conv_pred_class_{i}').output_shape[1:3]
+            for i in range(n_predictor_layers)
+        ])
         return model, predictor_sizes
     else:
         return model
