@@ -25,10 +25,10 @@ from tensorflow.keras import layers
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras import Model
 
-from keras_layers.keras_layer_AnchorBoxes import AnchorBoxes
-from keras_layers.keras_layer_L2Normalization import L2Normalization
-from keras_layers.keras_layer_DecodeDetections import DecodeDetections
-from keras_layers.keras_layer_DecodeDetectionsFast import DecodeDetectionsFast
+from ssd.keras_layers.keras_layer_AnchorBoxes import AnchorBoxes
+from ssd.keras_layers.keras_layer_L2Normalization import L2Normalization
+from ssd.keras_layers.keras_layer_DecodeDetections import DecodeDetections
+from ssd.keras_layers.keras_layer_DecodeDetectionsFast import DecodeDetectionsFast
 
 
 DEFAULT_BLOCKS_ARGS = {
