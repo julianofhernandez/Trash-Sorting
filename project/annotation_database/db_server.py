@@ -98,11 +98,6 @@ def remove_annotations(filter):
 @app.route("/delete/removeimageandinfo/<filter>", methods=['DELETE'])
 def remove_image_and_info(filter):
 	return None
-<<<<<<< HEAD
-=======
-
-
->>>>>>> d8285694585412fffec609c8e9c3da812141e41c
 
 if __name__ == "__main__":
 	app.run(threaded=True, host=HOST, port=PORT)
