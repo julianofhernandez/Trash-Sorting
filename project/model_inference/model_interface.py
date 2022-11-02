@@ -1,4 +1,4 @@
-def display(data):
+	def display(data):
 	print("[Server]: " + data)
 	
 display("Attempting to initialize the server...")
@@ -22,8 +22,38 @@ display("Successfully launched server")
 dev_key = "secretkey"
 
 #Create/Post
+@app.route("/create/<entry_name>", methods = ['POST'])
+def handle_create(model_name):
+	key_create = request.form['key']
+	if key_create = dev_key:
+		return {'msg': 'model created'}, 200
+	return {'msg': 'invalid key'}, 403
 
 #Read/Get
+@app.route("/read/inf/<entry_name>", methods = ['POST'])
+def handle_read_inference(model_name):
+	#TODO: Implement output
+	return {'msg': 'model created'}, 200
+	
+
+@app.route("/read/batch_inf/<entry_name>", methods = ['POST'])
+def handle_batch_inference(model_name):
+	#TODO: Implement output
+	return {'msg': 'model created'}, 200
+	
+
+@app.route("/read/list/<entry_name>", methods = ['GET'])
+def handle_usable_models(model_list):
+	#TODO: Implement output
+	return {'msg': 'model list'}, 200
+	
+
+@app.route("/read/download/<entry_name>", methods = ['GET'])
+def handle_download_models(model_list):
+	#TODO: Implement output
+	if model_name:
+		return {'msg': 'model data'}, 200
+	return {'msg': 'invalid model'}, 403
 
 #Update/Put
 @app.route("/update/<model_name>", methods = ['PUT'])
