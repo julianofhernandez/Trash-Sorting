@@ -59,44 +59,44 @@ def handle_get_entry_max_annotations():
 	return None
 	
 #Fully replace annotations given image unique identifier
-@app.route("/update/annotation-replace/<filter>", methods=['PUT'])
-def annotation_replacement(filter):
+@app.route("/update/annotation/<id>", methods=['PUT'])
+def handle_annotation(id):
 	return None
 
 #Mix annotations given when given unique image identifer
-@app.route("/update/annotate-given-image/<filter>", methods=['PUT'])
-def annotate_given_image(filter):
+@app.route("/update/mix-annotation/<id>", methods=['PUT'])
+def handle_mix_annotation(id):
 	return None
 
 #Edit metadata of image given unique image identifer
-@app.route("/update/edit-metadata-given-image/<filter>", methods=['PUT'])
-def edit_metadata_given_image(filter):
+@app.route("/update/metadata/<id>", methods=['PUT'])
+def handle_metadata(id):
 	return None
 
 #Edit metadata tag
 
-@app.route("/update/edit-metadata-tag/<filter>", methods=['PUT'])
-def edit_metadata_tag(filter):
+@app.route("/update/metadata-tag/<id>", methods=['PUT'])
+def handle_metadata_tag(id):
 	return None
 
 #Remove metadata
-@app.route("/delete/remove-metadata/<filter>", methods=['DELETE'])
-def remove_meta_data(filter):
+@app.route("/delete/metadata/<id>", methods=['DELETE'])
+def handle_metadata(id):
 	return None
 
 #Remove metadata tag
-@app.route("/delete/remove-tag/<filter>", methods=['DELETE'])
-def remove_meta_data_tag(filter):
+@app.route("/delete/metadata-tag/<id>", methods=['DELETE'])
+def handle_metadata_tag(id):
 	return None
 
 #Remove annotations
-@app.route("/delete/remove-annotations/<filter>", methods=['DELETE'])
-def remove_annotations(filter):
+@app.route("/delete/annotations/<id>", methods=['DELETE'])
+def handle_annotations(id):
 	return None
 
 #Remove image and all info on it
-@app.route("/delete/remove-image/<filter>", methods=['DELETE'])
-def remove_image(filter):
+@app.route("/delete/image/<id>", methods=['DELETE'])
+def handle_image(id):
 	return None
 
 if __name__ == "__main__":
