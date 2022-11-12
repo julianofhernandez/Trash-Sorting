@@ -14,6 +14,11 @@ conn = sqlite3.connect(':memory:')
 
 cursor = conn.cursor()
 
+def convertImageToBinaryData(fileName):
+	with open(fileName, 'rb') as file:
+		binaryDataImage = file.read()
+	return binaryDataImage
+
 HOST = 'localhost'
 PORT = 5000
 
