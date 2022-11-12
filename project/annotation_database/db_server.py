@@ -1,3 +1,5 @@
+import sqlite3
+
 def display(data):
 	print("[Server]: " + data)
 	
@@ -8,7 +10,11 @@ from flask import Flask, request, send_file
 import logging
 from document_scanner import scan
 
-HOST = '192.168.1.199'
+conn = sqlite3.connect(':memory:')
+
+cursor = conn.cursor()
+
+HOST = 'localhost'
 PORT = 5000
 
 try:
@@ -18,6 +24,13 @@ except Exception as e:
 	print(e)
 	exit()
 display("Successfully launched server")
+
+cursor.execute("""CREATE TABLE imageDB (
+				metadata text,
+				annotation text,
+				num_of_approved_annotation integer
+				)""")
+
 
 #Creates a new entry
 @app.route("/create/entry", methods = ['POST'])
@@ -61,6 +74,9 @@ def handle_get_entry_max_annotations():
 #Fully replace annotations given image unique identifier
 @app.route("/update/annotation/<id>", methods=['PUT'])
 def handle_annotation(id):
+
+	UPDATE
+
 	return None
 
 #Mix annotations given when given unique image identifer
