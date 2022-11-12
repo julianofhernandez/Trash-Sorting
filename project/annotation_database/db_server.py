@@ -10,10 +10,6 @@ from flask import Flask, request, send_file
 import logging
 from document_scanner import scan
 
-conn = sqlite3.connect(':memory:')
-
-cursor = conn.cursor()
-
 def convertImageToBinaryData(fileName):
 	with open(fileName, 'rb') as file:
 		binaryDataImage = file.read()
@@ -30,11 +26,34 @@ except Exception as e:
 	exit()
 display("Successfully launched server")
 
-cursor.execute("""CREATE TABLE imageDB (
-				metadata text,
-				annotation text,
-				num_of_approved_annotation integer
-				)""")
+def addImageInfoToDB(image, metadata, annotation, num_of_approved_annotations):
+	try:
+		conn = sqlite3.connect(':memory:')
+
+		cursor = conn.cursor()
+
+		cursor.execute("""CREATE TABLE imageDB (
+					image integer,
+					metadata text,
+					annotation text,
+					num_of_approved_annotation integer
+					)""")
+
+		imageData = convertImageToBinaryData(image)
+
+		convertDataToTuple = (imageData, metadata, annotation, num_of_approved_annotations)
+
+		sqliteInsertQuery = """INSERT INTO imageDB (image, metadata, annotation, num_of_approved_annotations) 
+						VALUES (?, ?, ?, ?)"""
+
+		cursor.execute(sqliteInsertQuery, convertDataToTuple)
+
+		conn.commit()
+
+		conn.close()
+
+	except sqlite3.Error as error:
+		print("Problem with addImageInfoToDB")
 
 
 #Creates a new entry
