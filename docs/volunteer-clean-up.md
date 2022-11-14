@@ -6,7 +6,7 @@ Computer vision using artificial neural networks has propagated throughout our c
 
 1. Sign waiver
 
-Ensure that you sign [this form](https://docs.google.com/forms/d/e/1FAIpQLSdCMGCegU_LGRD8PWMNdHLlymxKUoUU8md7ebfKLOxcx2ySaw/viewform?usp=sf_link), there will also be physical copies available during the cleanup event if you'd like to sign up there. This just ensures that you have given us permission to use your photos and that you won't upload any personally identifiable information or anything that would require us to throw out the pictures without using them.
+If you are over 18, ensure that you sign [this form](https://docs.google.com/forms/d/e/1FAIpQLSdCMGCegU_LGRD8PWMNdHLlymxKUoUU8md7ebfKLOxcx2ySaw/viewform?usp=sf_link), there will also be physical copies available during the cleanup event if you'd like to sign up there. If you are under 18 we cannot use your images but appreciate your help with volunteering. This waiver ensures that you have given us permission to use your photos and that you won't upload any personally identifiable information or anything that would require us to throw out the pictures without using them.
 
 2. Turn on location services
 
@@ -27,7 +27,7 @@ Ensure location services are enabled on your phone, a big part of this project i
 
 2. Take the photo
 
-Complete your clean up activities as your normally would while taking pictures when possible. Make sure you are as close as possible to the item, you should be able to pick it up after taking the photo without having to reposition yourself. Next, ensure that no one's face is in the photo, this counts are PPI and needs much stronger data protections then what is necessary for this project. Remember, you don't have to take pictures of everything, if an object is hard to see or there's too many in one spot to take each photo just skip past them and prioritize removing them rather than taking photos.
+Complete your clean up activities as your normally would while taking pictures. Make sure you are as close as possible to the item, you should be able to pick it up after taking the photo without having to reposition yourself. Next, ensure that no one's face is in the photo, this counts are PPI and needs much stronger data protections then what is necessary for this project. Remember, you don't have to take pictures of everything, if an object is hard to see or there's too many in one spot to take each photo just skip past them and prioritize removing them rather than taking photos.
 
 Good examples:
 
