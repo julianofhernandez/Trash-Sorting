@@ -4,24 +4,18 @@
 import requests
 
 
-searchList = {
-    'garbage': [
-        "garbage bag", "face masks", "diapers","Styrofoam","pet waste","cooking oil","clam shell trays", "deli food containers", "Ziplock bags", "inside cereal box plastic", "bubble wrap", "clear plastic wrap"
-    ],
-    'recycling': [
+searchList = [
+        "garbage bag", "face masks", "diapers","Styrofoam","pet waste","cooking oil","clam shell trays", "deli food containers", "Ziplock bags", "inside cereal box plastic", "bubble wrap", "clear plastic wrap",
         'Clear glass','Green glass','Brown glass','Blue glass','Aluminum and tin cans','Aluminum trays and foil rinsed','Empty aerosol cans','Pots, pans and utensils','Lids from jars','Soda bottles', 
-        'milk jug', 'shampoo bottles''Buckets, pails and crates','Cardboard','Cereal boxes','Paper bags','Paper packaging','Junk mail','Books','Office paper'],
-    'Compost': [
+        'milk jug', 'shampoo bottles''Buckets, pails and crates','Cardboard','Cereal boxes','Paper bags','Paper packaging','Junk mail','Books','Office paper',
         'fruit', 'vegetable', 'greasy paper container','paper towels and napkins','coffee filters and tea bags','paper takeout with no wax or plastic lining',
-    ],
-    'Other': [
-        'electronic waste','people','paint','batteries','chemicals','Motor oil','fluorescent bulbs','medical sharps','clothin','fuel tanks'
-    ],
-}
+        'electronic waste','people','paint','batteries','chemicals','Motor oil','fluorescent bulbs','medical sharps','clothing','fuel tanks'
+    ]
 
 def main():
-    for searchItem in searchList['recycling']:
+    for searchItem in searchList:
         print(searchItem + ": " + searchForBin(searchItem))
+        #print("     Special instuctions: " + searchForSpecialInstructions(searchItem))
 
 
 # Get suggestion list
@@ -52,10 +46,26 @@ def searchForBin(searchTerm):
                     return section['rows'][0]['value']
             except:
                 pass
-        return id + " not found"
+        print("ID not found for:"+searchTerm)
+
+def searchForSpecialInstructions(searchTerm):
+    id = get_id(searchTerm)
+    if (id is not None):
+        url = 'https://api.recollect.net/api/areas/Sacramento/services/waste/pages/en-US/'+id+'.json'
+        response = recollect_api(url)
+        for section in response.json()['sections']:
+            try:
+                if section['title'].lower() == 'special instructions':
+                    return section['rows'][0]['value']
+            except:
+                pass
+        print("special instructions not found for:"+searchTerm)
 
 def recollect_api(url):
-    response = requests.get(url)
+    proxies = {
+    'http': 'http://proxy-chain.intel.com:911'
+    }
+    response = requests.get(url, proxies=proxies)
     if response.status_code == 200:
         return response
     else:

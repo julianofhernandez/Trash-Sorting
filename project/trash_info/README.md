@@ -7,17 +7,17 @@ This is used to associate the categories that we will be using for SSD with resu
 searchList is a list of objects that will be converted to a dict such as:
 ```json
 {
-    "garbage": [
+    "Garbage": [
         "garbage bag", "face masks", "diapers","Styrofoam","pet waste","cooking oil","clam shell trays", "deli food containers", "Ziplock bags", "inside cereal box plastic", "bubble wrap", "clear plastic wrap"
     ],
-    "recycling": [
+    "Recycling": [
         "Clear glass","Green glass","Brown glass","Blue glass","Aluminum and tin cans","Aluminum trays and foil rinsed","Empty aerosol cans","Pots, pans and utensils","Lids from jars","Soda bottles", 
         "milk jug", "shampoo bottles""Buckets, pails and crates","Cardboard","Cereal boxes","Paper bags","Paper packaging","Junk mail","Books","Office paper"],
-    "Compost": [
+    " Organic Waste": [
         "fruit", "vegetable", "greasy paper container","paper towels and napkins","coffee filters and tea bags","paper takeout with no wax or plastic lining",
     ],
-    "Other": [
-        "electronic waste","people","paint","batteries","chemicals","Motor oil","fluorescent bulbs","medical sharps","clothin","fuel tanks"
+    "Appliance & E-Waste Pick-up": [
+        "electronic waste","people","paint","batteries","chemicals","Motor oil","fluorescent bulbs","medical sharps","clothing","fuel tanks"
     ],
 }
 ```
