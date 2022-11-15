@@ -1,4 +1,4 @@
-'''
+ssd.'''
 A small 7-layer Keras model with SSD architecture. Also serves as a template to build arbitrary network architectures.
 
 Copyright (C) 2018 Pierluigi Ferrari
@@ -24,9 +24,9 @@ from tensorflow.keras.regularizers import l2
 #import keras.backend as K
 import tensorflow as tf
 
-from keras_layers.keras_layer_AnchorBoxes import AnchorBoxes
-from keras_layers.keras_layer_DecodeDetections import DecodeDetections
-from keras_layers.keras_layer_DecodeDetectionsFast import DecodeDetectionsFast
+from ssd.keras_layers.keras_layer_AnchorBoxes import AnchorBoxes
+from ssd.keras_layers.keras_layer_DecodeDetections import DecodeDetections
+from ssd.keras_layers.keras_layer_DecodeDetectionsFast import DecodeDetectionsFast
 
 def build_model(image_size,
                 n_classes,
