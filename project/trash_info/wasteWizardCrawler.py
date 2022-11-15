@@ -62,10 +62,7 @@ def searchForSpecialInstructions(searchTerm):
         print("special instructions not found for:"+searchTerm)
 
 def recollect_api(url):
-    proxies = {
-    'http': 'http://proxy-chain.intel.com:911'
-    }
-    response = requests.get(url, proxies=proxies)
+    response = requests.get(url)
     if response.status_code == 200:
         return response
     else:
