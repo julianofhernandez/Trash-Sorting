@@ -4,7 +4,8 @@ This will contain the code related to [this JIRA issue](https://santiagobermudez
 ## Formats: Pascal VOC vs COCO
 To tell our computer vision algorithm where objects are within an image, we will need to choose a set of formats to support that can be downloaded. Because we are starting with SSD we can use Pascal VOC or COCO format. Both of them support classification and object detection, but Pascal VOC uses XML for annotations whereas COCO uses JSON files. For the amount of files they use, Pascal needs one XML file for each image, whereas COCO uses one file per group (train, validation, and testing). 
 
-## Pascal VOC sample
+## Pascal VOC
+https://arxiv.org/abs/2104.10972
 Image sample
 
 ## COCO sample
