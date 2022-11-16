@@ -64,18 +64,6 @@ def create_server():
                                         num_annotation INTEGER,
                                         metadata TEXT
                                 )""")
-        cursor.execute("""INSERT INTO image_data (name, annotations, num_annotation, metadata)
-                        VALUES
-                        ('name', 'p', 1, 'p')""")
-        cursor.execute("""INSERT INTO image_data (name, annotations, num_annotation, metadata)
-                        VALUES
-                        ('a1', 'p', 0, 'p')""")
-        cursor.execute("""INSERT INTO image_data (name, annotations, num_annotation, metadata)
-                        VALUES
-                        ('b1', 'p', 0, 'p')""")
-        cursor.execute("""INSERT INTO image_data (name, annotations, num_annotation, metadata)
-                        VALUES
-                        ('c1', 'p', 0, 'p')""")
         conn.commit()
         conn.close()
 
@@ -124,9 +112,6 @@ def handle_entry():
         if image.filename == '' or not allowed_file(image):
                 return invalid_request(error_msg = 'invalid file selected',
                                             error_code = 2, code = 200)
-        success = True
-        error_msg = None
-        error_code = None
 
         # save image to directory
         image.save(os.path.join(app.config['UPLOAD_FOLDER'], image.filename))
@@ -148,20 +133,15 @@ def handle_entry():
         conn = sqlite3.connect(IMAGE_DATA_DB)
         cursor = conn.cursor()
 
-        try:
-                cursor.execute(query, data)
-        except:
-                sucessful = false
-                error_msg = "failed to upload to db"
-                error_code = 2
+        cursor.execute(query, data)
 
         conn.commit()
         conn.close()
                 
         return jsonify({
-                'successful': success,
-                'error_msg': error_msg,
-                'error_code': error_code
+                'successful': True,
+                'error_msg': None,
+                'error_code': None
         }), 200
 
 
@@ -194,8 +174,8 @@ def handle_count_query(filter):
         """
         Query for count of queries.
 
-        TODO: This query is incorrect
-        TODO: Jsonify the result also?
+        TODO: This query is possibly not what is supposed to be intended?
+	TODO: also download the image from dir
         """
 
         conn = sqlite3.connect(IMAGE_DATA_DB)
