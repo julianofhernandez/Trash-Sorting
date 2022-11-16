@@ -2,10 +2,6 @@
 The Rest API for connecting to the annotation database to upload, read,
 edit, and delete images and their annotations.
 
-TODO: finish incomplete skeleton methods
-TODO: figure out how to test things
-TODO: update error codes to be consistent
-TODO: make sure all the stuff with uploading and downloading images works
 Note: for format of the files when uploading to the database, include extension
 if we allow for images of different extensions
 
@@ -13,7 +9,6 @@ Last updated 11/16
 """
 
 import sqlite3
-#from time import sleep
 import os
 from flask import Flask, jsonify, request, send_file, send_from_directory
 import logging
@@ -21,7 +16,7 @@ import logging
 HOST = 'localhost'
 PORT = 5000
 
-DEV_KEY = "secret_key"
+DEV_KEY = "SECRETKEY"
 
 IMAGE_DIR = "images/"
 
@@ -30,7 +25,7 @@ TABLE_NAME = "image_data"
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 # database to connect to for all sqlite connections
-# for prod replace with database 
+# for prod replace with database :memory:
 IMAGE_DATA_DB = "imageDB.db"
 
 def display(data):
@@ -80,8 +75,8 @@ def invalid_request(error_msg = 'Invalid Key', error_code = 1, code = 401):
         """
         return jsonify({
                 'successful': False,
-                'error_msg': 'Invalid Key',
-                'error_code': 1
+                'error_msg': error_msg,
+                'error_code': error_code
         }), code
 
 def allowed_file(filename):
@@ -101,7 +96,7 @@ def handle_entry():
         """
         
         key = request.form['key']
-        if key != DEV_KEY:
+        if not key == DEV_KEY:
                 return invalid_request()
 
         # check if required data is there
@@ -131,7 +126,7 @@ def handle_entry():
                         VALUES
                         (?, ?, ?, ?)"""
 
-        data = [name, annotations, metadata, num_annotation]
+        data = [image.filename, annotations, metadata, num_annotation]
 
         conn = sqlite3.connect(IMAGE_DATA_DB)
         cursor = conn.cursor()
@@ -242,13 +237,13 @@ def handle_get_entry(filter):
         # we assume that if the data is in the database, the corresponding image
         # will be there so we do not do any check for if the image is there
         # as_attachment=True
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename = data['name']),
-        jsonify({
-                'data': data,
-                'successful': True,
-                'error_msg': None,
-                'error_code': None
-        }), 200
+        # send_from_directory(app.config['UPLOAD_FOLDER'], filename = data['name']), \
+        return jsonify({
+                        'data': data,
+                        'successful': True,
+                        'error_msg': None,
+                        'error_code': None
+                }), 200
 
 
 
