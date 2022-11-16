@@ -1,143 +1,549 @@
+"""
+The Rest API for connecting to the annotation database to upload, read,
+edit, and delete images and their annotations.
+
+Note: for format of the files when uploading to the database, include extension
+if we allow for images of different extensions
+
+Last updated 11/16
+"""
+
 import sqlite3
-
-def display(data):
-	print("[Server]: " + data)
-	
-display("Attempting to initialize the server...")
-
-from time import sleep
-from flask import Flask, request, send_file
+import os
+from flask import Flask, jsonify, request, send_file, send_from_directory
 import logging
-from document_scanner import scan
-
-def convertImageToBinaryData(fileName):
-	with open(fileName, 'rb') as file:
-		binaryDataImage = file.read()
-	return binaryDataImage
-
+        
 HOST = 'localhost'
 PORT = 5000
 
+DEV_KEY = "SECRETKEY"
+
+IMAGE_DIR = "images/"
+
+TABLE_NAME = "image_data"
+
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+# database to connect to for all sqlite connections
+# for prod replace with database :memory:
+IMAGE_DATA_DB = "imageDB.db"
+
+def display(data):
+        print("[Server]: " + data)
+
+display("Attempting to initialize the server...")
+
 try:
 	app = Flask(__name__)
+	app.config['UPLOAD_FOLDER'] = IMAGE_DIR
+
+        # limit max size for image size
+	app.config['MAX_CONTENT_LENGTH'] = 128 * 1024 * 1024 
 except Exception as e:
 	display("Failed to launch server, terminating process...")
 	print(e)
 	exit()
+
 display("Successfully launched server")
 
-def addImageInfoToDB(image, metadata, annotation, num_of_approved_annotations):
-	try:
-		conn = sqlite3.connect(':memory:')
 
-		cursor = conn.cursor()
+def create_server():
+        """
+        Sets up the Sqlite database and creates the tables
+        """
+        # for prod replace :memory: with db directory
+        conn = sqlite3.connect(IMAGE_DATA_DB)
 
-		cursor.execute("""CREATE TABLE imageDB (
-					image integer,
-					metadata text,
-					annotation text,
-					num_of_approved_annotation integer
-					)""")
+        cursor = conn.cursor()
 
-		imageData = convertImageToBinaryData(image)
+        cursor.execute("""CREATE TABLE IF NOT EXISTS image_data (
+                                        name TEXT,
+                                        annotations TEXT,
+                                        num_annotation INTEGER,
+                                        metadata TEXT
+                                )""")
+        conn.commit()
+        conn.close()
 
-		convertDataToTuple = (imageData, metadata, annotation, num_of_approved_annotations)
+# comment this line out to not create the tables
+create_server()
 
-		sqliteInsertQuery = """INSERT INTO imageDB (image, metadata, annotation, num_of_approved_annotations) 
-						VALUES (?, ?, ?, ?)"""
+def invalid_request(error_msg = 'Invalid Key', error_code = 1, code = 401):
+        """
+        Returns Format for invalid response. By default returns a response
+        for an invalid developer key
+        """
+        return jsonify({
+                'successful': False,
+                'error_msg': error_msg,
+                'error_code': error_code
+        }), code
 
-		cursor.execute(sqliteInsertQuery, convertDataToTuple)
-
-		conn.commit()
-
-		conn.close()
-
-	except sqlite3.Error as error:
-		print("Problem with addImageInfoToDB")
+def allowed_file(filename):
+        """
+        Returns true if the file is in a valid format
+        """
+        return '.' in filename and \
+               filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-#Creates a new entry
+
 @app.route("/create/entry", methods = ['POST'])
 def handle_entry():
-	f = request.files['file']
-	#to complete later...
-	return None
+        """
+        Creates a new entry in the database. Uploads an image
+        to the directory and other data to database
+        """
+        
+        key = request.form['key']
+        if not key == DEV_KEY:
+                return invalid_request()
 
-#Creates many entries
+        # check if required data is there
+        if 'image' not in request.files or 'name' not in request.form:
+                return invalid_request(error_msg = 'no file selected or missing required data',
+                                            error_code = 2, code = 200)
+        
+        image = request.files['image']
+        name = image.filename
+
+        # check if file is valid
+        if not name or not allowed_file(name):
+                return invalid_request(error_msg = 'invalid file selected',
+                                            error_code = 2, code = 200)
+
+        # save image to directory
+        image.save(os.path.join(app.config['UPLOAD_FOLDER'], image.filename))
+
+        # collect data from form
+        annotations = request.form['annotations']
+        num_annotation = request.form['num_annotation']
+        metadata = request.form['metadata']
+
+        # upload data to database
+        query = """INSERT INTO image_data
+                        (name, annotations, num_annotation, metadata)
+                        VALUES
+                        (?, ?, ?, ?)"""
+
+        data = [image.filename, annotations, metadata, num_annotation]
+
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+        cursor = conn.cursor()
+
+        cursor.execute(query, data)
+
+        conn.commit()
+        conn.close()
+                
+        return jsonify({
+                'successful': True,
+                'error_msg': None,
+                'error_code': None
+        }), 200
+
+
+
+
 @app.route("/create/entries", methods = ['POST'])
 def handle_entries():
-	f = request.files['file']
-	#to complete later...
-	return None
+        """
+        Creates many entries. Uploads multiple images to the database
+        """
+        
+        key = request.form['key']
+        if key != DEV_KEY:
+                return invalid_request()
 
-#Query for count of queries
+        # TODO: figure this out
+
+        return jsonify({
+                'successful': True,
+                'error_msg': None,
+                'error_code': None
+        }), 200
+
+
+
+#=====================================================================
+
 @app.route("/read/count/<filter>", methods = ['GET'])
 def handle_count_query(filter):
-	return None
+        """
+        Query for count of queries.
 
-#Query for a single entry
+        TODO: This query is possibly not what is supposed to be intended?
+	TODO: also download the image from dir
+        """
+
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM image_data")
+        
+        rows = cursor.fetchall()
+
+        conn.close()
+
+        data = {}
+        i = 0
+        for row in rows:
+                image_data = 'image' + str(i)
+                data.update({image_data:
+                             {'name': row[0],
+                              'annotations': row[1],
+                              'num_annotation': row[2],
+                              'metadata': row[3]
+                }})
+                i += 1
+        
+        return jsonify({
+                'data':data,
+                'successful': True,
+                'error_msg': None,
+                'error_code': None
+        }), 200
+
+
+
 @app.route("/read/entry/<filter>", methods = ['GET'])
 def handle_get_entry(filter):
-	return None
+        """
+        Query for a single entry
+        """
+        
+        conn = sqlite3.connect(IMAGE_DATA_DB)
 
-#Query for all entries given a single search
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM image_data WHERE name = :name", {'name': filter})
+        
+        image_data = cursor.fetchone()
+
+        conn.close()
+
+        if not image_data:
+                return jsonify({
+                        'successful': False,
+                        'error_msg': "No results from query",
+                        'error_code': 10
+                }), 200
+        
+        data = {'name': image_data[0], 'annotations': image_data[1],
+                'num_annotation': image_data[2], 'metadata': image_data[3]
+                }
+
+        # we assume that if the data is in the database, the corresponding image
+        # will be there so we do not do any check for if the image is there
+        # as_attachment=True
+        # send_from_directory(app.config['UPLOAD_FOLDER'], filename = data['name']), \
+        return jsonify({
+                        'data': data,
+                        'successful': True,
+                        'error_msg': None,
+                        'error_code': None
+                }), 200
+
+
+
 @app.route("/read/search/<filter>", methods = ['GET'])
 def handle_search_entries(filter):
-	return None
+        """
+        Query for all entries given a single search
+        """
+        conn = sqlite3.connect(IMAGE_DATA_DB)
 
-#Query for entry with no or least annotations
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM image_data WHERE :filter", {'filter': filter})
+        
+        rows = cursor.fetchall()
+
+        conn.close()
+
+        data = {}
+        i = 0
+        for row in rows:
+                image_data = 'image' + str(i)
+                data.update({image_data:
+                             {'name': row[0],
+                              'annotations': row[1],
+                              'num_annotation': row[2],
+                              'metadata': row[3]
+                }})
+                i += 1
+        
+        return jsonify({
+                'data':data,
+                'successful': True,
+                'error_msg': None,
+                'error_code': None
+        }), 200
+
+
+
 @app.route("/read/annotation/min", methods = ['GET'])
 def handle_get_entry_min_annotation():
-	return None
+        """
+        Query for entry with no or least annotations
+        """
+        
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM image_data ORDER BY num_annotation ASC LIMIT 1")
+        
+        first = cursor.fetchone()
+        
+        conn.close()
+
+        data = {'name': first[0], 'annotations': first[1],
+                'num_annotation': first[2], 'metadata': first[3]
+                }
+        
+        return jsonify({
+                'data':data,
+                'successful': True,
+                'error_msg': None,
+                'error_code': None
+        }), 200
+
 	
-#Query for entry with most annotations
+
+
 @app.route("/read/annotation/max", methods = ['GET'])
 def handle_get_entry_max_annotations():
-	return None
-	
-#Fully replace annotations given image unique identifier
+        """
+        Query for entry with most annotations
+        """
+        
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM image_data ORDER BY num_annotation DESC LIMIT 1")
+        
+        first = cursor.fetchone()
+        
+        conn.close()
+
+        data = {'name': first[0], 'annotations': first[1],
+                'num_annotation': first[2], 'metadata': first[3]
+                }
+        
+        return jsonify({
+                'data':data,
+                'successful': True,
+                'error_msg': None,
+                'error_code': None
+        }), 200
+
+
+
+
+#=====================================================================
+# TODO: add queries to update methods, pretty much copy and paste with
+# small changes to the queries
+
+
 @app.route("/update/annotation/<id>", methods=['PUT'])
 def handle_annotation(id):
+        """
+        Fully replace annotations given image unique identifier
+        """ 
+        key = request.form['key']
+        if key != DEV_KEY:
+                return invalid_request()
+        
+        error_msg = None
+        error_code = 0
+        successful = True
 
-	UPDATE
+                
+        return jsonify({
+                'successful': successful,
+                'error_msg': error_msg,
+                'error_code': error_code
+        }), 200
 
-	return None
 
-#Mix annotations given when given unique image identifer
+
+
 @app.route("/update/mix-annotation/<id>", methods=['PUT'])
 def handle_mix_annotation(id):
-	return None
+        """
+        Mix annotations given when given unique image identifer
+        """
+        key = request.form['key']
+        if key != DEV_KEY:
+                return invalid_request()
+        
+        error_msg = None
+        error_code = 0
+        successful = True
 
-#Edit metadata of image given unique image identifer
+                
+        return jsonify({
+                'successful': successful,
+                'error_msg': error_msg,
+                'error_code': error_code
+        }), 200
+
+
+
+
 @app.route("/update/metadata/<id>", methods=['PUT'])
 def handle_metadata(id):
-	return None
+        """
+        Edit metadata of image given unique image identifer
+        """
+        key = request.form['key']
+        if key != DEV_KEY:
+                return invalid_request()
+        
+        error_msg = None
+        error_code = 0
+        successful = True
 
-#Edit metadata tag
+                
+        return jsonify({
+                'successful': successful,
+                'error_msg': error_msg,
+                'error_code': error_code
+        }), 200
+
+
+
 
 @app.route("/update/metadata-tag/<id>", methods=['PUT'])
 def handle_metadata_tag(id):
-	return None
+        """
+        Edit metadata tag
+        """
+        key = request.form['key']
+        if key != DEV_KEY:
+                return invalid_request()
+        
+        error_msg = None
+        error_code = 0
+        successful = True
 
-#Remove metadata
+                
+        return jsonify({
+                'successful': successful,
+                'error_msg': error_msg,
+                'error_code': error_code
+        }), 200
+
+
+#=====================================================================
+
+
 @app.route("/delete/metadata/<id>", methods=['DELETE'])
-def handle_metadata(id):
-	return None
+def delete_metadata(id):
+        """
+        Remove metadata
 
-#Remove metadata tag
+        TODO: FINISH
+        Possibly might not need this method?
+        """
+        
+        key = request.form['key']
+        if key != DEV_KEY:
+                return invalid_request()
+        
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM image_data WHERE name = :name", {'name': id})
+        
+        conn.commit()
+        conn.close()
+
+                
+        return jsonify({
+                'successful': True,
+                'error_msg': None,
+                'error_code': None
+        }), 200
+
+
+
 @app.route("/delete/metadata-tag/<id>", methods=['DELETE'])
-def handle_metadata_tag(id):
-	return None
+def delete_metadata_tag(id):
+        """
+        Remove metadata tag
 
-#Remove annotations
+        TODO: FINISH
+        """
+        
+        key = request.form['key']
+        if key != DEV_KEY:
+                return invalid_request()
+        
+        error_msg = None
+        error_code = 0
+        successful = True
+
+                
+        return jsonify({
+                'successful': successful,
+                'error_msg': error_msg,
+                'error_code': error_code
+        }), 200
+
+
+
 @app.route("/delete/annotations/<id>", methods=['DELETE'])
-def handle_annotations(id):
-	return None
+def delete_annotations(id):
+        """
+        Remove metadata tags
 
-#Remove image and all info on it
+        TODO: FINISH
+        """
+        
+        key = request.form['key']
+        if key != DEV_KEY:
+                return invalid_request()
+        
+        error_msg = None
+        error_code = 0
+        successful = True
+
+                
+        return jsonify({
+                'successful': successful,
+                'error_msg': error_msg,
+                'error_code': error_code
+        }), 200
+
+
+
 @app.route("/delete/image/<id>", methods=['DELETE'])
-def handle_image(id):
-	return None
+def delete_image(id):
+        """
+        Remove image and all correlated info on it
+        For troubleshooting refer to 
+        https://stackoverflow.com/questions/26647248/how-to-delete-files-from-the-server-with-flask
+        """
+        
+        key = request.form['key']
+        if key != DEV_KEY:
+                return invalid_request()
+
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], id))
+       
+                
+        return jsonify({
+                'successful': True,
+                'error_msg': None,
+                'error_code': None
+        }), 200
+
+
 
 if __name__ == "__main__":
 	app.run(threaded=True, host=HOST, port=PORT)
