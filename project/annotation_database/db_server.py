@@ -5,6 +5,9 @@ edit, and delete images and their annotations.
 TODO: finish incomplete skeleton methods
 TODO: figure out how to test things
 TODO: update error codes to be consistent
+TODO: make sure all the stuff with uploading and downloading images works
+Note: for format of the files when uploading to the database, include extension
+if we allow for images of different extensions
 
 Last updated 11/16
 """
@@ -12,7 +15,7 @@ Last updated 11/16
 import sqlite3
 #from time import sleep
 import os
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, send_from_directory
 import logging
         
 HOST = 'localhost'
@@ -20,7 +23,7 @@ PORT = 5000
 
 DEV_KEY = "secret_key"
 
-IMAGES_FOLDER = "images/"
+IMAGE_DIR = "images/"
 
 TABLE_NAME = "image_data"
 
@@ -37,7 +40,7 @@ display("Attempting to initialize the server...")
 
 try:
 	app = Flask(__name__)
-	app.config['UPLOAD_FOLDER'] = IMAGES_FOLDER
+	app.config['UPLOAD_FOLDER'] = IMAGE_DIR
 
         # limit max size for image size
 	app.config['MAX_CONTENT_LENGTH'] = 128 * 1024 * 1024 
@@ -224,9 +227,24 @@ def handle_get_entry(filter):
         image_data = cursor.fetchone()
 
         conn.close()
+
+        if not image_data:
+                return jsonify({
+                        'successful': False,
+                        'error_msg': "No results from query",
+                        'error_code': 10
+                }), 200
         
-        return jsonify({
-                'data':image_data,
+        data = {'name': image_data[0], 'annotations': image_data[1],
+                'num_annotation': image_data[2], 'metadata': image_data[3]
+                }
+
+        # we assume that if the data is in the database, the corresponding image
+        # will be there so we do not do any check for if the image is there
+        # as_attachment=True
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename = data['name']),
+        jsonify({
+                'data': data,
                 'successful': True,
                 'error_msg': None,
                 'error_code': None
@@ -280,7 +298,7 @@ def handle_get_entry_min_annotation():
 
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM image_data ORDER BY num_annotation ASC")
+        cursor.execute("SELECT * FROM image_data ORDER BY num_annotation ASC LIMIT 1")
         
         first = cursor.fetchone()
         
@@ -310,7 +328,7 @@ def handle_get_entry_max_annotations():
 
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM image_data ORDER BY num_annotation DESC")
+        cursor.execute("SELECT * FROM image_data ORDER BY num_annotation DESC LIMIT 1")
         
         first = cursor.fetchone()
         
