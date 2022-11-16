@@ -100,14 +100,15 @@ def handle_entry():
                 return invalid_request()
 
         # check if required data is there
-        if 'file' not in request.files or 'name' not in request.form:
+        if 'image' not in request.files or 'name' not in request.form:
                 return invalid_request(error_msg = 'no file selected or missing required data',
                                             error_code = 2, code = 200)
         
         image = request.files['image']
+        name = image.filename
 
         # check if file is valid
-        if image.filename == '' or not allowed_file(image):
+        if not name or not allowed_file(name):
                 return invalid_request(error_msg = 'invalid file selected',
                                             error_code = 2, code = 200)
 
@@ -115,7 +116,6 @@ def handle_entry():
         image.save(os.path.join(app.config['UPLOAD_FOLDER'], image.filename))
 
         # collect data from form
-        name = request.form['name']
         annotations = request.form['annotations']
         num_annotation = request.form['num_annotation']
         metadata = request.form['metadata']
