@@ -25,7 +25,7 @@ Ensure location services are enabled on your phone, a big part of this project i
 
 </details>
 
-2. Take the photo
+3. Take the photos during your river clean up
 
 Complete your clean up activities as your normally would while taking pictures. Make sure you are as close as possible to the item; you should be able to pick it up after taking the photo without having to reposition yourself. Take pictures only of the trash in the natural environment, and make sure there are no people in the picture. If there are people, especially people's faces, then we can't use the photo. Remember, you don't have to take pictures of everything, if an object is hard to see or there's too many in one spot to take each photo just skip past them and prioritize removing them rather than taking photos.
 
@@ -48,7 +48,7 @@ Complete your clean up activities as your normally would while taking pictures. 
 </details>
 
 
-3. Submission
+4. Submission
 
 Upload your images to [this Google Drive folder](https://drive.google.com/drive/folders/1EbfJxHWg2oZslDjLVXYaTJ5rq1mIWdNM?usp=sharing), ensuring that you are following the guidelines above. 
 
