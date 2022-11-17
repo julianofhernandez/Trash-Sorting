@@ -155,7 +155,9 @@ def handle_entries():
         if key != DEV_KEY:
                 return invalid_request()
 
-        # TODO: figure this out
+        for f in request.files:
+		file = request.files[f]
+		file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
 
         return jsonify({
                 'successful': True,
