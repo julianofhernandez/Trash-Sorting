@@ -22,6 +22,10 @@ searchList is a list of objects that will be converted to a dict such as:
 }
 ```
 
+## What list are we using
+Because this uses fuzzy search, we can translate nearly all objects into [this list](http://www.cityofsacramento.org/public-works/rsw/waste-wizard#!rc-cpage=wizard_material_list). Objects that aren't found by the search are detected as "not trash" and if it is found then it's searched and the result is returned. It also allows us to combine multiple datasets with a common category scheme. Face masks are a great example, they were not included in any datasets prior to 2020, but now are extremely important for trash sorting. The waste wizard stores these as "face mask" but this could be encoded differently in other datasets. They could come in as "face mask", "mask", "n95 mask", "covid mask" and these all direct to the same instructions page for "face mask" using fuzzy search. Not all the categories in represented will have enough images, but we can get a better idea of what is missing and collect new data on it.
+
+
 ## get_id(categoryStr)
 We first search the fuzzy search waste wizard by swapping our category with suggest=paper
 
