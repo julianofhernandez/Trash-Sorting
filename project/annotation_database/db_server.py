@@ -28,6 +28,7 @@ ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 # for prod replace with database :memory:
 IMAGE_DATA_DB = "imageDB.db"
 
+
 def display(data):
         print("[Server]: " + data)
 
@@ -68,6 +69,7 @@ def create_server():
 # comment this line out to not create the tables
 create_server()
 
+
 def invalid_request(error_msg = 'Invalid Key', error_code = 1, code = 401):
         """
         Returns Format for invalid response. By default returns a response
@@ -79,13 +81,13 @@ def invalid_request(error_msg = 'Invalid Key', error_code = 1, code = 401):
                 'error_code': error_code
         }), code
 
+
 def allowed_file(filename):
         """
         Returns true if the file is in a valid format
         """
         return '.' in filename and \
                filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 
 @app.route("/create/entry", methods = ['POST'])
@@ -143,8 +145,6 @@ def handle_entry():
         }), 200
 
 
-
-
 @app.route("/create/entries", methods = ['POST'])
 def handle_entries():
         """
@@ -164,16 +164,10 @@ def handle_entries():
         }), 200
 
 
-
-#=====================================================================
-
 @app.route("/read/count/<filter>", methods = ['GET'])
 def handle_count_query(filter):
         """
         Query for count of queries.
-
-        TODO: This query is possibly not what is supposed to be intended?
-	TODO: also download the image from dir
         """
 
         conn = sqlite3.connect(IMAGE_DATA_DB)
@@ -204,7 +198,6 @@ def handle_count_query(filter):
                 'error_msg': None,
                 'error_code': None
         }), 200
-
 
 
 @app.route("/read/entry/<filter>", methods = ['GET'])
@@ -246,7 +239,6 @@ def handle_get_entry(filter):
                 }), 200
 
 
-
 @app.route("/read/search/<filter>", methods = ['GET'])
 def handle_search_entries(filter):
         """
@@ -282,7 +274,6 @@ def handle_search_entries(filter):
         }), 200
 
 
-
 @app.route("/read/annotation/min", methods = ['GET'])
 def handle_get_entry_min_annotation():
         """
@@ -309,8 +300,6 @@ def handle_get_entry_min_annotation():
                 'error_msg': None,
                 'error_code': None
         }), 200
-
-	
 
 
 @app.route("/read/annotation/max", methods = ['GET'])
@@ -339,13 +328,6 @@ def handle_get_entry_max_annotations():
                 'error_msg': None,
                 'error_code': None
         }), 200
-
-
-
-
-#=====================================================================
-# TODO: add queries to update methods, pretty much copy and paste with
-# small changes to the queries
 
 
 @app.route("/update/annotation/<id>", methods=['PUT'])
@@ -381,7 +363,6 @@ def handle_annotation(id):
         }), 200
 
 
-
 #Leave blank note on Rest api google doc
 @app.route("/update/mix-annotation/<id>", methods=['PUT'])
 def handle_mix_annotation(id):
@@ -402,8 +383,6 @@ def handle_mix_annotation(id):
                 'error_msg': error_msg,
                 'error_code': error_code
         }), 200
-
-
 
 
 @app.route("/update/metadata/<id>", methods=['PUT'])
@@ -439,8 +418,6 @@ def handle_metadata(id):
         }), 200
 
 
-
-
 @app.route("/update/metadata-tag/<id>", methods=['PUT'])
 def handle_metadata_tag(id):
         """
@@ -474,15 +451,10 @@ def handle_metadata_tag(id):
         }), 200
 
 
-#=====================================================================
-
-
 @app.route("/delete/metadata/<id>", methods=['DELETE'])
 def delete_metadata(id):
         """
         Remove metadata
-
-        TODO: FINISH
         Possibly might not need this method?
         """
         
@@ -508,13 +480,10 @@ def delete_metadata(id):
         }), 200
 
 
-
 @app.route("/delete/metadata-tag/<id>", methods=['DELETE'])
 def delete_metadata_tag(id):
         """
         Remove metadata tag
-
-        TODO: FINISH
         """
         
         key = request.form['key']
@@ -544,13 +513,10 @@ def delete_metadata_tag(id):
         }), 200
 
 
-
 @app.route("/delete/annotations/<id>", methods=['DELETE'])
 def delete_annotations(id):
         """
-        Remove metadata tags
-
-        TODO: FINISH
+        Remove annotations
         """
         
         key = request.form['key']
@@ -578,7 +544,6 @@ def delete_annotations(id):
                 'error_msg': error_msg,
                 'error_code': error_code
         }), 200
-
 
 
 @app.route("/delete/image/<id>", methods=['DELETE'])
@@ -612,7 +577,6 @@ def delete_image(id):
                 'error_msg': None,
                 'error_code': None
         }), 200
-
 
 
 if __name__ == "__main__":
