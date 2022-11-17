@@ -356,7 +356,19 @@ def handle_annotation(id):
         key = request.form['key']
         if key != DEV_KEY:
                 return invalid_request()
-        
+
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        statement = "UPDATE image_data SET annotations = annotations WHERE id = ?"
+
+        cursor.execute(statement, [id])
+
+        conn.commit()
+
+        conn.close()
+
         error_msg = None
         error_code = 0
         successful = True
@@ -370,7 +382,7 @@ def handle_annotation(id):
 
 
 
-
+#Leave blank note on Rest api google doc
 @app.route("/update/mix-annotation/<id>", methods=['PUT'])
 def handle_mix_annotation(id):
         """
@@ -402,7 +414,19 @@ def handle_metadata(id):
         key = request.form['key']
         if key != DEV_KEY:
                 return invalid_request()
-        
+
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        statement = "UPDATE image_data SET name = name WHERE id = ?"
+
+        cursor.execute(statement, [id])
+
+        conn.commit()
+
+        conn.close()
+
         error_msg = None
         error_code = 0
         successful = True
@@ -425,7 +449,19 @@ def handle_metadata_tag(id):
         key = request.form['key']
         if key != DEV_KEY:
                 return invalid_request()
-        
+
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        statement = "UPDATE image_data SET metadata = ? WHERE id = ?"
+
+        cursor.execute(statement, ['metadata', id])
+
+        conn.commit()
+
+        conn.close()
+
         error_msg = None
         error_code = 0
         successful = True
@@ -453,16 +489,17 @@ def delete_metadata(id):
         key = request.form['key']
         if key != DEV_KEY:
                 return invalid_request()
-        
+
         conn = sqlite3.connect(IMAGE_DATA_DB)
 
         cursor = conn.cursor()
 
-        cursor.execute("DELETE FROM image_data WHERE name = :name", {'name': id})
-        
+        statement = "DELETE FROM image_data[name] WHERE id = ?"
+
+        cursor.execute(statement, ['name', id])
+
         conn.commit()
         conn.close()
-
                 
         return jsonify({
                 'successful': True,
@@ -483,7 +520,18 @@ def delete_metadata_tag(id):
         key = request.form['key']
         if key != DEV_KEY:
                 return invalid_request()
-        
+
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        statement = "DELETE FROM image_data[metadata] WHERE id = ?"
+
+        cursor.execute(statement, ['metadata', id])
+
+        conn.commit()
+        conn.close()
+
         error_msg = None
         error_code = 0
         successful = True
@@ -508,6 +556,17 @@ def delete_annotations(id):
         key = request.form['key']
         if key != DEV_KEY:
                 return invalid_request()
+
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        statement = "DELETE FROM image_data[annotations] WHERE id = ?"
+
+        cursor.execute(statement, [id])
+
+        conn.commit()
+        conn.close()
         
         error_msg = None
         error_code = 0
@@ -533,6 +592,17 @@ def delete_image(id):
         key = request.form['key']
         if key != DEV_KEY:
                 return invalid_request()
+
+        conn = sqlite3.connect(IMAGE_DATA_DB)
+
+        cursor = conn.cursor()
+
+        statement = "DELETE FROM image_data WHERE id = ?"
+
+        cursor.execute(statement, [id])
+
+        conn.commit()
+        conn.close()
 
         os.remove(os.path.join(app.config['UPLOAD_FOLDER'], id))
        
