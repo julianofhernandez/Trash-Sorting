@@ -1,0 +1,11 @@
+pillow
+requests
+jupyter
+numpy
+pandas
+matplotlib
+seaborn
+graphviz
+Cython
+pycocotools
+GitPython

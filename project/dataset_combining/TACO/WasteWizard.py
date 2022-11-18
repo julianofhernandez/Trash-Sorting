@@ -77,10 +77,7 @@ class WasteWizard:
         return ["trash", "reyclcing"]
 
     def recollect_api(self, url):
-        proxies = {
-            'http': 'http://proxy-chain.intel.com:911'
-        }
-        response = requests.get(url, proxies=proxies)
+        response = requests.get(url)
         if response.status_code == 200:
             return response
         else:

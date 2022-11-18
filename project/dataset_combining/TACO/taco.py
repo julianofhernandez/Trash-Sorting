@@ -1,15 +1,33 @@
+import os
 import json
 import numpy as np
 import matplotlib
+import argparse
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from PIL import Image
 import requests
 from pycocotools.coco import COCO
 from WasteWizard import WasteWizard
+from git import Repo
 
+#! Add requirements.txt to our main requirements
+local_repo = "TACO_NEW"
+parser = argparse.ArgumentParser(description='')
+parser.add_argument('--dataset_path', required=False, default='TACO', help='Path to download photos locally')
+parser.add_argument('--output', required=False, default='taco_parsed.json', help='Output parsed JSON')
+args = parser.parse_args()
 
 def getCocoAnnotations(annotation_file):
+    if not os.path.exists(args.dataset_path):
+        print('Cloning from https://github.com/pedropro/TACO.git')
+        Repo.clone_from('https://github.com/pedropro/TACO.git', args.dataset_path)
+    downloadedData = os.path.join(args.dataset_path, 'data')
+    cmdStr = 'cmd /c "cd '+args.dataset_path+' & python download.py"'
+    os.system(cmdStr)
+    annotation_file=os.path.join(args.dataset_path, "data/annotations.json")
+    if not os.path.exists(annotation_file):
+        return "no TACO annotations file at {annotation_file}"
     coco_annotation = COCO(annotation_file=annotation_file)
     ww = WasteWizard()
 
@@ -18,6 +36,7 @@ def getCocoAnnotations(annotation_file):
     # All categories.
     cats = coco_annotation.loadCats(cat_ids)
     cat_names = [cat["name"] for cat in cats]
+    print("Categories translation")
 
     # Loop through all images
     img_ids = coco_annotation.getImgIds()
@@ -35,7 +54,7 @@ def getCocoAnnotations(annotation_file):
         for objectAnnotation in anns:
             newCategory = cat_names[objectAnnotation['category_id']]
             newAnnotation = {
-                'file_path':img_file_name,
+                'file_path':os.path.join(downloadedData, img_file_name),
                 'Original category': newCategory,
                 'New category':ww.searchTerm(newCategory),
                 'x': objectAnnotation['bbox'][0],
@@ -43,100 +62,15 @@ def getCocoAnnotations(annotation_file):
                 'width':objectAnnotation['bbox'][2],
                 'height':objectAnnotation['bbox'][3],
             }
-            print(str(newAnnotation))
+            # print(str(newAnnotation))
             newAnnotationsList.append(newAnnotation)
     print(str(len(newAnnotationsList))+' annotatins parsed')
+    with open(args.output, 'w') as f:
+        json.dump(newAnnotationsList, f)
+        print(f"File saved to {args.output}")
     return newAnnotationsList
 
 
-
 if __name__ == "__main__":
-    taco = getCocoAnnotations('TACO/data/annotations.json')
+    taco = getCocoAnnotations('TACO')
     print(str(taco))
-    json.dumps(taco)
-
-class WasteWizard:
-    recollect_url = ''
-    score_threshold = 0.1
-    
-    def __init__(self, url='http://api.recollect.net/api/areas/Sacramento'):
-        self.recollect_url = url
-
-    def searchTerm(self,query):
-        '''Uses fuzzySearch but only returns the top result
-        returns title'''
-        results = self.fuzzySearch(query)
-        # If there's no results, or the results aren't confident, return None
-        if len(results) == 0:
-            return None
-        if float(results[0]['score']) < self.score_threshold:
-            return None
-        else:
-            return results[0]['title']
-
-    def searchId(self, query):
-        '''Uses fuzzySearch but only returns the top result
-        returns id'''
-        results = self.fuzzySearch(query)
-        # If there's no results, or the results aren't confident, return None
-        if len(results) == 0:
-            return None
-        if float(results[0]['score']) < self.score_threshold:
-            return None
-        else:
-            return results[0]['id']
-
-    def fuzzySearch(self, query, scores=False):
-        '''Searches the waste wizard and returns a list of matches
-        serachResult = [{title: plastic, id: 114556, score: 5.6},
-                        {title: plastic bottle, id: 45244, score: 4.5}]'''
-        url = self.recollect_url+'/services/waste/pages?suggest='+query+'&type=material&set=default&include_links=true&locale=en-US&accept_list=true&_=1666888380289'
-        response = self.recollect_api(url)
-        searchResults = []
-        for result in response.json():
-            searchResults.append({
-                'title': result['title'],
-                'id': result['id'],
-                'score': result['score']
-            })
-        return searchResults
-
-    def getBestOption(self, id):
-        '''Searches by id and returns the returns how to dispose of it'''
-        url = 'https://api.recollect.net/api/areas/Sacramento/services/waste/pages/en-US/'+id+'.json'
-        response = self.recollect_api(url)
-        for section in response.json()['sections']:
-            try:
-                if section['title'].lower() == 'best option':
-                    return section['rows'][0]['value']
-            except:
-                pass
-        return None
-
-    def getSpecialInstructions(self, id):
-        '''Doesn't work for every entry, but will return HTML instructions for special items'''
-        url = 'https://api.recollect.net/api/areas/Sacramento/services/waste/pages/en-US/'+id+'.json'
-        response = self.recollect_api(url)
-        for section in response.json()['sections']:
-            try:
-                if section['title'].lower() == 'special instructions':
-                    return section['rows'][0]['value']
-            except:
-                pass
-        return None
-
-    def listBestOptions(self):
-        '''Lists all possible trash/recycling/compost/hazard categries'''
-
-    def listAllCategories(self):
-        return ["trash", "reyclcing"]
-
-    def recollect_api(self, url):
-        proxies = {
-            'http': 'http://proxy-chain.intel.com:911'
-        }
-        response = requests.get(url, proxies=proxies)
-        if response.status_code == 200:
-            return response
-        else:
-            print("Failed response from API")
