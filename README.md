@@ -11,6 +11,14 @@ The World Bank’s 2012 study of MSW reported that the most important way to red
 
 
 ## Database Design ERD
+```json
+[
+{"file_path": "TACO\\data\\batch_1/000006.jpg", "Original category": "Glass bottle", "New category": "Glass bottles & jars", "x": 517.0, "y": 127.0, "width": 447.0, "height": 1322.0}, 
+{"file_path": "TACO\\data\\batch_1/000008.jpg", "Original category": "Meal carton", "New category": "Paper egg carton", "x": 1.0, "y": 457.0, "width": 1429.0, "height": 1519.0}, 
+{"file_path": "TACO\\data\\batch_1/000008.jpg", "Original category": "Other carton", "New category": "Paper egg carton", "x": 531.0, "y": 292.0, "width": 1006.0, "height": 672.0}, 
+{"file_path": "TACO\\data\\batch_1/000010.jpg", "Original category": "Clear plastic bottle", "New category": "Clear plastic \"clam shell\" containers", "x": 632.0, "y": 987.0, "width": 500.0, "height": 374.0}
+]
+```
 
 ## Prototype
 
