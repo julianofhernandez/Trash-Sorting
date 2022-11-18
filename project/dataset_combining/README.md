@@ -51,3 +51,19 @@ We parse the TACO xml and return this JSON data. This will be used to import any
 {'file_path': 'TACO\\data\\batch_9/000099.jpg', 'Original category': 'Other carton', 'New category': 'Paper egg carton', 'x': 966.0, 'y': 1996.0, 'width': 211.0, 'height': 336.0}, 
 {'file_path': 'TACO\\data\\batch_9/000099.jpg', 'Original category': 'Glass bottle', 'New category': 'Glass bottles & jars', 'x': 1125.0, 'y': 1858.0, 'width': 234.0, 'height': 510.0}]]
 ```
+
+## Category translation
+To merge multiple datasets we had to use a standard list of categories. Because we were going to search these in the waste wizard anyways, we decided to directly translate them into those categories. Using the categories_translation.json file you can specify what original categories from the dataset should be translated to. This will always be equal to or less than the old categories, as some are combined, but none go from 1 to 2 categories.
+
+Here are two examples, one that fails to search and one that works.
+```
+    {
+        "Old Category": "Rope & strings",
+        "New Category": "Toilet paper wrap"
+    },
+    {
+        "Old Category": "Shoe",
+        "New Category": "Shoes (paired)"
+    }
+```
+Rope & strings was searched in the waste wizard, althought it has a category for this "String, twine" it wasn't selected. We have to manually check these before uploading. The file selected by --category_translation be created if it doesn't exist, then you can edit it with the correct translations and rerun the script.
