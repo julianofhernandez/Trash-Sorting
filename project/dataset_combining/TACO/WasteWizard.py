@@ -48,6 +48,8 @@ class WasteWizard:
 
     def getBestOption(self, id):
         '''Searches by id and returns the returns how to dispose of it'''
+        if id is None:
+            return None
         url = 'https://api.recollect.net/api/areas/Sacramento/services/waste/pages/en-US/'+id+'.json'
         response = self.recollect_api(url)
         for section in response.json()['sections']:
@@ -85,9 +87,10 @@ class WasteWizard:
 
 def main():
     ww = WasteWizard()
-    print(ww.searchId("paper"))
-    print(ww.searchTerm("person"))
-    print(ww.fuzzySearch("paper"))
+    # print(ww.searchId("paper"))
+    # print(ww.searchTerm("person"))
+    # print(ww.fuzzySearch("paper"))
+    print(ww.getBestOption(ww.searchId("Plastic bags")))
     print(ww.getBestOption(ww.fuzzySearch("plastic")[0]['id']))
 
 if __name__ == "__main__":
