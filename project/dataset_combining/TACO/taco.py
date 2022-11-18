@@ -10,6 +10,8 @@ import requests
 from pycocotools.coco import COCO
 from WasteWizard import WasteWizard
 from git import Repo
+import time
+from progress.bar import Bar
 
 #! Add requirements.txt to our main requirements
 local_repo = "TACO_NEW"
@@ -40,35 +42,37 @@ def getCocoAnnotations(annotation_file):
 
     # Loop through all images
     img_ids = coco_annotation.getImgIds()
-    print(f"There are {len(img_ids)} total images")
     newAnnotationsList = [] 
-    for img_id in img_ids:
-        img_info = coco_annotation.loadImgs([img_id])[0]
-        img_file_name = img_info["file_name"]
-        img_url = img_info["coco_url"]
+    with Bar(f"Looping through {len(img_ids)} total images...", max=len(img_ids)) as bar:
+        for i in range(len(img_ids)):
+            img_id = img_ids[i]
+            bar.next()
+            img_info = coco_annotation.loadImgs([img_id])[0]
+            img_file_name = img_info["file_name"]
+            img_url = img_info["coco_url"]
 
-        # Get all the annotations for the specified image.
-        ann_ids = coco_annotation.getAnnIds(imgIds=[img_id], iscrowd=None)
-        anns = coco_annotation.loadAnns(ann_ids)
-        # Loop through each object in the images
-        for objectAnnotation in anns:
-            newCategory = cat_names[objectAnnotation['category_id']]
-            newAnnotation = {
-                'file_path':os.path.join(downloadedData, img_file_name),
-                'Original category': newCategory,
-                'New category':ww.searchTerm(newCategory),
-                'x': objectAnnotation['bbox'][0],
-                'y':objectAnnotation['bbox'][1],
-                'width':objectAnnotation['bbox'][2],
-                'height':objectAnnotation['bbox'][3],
-            }
-            # print(str(newAnnotation))
-            newAnnotationsList.append(newAnnotation)
-    print(str(len(newAnnotationsList))+' annotatins parsed')
-    with open(args.output, 'w') as f:
-        json.dump(newAnnotationsList, f)
-        print(f"File saved to {args.output}")
-    return newAnnotationsList
+            # Get all the annotations for the specified image.
+            ann_ids = coco_annotation.getAnnIds(imgIds=[img_id], iscrowd=None)
+            anns = coco_annotation.loadAnns(ann_ids)
+            # Loop through each object in the images
+
+            for objectAnnotation in anns:
+                newCategory = cat_names[objectAnnotation['category_id']]
+                newAnnotation = {
+                    'file_path':os.path.join(os.getcwd(),downloadedData, img_file_name),
+                    'Original category': newCategory,
+                    'New category':ww.searchTerm(newCategory),
+                    'x': objectAnnotation['bbox'][0],
+                    'y':objectAnnotation['bbox'][1],
+                    'width':objectAnnotation['bbox'][2],
+                    'height':objectAnnotation['bbox'][3],
+                }
+                newAnnotationsList.append(newAnnotation)
+        print(str(len(newAnnotationsList))+' annotatins parsed')
+        with open(args.output, 'w') as f:
+            json.dump(newAnnotationsList, f)
+            print(f"File saved to {args.output}")
+        return newAnnotationsList
 
 
 if __name__ == "__main__":

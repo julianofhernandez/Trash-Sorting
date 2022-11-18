@@ -9,3 +9,4 @@ graphviz
 Cython
 pycocotools
 GitPython
+progress
