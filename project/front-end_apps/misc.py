@@ -3,7 +3,7 @@ misc.py
 Provides a list of helper functions to be used by other classes
 Currrently provides a list of functions for reading in different inputs
 
-Last modified 11/3 by Jeff de Jesus
+Last modified 11/17 by Daniel Smagly
 '''
 
 def read_input(valid_inputs):
@@ -63,6 +63,9 @@ def print_invalid_input():
 
 def print_menu_return():
 	print("returning to menu")
+
+def return_to_menu():
+	main.main()
 
 if __name__ == "__main__":
     pass
