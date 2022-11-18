@@ -104,7 +104,7 @@ def getCocoAnnotations(annotation_file):
                 newAnnotationsList.append(newAnnotation)
         with open(args.output, 'w') as f:
             json.dump(newAnnotationsList, f)
-            print(f"File saved to {args.output}")
+            print(f"\nAnnotations saved to {args.output}")
         return newAnnotationsList
 
 
