@@ -1,15 +1,3 @@
-## Steps for download
-```
-python37 .\taco.py --output taco_parsed.json
-```
-
-## Issues
-Trying to download the extra 3700 images that arene't official results in an erros because the system cannot handle RGBD images yet.
-```
-python3 download.py --dataset_path ./data/annotations_unofficial.json
-```
-
-## Category translation
 TACO: Aluminium foil - Waste Wizard: Aluminum foil
 TACO: Battery - Waste Wizard: Lithium batteries
 TACO: Aluminium blister pack - Waste Wizard: 4-pack Can Carrier

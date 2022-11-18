@@ -14,12 +14,12 @@ Over the past decade global municipal solid waste (MSW) has nearly doubled, and 
 
 ## Database Design ERD
 ```json
-[{'file_path': 'TACO\\data\\batch_9/000097.jpg', 'Original category': 'Metal bottle cap', 'New category': 'Metal Bottle Cap', 'x': 354.0, 'y': 576.0, 'width': 133.0, 'height': 101.0}, 
-{'file_path': 'TACO\\data\\batch_9/000098.jpg', 'Original category': 'Drink carton', 'New category': 'Ceramics & drinking glasses', 'x': 228.7143, 'y': 1550.0476, 'width': 1007.9998999999999, 'height': 578.9999999999998}, 
-{'file_path': 'TACO\\data\\batch_9/000098.jpg', 'Original category': 'Plastic bottle cap', 'New category': 'Plastic bottle caps', 'x': 1041.3334, 'y': 1721.7142, 'width': 141.0, 'height': 138.0}, 
-{'file_path': 'TACO\\data\\batch_9/000099.jpg', 'Original category': 'Other plastic wrapper', 'New category': 'Wrappers', 'x': 862.0274, 'y': 1331.25, 'width': 505.97260000000006, 'height': 612.5}, 
-{'file_path': 'TACO\\data\\batch_9/000099.jpg', 'Original category': 'Other carton', 'New category': 'Paper egg carton', 'x': 966.0, 'y': 1996.0, 'width': 211.0, 'height': 336.0}, 
-{'file_path': 'TACO\\data\\batch_9/000099.jpg', 'Original category': 'Glass bottle', 'New category': 'Glass bottles & jars', 'x': 1125.0, 'y': 1858.0, 'width': 234.0, 'height': 510.0}]]
+[
+{"file_path": "TACO\\data\\batch_1/000006.jpg", "Original category": "Glass bottle", "New category": "Glass bottles & jars", "x": 517.0, "y": 127.0, "width": 447.0, "height": 1322.0}, 
+{"file_path": "TACO\\data\\batch_1/000008.jpg", "Original category": "Meal carton", "New category": "Paper egg carton", "x": 1.0, "y": 457.0, "width": 1429.0, "height": 1519.0}, 
+{"file_path": "TACO\\data\\batch_1/000008.jpg", "Original category": "Other carton", "New category": "Paper egg carton", "x": 531.0, "y": 292.0, "width": 1006.0, "height": 672.0}, 
+{"file_path": "TACO\\data\\batch_1/000010.jpg", "Original category": "Clear plastic bottle", "New category": "Clear plastic \"clam shell\" containers", "x": 632.0, "y": 987.0, "width": 500.0, "height": 374.0}
+]
 ```
 
 ## Prototype

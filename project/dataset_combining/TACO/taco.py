@@ -39,11 +39,15 @@ def getCocoAnnotations(annotation_file):
     cats = coco_annotation.loadCats(cat_ids)
     cat_names = [cat["name"] for cat in cats]
     print("Categories translation")
+    for cat in cats:
+        print("TACO: "+str(cat["name"])+" - Waste Wizard: "+str(ww.searchTerm(cat["name"])))
+    cat_names = [cat["name"] for cat in cats]
+    ww_cat_names = [ww.searchTerm(cat["name"]) for cat in cats]
 
     # Loop through all images
     img_ids = coco_annotation.getImgIds()
     newAnnotationsList = [] 
-    with Bar(f"Looping through {len(img_ids)} total images...", max=len(img_ids)) as bar:
+    with Bar(f"Looping through {len(img_ids)} total imagesa: ", max=len(img_ids)) as bar:
         for i in range(len(img_ids)):
             img_id = img_ids[i]
             bar.next()
