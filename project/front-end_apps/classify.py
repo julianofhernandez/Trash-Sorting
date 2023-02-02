@@ -9,9 +9,9 @@ Last modified 11/17 by Daniel Smagly
 import settings
 import misc
 import main
-import camera
 import cv2
 from camera2 import *
+from ssd import ssd_preds
 
 menu_options = ['1', '2', '3','Q','M']
 
@@ -47,10 +47,9 @@ def main(process_online, single_classification, fps_rate):
 
 def camera_classify(process_online, single_classification):
 	#clear screen
-	
 	print("classifying from camera")
-	input('Enter to capture')
 	cc = CameraCapturer()
+	input('Enter to capture')
 	img = cc.capture()
 	# send img to Server or Local Model
 	res = ssd_preds(img, process_online, single_classification)
@@ -90,7 +89,27 @@ def file_classify(process_online, single_classification):
 
 def real_time_classify(process_online, single_classification, fps_rate):
 	print("classifying in real time")
+	
+	
 	# add real time camera function
+	with CameraRecorder(1, fps = fps_rate) as cr:
+		print("Active. To stop, press Q.")
+		while True:
+			img = cr.capture()
+			cv2.imshow("Python Webcam", img)
+			if cv2.waitKey(1) & 0xFF == ord('q'):
+				break
+			res = ssd_preds(img, process_online, single_classification)
+
+			if res['error_code'] == 0:
+				preds = res['predictions']
+				for pred in preds:
+					print(pred)
+				#continue
+			else:
+				# error
+				print("Failed to classify")
+
 
 if __name__ == "__main__":
     main()

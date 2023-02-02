@@ -6,6 +6,7 @@ Last modified 11/3 by Jeff de Jesus
 '''
 
 import misc
+from ssd import ssd_preds
 
 # list of valid commands the user should be able to use in this menu
 menu_options = ['1', '2', 'Q']
