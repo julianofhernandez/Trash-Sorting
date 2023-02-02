@@ -15,7 +15,7 @@ menu_prompt = menu_options[0] + "\t: Opens GUI to capture a photo and annotate\n
 	menu_options[1] + " [URL] : Opens GUI and loads image from [URL] to annotaten\n" + \
 	menu_options[2] + "\t: Exit Annotation"
 
-def main():
+def main(process_online, single_classification, fps_rate):
 	while(True):
 		print(menu_prompt)
 		key = misc.read_input_tokens(menu_options)

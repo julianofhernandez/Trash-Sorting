@@ -9,9 +9,9 @@ Last modified 11/3 by Jeff de Jesus
 
 import misc
 
-process_online = False
-single_classification = False
-fps_rate = 1
+PROCESS_ONLINE = False
+SINGLE_CLASSIFICATION = False
+FPS_RATE = 1
 
 MAX_FPS = 60
 MIN_FPS = 1
@@ -49,6 +49,7 @@ def main():
 def toggle_computation_mode():
 	''' Toggles the computation between online and offline
 	'''
+	global PROCESS_ONLINE
 	print("Do you want online or offline computation?")
 	print(sub_options[0] + ": online")
 	print(sub_options[1] + ": offline")
@@ -60,16 +61,17 @@ def toggle_computation_mode():
 		return -1
 
 	if(key == sub_options[0]):
-		process_online = True
+		PROCESS_ONLINE = True
 		print("Processing is online")
 	else:
-		process_online = False
+		PROCESS_ONLINE = False
 		print("Processing is offline")
 		
 
 def toggle_classification_mode():
 	''' Toggles the classification mode between single and multi
 	'''
+	global SINGLE_CLASSIFICATION
 	print("Do you want single or multi object classification?")
 	print(sub_options[0] + ": single")
 	print(sub_options[1] + ": multi")
@@ -81,15 +83,16 @@ def toggle_classification_mode():
 		return -1
 
 	if(key == sub_options[0]):
-		single_classification = True
+		SINGLE_CLASSIFICATION = True
 		print("classification is singular")
 	else:
-		single_classification = False
+		SINGLE_CLASSIFICATION = False
 		print("classification is multi")
 
 def toggle_fps():
 	''' Adjusts the FPS rate for live capture
 	''' 
+	global FPS_RATE
 	print("Enter a number for the framerate for live capture")
 	print("Min framerate: ", MIN_FPS)
 	print("Max framerate: ", MAX_FPS)
@@ -100,8 +103,8 @@ def toggle_fps():
 		misc.print_invalid_input()
 		return -1
 
-	fps_rate = key
-	print("FPS is set to", fps_rate)
+	FPS_RATE = key
+	print("FPS is set to", FPS_RATE)
 	
 if __name__ == "__main__":
     main()

@@ -21,7 +21,7 @@ menu_prompt = menu_options[0] + ": Open Camera and capture\n" + \
 	menu_options[3] + ": Exit capture\n" + \
 	menu_options[4] + ": Return to menu"
 
-def main():
+def main(process_online, single_classification, fps_rate):
 	print("Classify trash")
 	while(True):
 		print(menu_prompt)
@@ -34,27 +34,27 @@ def main():
 			continue
 
 		if(key == menu_options[0]):
-			camera_classify()
+			camera_classify(process_online, single_classification)
 		elif(key == menu_options[1]):
-			file_classify()
+			file_classify(process_online, single_classification)
 		elif(key == menu_options[2]):
-			camera.main() 
+			real_time_classify(process_online, single_classification, fps_rate)
 		elif(key == menu_options[3]):
 			misc.return_to_menu()
 		else:
 			misc.print_menu_return()
 			return False
 
-def camera_classify():
+def camera_classify(process_online, single_classification):
 	#clear screen
+	
 	print("classifying from camera")
 	input('Enter to capture')
 	cc = CameraCapturer()
 	img = cc.capture()
-	# send img to Server
-	res = ssd_preds(img)
+	# send img to Server or Local Model
+	res = ssd_preds(img, process_online, single_classification)
 	if res['error_code'] == 0:
-		
 		preds = res['predictions']
 		for pred in preds:
 			print(pred)
@@ -65,7 +65,8 @@ def camera_classify():
 	del cc
 
 
-def file_classify():
+def file_classify(process_online, single_classification):
+
 	print("classifying from file")
 	print("Enter image file path to be classifyed: ")
 	input_file = input()
@@ -73,15 +74,21 @@ def file_classify():
 
 	if img is None:
 		print("Image could not be read")
+
 		return 0
 
-	cv2.imshow("Entered image", img)
-	k = cv2.waitKey(0)
+	# send img to Server or Local Model
+	res = ssd_preds(img, process_online, single_classification)
+	if res['error_code'] == 0:
+		preds = res['predictions']
+		for pred in preds:
+			print(pred)
+		#continue
+	else:
+		# error
+		print("Failed to classify")
 
-	if k == ord("q"):
-		cv2.imwrite("sample_img.png", img)
-		misc.return_to_menu()
-def real_time_classify():
+def real_time_classify(process_online, single_classification, fps_rate):
 	print("classifying in real time")
 	# add real time camera function
 
