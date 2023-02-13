@@ -13,8 +13,9 @@ menu_options = ['1', '2', 'Q']
 
 # the text prompt for this menu
 menu_prompt = menu_options[0] + "\t: Opens GUI to capture a photo and annotate\n" + \
-	menu_options[1] + " [URL] : Opens GUI and loads image from [URL] to annotaten\n" + \
-	menu_options[2] + "\t: Exit Annotation"
+	menu_options[1] + " [URL] : Opens GUI and loads image from [path] to annotaten\n" + \
+	menu_options[2] + "Pull from the database" + \
+	menu_options[3] + "\t: Exit Annotation"
 
 def main(process_online, single_classification, fps_rate):
 	while(True):
