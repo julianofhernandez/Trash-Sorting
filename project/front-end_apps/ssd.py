@@ -8,7 +8,7 @@ def ssd_preds(images, process_online, single_classification):
     if process_online and len(images) == 1:
         
         byte_arr = BytesIO()
-        byte_arr.write(images{0}.tobytes())
+        byte_arr.write(images[0].tobytes())
         byte_arr.seek(0)
         res = requests.post('http://localhost:5000/read/inference/apple', files={'image': byte_arr})
 
