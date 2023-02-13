@@ -1,0 +1,302 @@
+[
+    {
+      "bin": "Recycle",
+      "id": 0,
+      "name": "Aluminium foil"
+    },
+    {
+      "bin": "Hazard",
+      "id": 1,
+      "name": "Battery"
+    },
+    {
+      "bin": "Garbage",
+      "id": 2,
+      "name": "Aluminium blister pack"
+    },
+    {
+      "bin": "Garbage",
+      "id": 3,
+      "name": "Carded blister pack"
+    },
+    {
+      "bin": "Garbage",
+      "id": 4,
+      "name": "Other plastic bottle"
+    },
+    {
+      "bin": "Recycle",
+      "id": 5,
+      "name": "Clear plastic bottle"
+    },
+    {
+      "bin": "Recycle",
+      "id": 6,
+      "name": "Glass bottle"
+    },
+    {
+      "bin": "Recycle",
+      "id": 7,
+      "name": "Plastic bottle cap"
+    },
+    {
+      "bin": "Recycle",
+      "id": 8,
+      "name": "Metal bottle cap"
+    },
+    {
+      "bin": "Recycle",
+      "id": 9,
+      "name": "Broken glass"
+    },
+    {
+      "bin": "Recycle",
+      "id": 10,
+      "name": "Food Can"
+    },
+    {
+      "bin": "Recycle",
+      "id": 11,
+      "name": "Aerosol"
+    },
+    {
+      "bin": "Recycle",
+      "id": 12,
+      "name": "Drink can"
+    },
+    {
+      "bin": "Recycle",
+      "id": 13,
+      "name": "Toilet tube"
+    },
+    {
+      "bin": "Recycle",
+      "id": 14,
+      "name": "Other carton"
+    },
+    {
+      "bin": "Recycle",
+      "id": 15,
+      "name": "Egg carton"
+    },
+    {
+      "bin": "Garbage",
+      "id": 16,
+      "name": "Drink carton"
+    },
+    {
+      "bin": "Recycle",
+      "id": 17,
+      "name": "Corrugated carton"
+    },
+    {
+      "bin": "Garbage",
+      "id": 18,
+      "name": "Meal carton"
+    },
+    {
+      "bin": "Garbage",
+      "id": 19,
+      "name": "Pizza box"
+    },
+    {
+      "bin": "Recycle",
+      "id": 20,
+      "name": "Paper cup"
+    },
+    {
+      "bin": "Garbage",
+      "id": 21,
+      "name": "Disposable plastic cup"
+    },
+    {
+      "bin": "Garbage",
+      "id": 22,
+      "name": "Foam cup"
+    },
+    {
+      "bin": "Recycle",
+      "id": 23,
+      "name": "Glass cup"
+    },
+    {
+      "bin": "Garbage",
+      "id": 24,
+      "name": "Other plastic cup"
+    },
+    {
+      "bin": "Compost",
+      "id": 25,
+      "name": "Food waste"
+    },
+    {
+      "bin": "Recycle",
+      "id": 26,
+      "name": "Glass jar"
+    },
+    {
+      "bin": "Garbage",
+      "id": 27,
+      "name": "Plastic lid"
+    },
+    {
+      "bin": "Recycle",
+      "id": 28,
+      "name": "Metal lid"
+    },
+    {
+      "bin": "Garbage",
+      "id": 29,
+      "name": "Other plastic"
+    },
+    {
+      "bin": "Recycle",
+      "id": 30,
+      "name": "Magazine paper"
+    },
+    {
+      "bin": "Garbage",
+      "id": 31,
+      "name": "Tissues"
+    },
+    {
+      "bin": "Garbage",
+      "id": 32,
+      "name": "Wrapping paper"
+    },
+    {
+      "bin": "Recycle",
+      "id": 33,
+      "name": "Normal paper"
+    },
+    {
+      "bin": "Recycle",
+      "id": 34,
+      "name": "Paper bag"
+    },
+    {
+      "bin": "Recycle",
+      "id": 35,
+      "name": "Plastified paper bag"
+    },
+    {
+      "bin": "Garbage",
+      "id": 36,
+      "name": "Plastic film"
+    },
+    {
+      "bin": "Garbage",
+      "id": 37,
+      "name": "Six pack rings"
+    },
+    {
+      "bin": "Garbage",
+      "id": 38,
+      "name": "Garbage bag"
+    },
+    {
+      "bin": "Garbage",
+      "id": 39,
+      "name": "Other plastic wrapper"
+    },
+    {
+      "bin": "Garbage",
+      "id": 40,
+      "name": "Single-use carrier bag"
+    },
+    {
+      "bin": "Garbage",
+      "id": 41,
+      "name": "Polypropylene bag"
+    },
+    {
+      "bin": "Garbage",
+      "id": 42,
+      "name": "Crisp packet"
+    },
+    {
+      "bin": "Recycle",
+      "id": 43,
+      "name": "Spread tub"
+    },
+    {
+      "bin": "Garbage",
+      "id": 44,
+      "name": "Tupperware"
+    },
+    {
+      "bin": "Garbage",
+      "id": 45,
+      "name": "Disposable food container"
+    },
+    {
+      "bin": "Garbage",
+      "id": 46,
+      "name": "Foam food container"
+    },
+    {
+      "bin": "Garbage",
+      "id": 47,
+      "name": "Other plastic container"
+    },
+    {
+      "bin": "Garbage",
+      "id": 48,
+      "name": "Plastic glooves"
+    },
+    {
+      "bin": "Garbage",
+      "id": 49,
+      "name": "Plastic utensils"
+    },
+    {
+      "bin": "Recycle",
+      "id": 50,
+      "name": "Pop tab"
+    },
+    {
+      "bin": "Garbage",
+      "id": 51,
+      "name": "Rope & strings"
+    },
+    {
+      "bin": "Recycle",
+      "id": 52,
+      "name": "Scrap metal"
+    },
+    {
+      "bin": "Garbage",
+      "id": 53,
+      "name": "Shoe"
+    },
+    {
+      "bin": "Garbage",
+      "id": 54,
+      "name": "Squeezable tube"
+    },
+    {
+      "bin": "Garbage",
+      "id": 55,
+      "name": "Plastic straw"
+    },
+    {
+      "bin": "Recycle",
+      "id": 56,
+      "name": "Paper straw"
+    },
+    {
+      "bin": "Garbage",
+      "id": 57,
+      "name": "Styrofoam piece"
+    },
+    {
+      "bin": "Garbage",
+      "id": 58,
+      "name": "Unlabeled litter"
+    },
+    {
+      "bin": "Garbage",
+      "id": 59,
+      "name": "Cigarette"
+    }
+  ]
