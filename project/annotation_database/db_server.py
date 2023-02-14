@@ -1,37 +1,40 @@
 """
-The Rest API for connecting to the annotation database to upload, read,
+The Blueprint for the Rest API for connecting to the annotation database to upload, read,
 edit, and delete images and their annotations.
 
 Note: for format of the files when uploading to the database, include extension
 if we allow for images of different extensions
 """
 
-def display(data):
-    print("[Server]: " + data)
-
-display("Attempting to initialize the server...")
-
 import sqlite3
 import os
-from flask import Flask, jsonify, request, send_file, send_from_directory
+from flask import Flask, jsonify, request, send_file, send_from_directory, Blueprint
 
-    
-HOST = 'localhost'
-PORT = 5000
 
 DEV_KEY = "secretkey"
 
-IMAGE_DIR = "images/"
-
 TABLE_NAME = "image_data"
 
+IMAGE_DIR = "images/"
+
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+
+"""
+We need to register the methods under a blueprint instead of just app.
+That way we can use the factory pattern to create an app and use the app
+resource for testing
+
+https://stackoverflow.com/questions/39714995/404-response-when-running-flaskclient-test-method
+https://flask.palletsprojects.com/en/2.2.x/blueprints/
+"""
+db_server = Blueprint('db_server', __name__)
 
 # database to connect to for all sqlite connections
 # for prod replace with database :memory:
 IMAGE_DATA_DB = "imageDB.db"
 
-def create_server():
+def create_db():
     """
     Sets up the Sqlite database and creates the tables
     """
@@ -47,7 +50,7 @@ def create_server():
     conn.commit()
     conn.close()
 
-create_server()
+create_db()
 
 def get_max_entries():
     conn = sqlite3.connect(IMAGE_DATA_DB)
@@ -59,19 +62,6 @@ def get_max_entries():
 
 NUM_ENTRIES = get_max_entries() + 1
 
-
-try:
-    app = Flask(__name__)
-    app.config['UPLOAD_FOLDER'] = IMAGE_DIR
-
-    # limit max size for image size
-    app.config['MAX_CONTENT_LENGTH'] = 128 * 1024 * 1024 
-except Exception as e:
-    display("Failed to launch server, terminating process...")
-    print(e)
-    exit()
-
-display("Successfully launched server")
 
 
 def invalid_request(error_msg = 'Invalid Key', error_code = 1, code = 401):
@@ -94,7 +84,8 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route("/create/entry", methods = ['POST'])
+#@app.route("/create/entry", methods = ['POST'])
+@db_server.route("/create/entry", methods = ['POST'])
 def handle_entry():
     """
     Creates a new entry in the database. Uploads an image
@@ -167,7 +158,8 @@ def handle_entry():
         }), 200
 
 
-@app.route('/read/entry/image/<id>')
+#@app.route('/read/entry/image/<id>')
+@db_server.route('/read/entry/image/<id>')
 def handle_get_entry_image(id):
     error_msg = None
     error_code = 0
@@ -186,8 +178,8 @@ def handle_get_entry_image(id):
     }), 200
 
 
-@app.route('/read/entry/<id>')
-@app.route('/read/entry/data/<id>')
+#@app.route('/read/entry/<id>')
+@db_server.route('/read/entry/data/<id>')
 def handle_get_entry_metadata(id):
     """
     Query for a single entry's data
@@ -220,7 +212,8 @@ def handle_get_entry_metadata(id):
     }), 200
 
 
-@app.route("/read/search/<filter>", methods = ['GET'])
+#@app.route("/read/search/<filter>", methods = ['GET'])
+@db_server.route("/read/search/<filter>", methods = ['GET'])
 def handle_search_entries(filter):
     """
     Query for all entries given a single search
@@ -255,7 +248,8 @@ def handle_search_entries(filter):
     }), 200
 
 
-@app.route("/read/annotation/min", methods = ['GET'])
+#@app.route("/read/annotation/min", methods = ['GET'])
+@db_server.route("/read/annotation/min", methods = ['GET'])
 def handle_get_entry_min_annotation():
     """
     Query for entry with no or least annotations
@@ -290,7 +284,8 @@ def handle_get_entry_min_annotation():
     }), 200
 
 
-@app.route("/read/annotation/max", methods = ['GET'])
+#@app.route("/read/annotation/max", methods = ['GET'])
+@db_server.route("/read/annotation/max", methods = ['GET'])
 def handle_get_entry_max_annotations():
     """
     Query for entry with most annotations
@@ -325,7 +320,8 @@ def handle_get_entry_max_annotations():
     }), 200
 
 
-@app.route("/update/approve/<id>", methods=['PUT'])
+#@app.route("/update/approve/<id>", methods=['PUT'])
+@db_server.route("/update/approve/<id>", methods=['PUT'])
 def handle_annotation_approved(id):
     """
     Increment Annotation approval
@@ -355,7 +351,8 @@ def handle_annotation_approved(id):
     }), 200
 
 
-@app.route("/update/disapprove/<id>", methods=['PUT'])
+#@app.route("/update/disapprove/<id>", methods=['PUT'])
+@db_server.route("/update/disaprove/<id>", methods=['PUT'])
 def handle_annotation_disapproved(id):
     """
     Decrement Annotation approval
@@ -386,7 +383,7 @@ def handle_annotation_disapproved(id):
 
 
 #Leave blank - note on Rest api google doc
-@app.route("/update/mix-annotation/<id>", methods=['PUT'])
+@db_server.route("/update/mix-annotation/<id>", methods=['PUT'])
 def handle_mix_annotation(id):
     """
     Mix annotations given when given unique image identifer
@@ -405,7 +402,8 @@ def handle_mix_annotation(id):
     }), 200
 
 
-@app.route("/update/entry/<id>", methods=['PUT'])
+#@app.route("/update/entry/<id>", methods=['PUT'])
+@db_server.route("/update/entry/<id>", methods=['PUT'])
 def handle_entry_update(id):
     """
     Edit all data of an entry besides ID and Image content
@@ -437,7 +435,8 @@ def handle_entry_update(id):
     }), 200
 
 
-@app.route("/delete/entry/<id>", methods=['DELETE'])
+#@app.route("/delete/entry/<id>", methods=['DELETE'])
+@db_server.route("/delete/entry/<id>", methods=['DELETE'])
 def delete_image(id):
     """
     Remove image and all correlated info on it
@@ -474,4 +473,5 @@ def delete_image(id):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, threaded=False, host=HOST, port=PORT)
+    #app.run(debug=False, threaded=False, host=HOST, port=PORT)
+    pass
