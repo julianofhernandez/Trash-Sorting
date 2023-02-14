@@ -11,7 +11,7 @@ from ssd import ssd_preds
 
 
 HOST = 'localhost'
-PORT = 5000
+PORT = 5001 # https://stackoverflow.com/a/72797062
 
 LABELS = {
     0: 'water bottles',
