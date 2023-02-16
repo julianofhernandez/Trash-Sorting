@@ -1,5 +1,6 @@
 # TODO: Test with Server and further optimization (next sprint?)
 # TODO: Adjust to other datasets imagenet, taco, etc.
+# Worked on in Sprint 5, research done on how to increase dataset size. Postponed for future sprints.
 
 import requests
 import os
