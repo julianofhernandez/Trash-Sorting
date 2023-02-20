@@ -1,114 +1,113 @@
-'''
+"""
 classify.py
 the classify menu to be used to collect the data to be classified
 by the user
-
-Last modified 11/17 by Daniel Smagly
-'''
+"""
 
 import settings
 import misc
 import main
 import cv2
-from camera2 import *
+from camera import *
 from ssd import ssd_preds
 
-menu_options = ['1', '2', '3','Q','M']
+CAMERA = None
+
+menu_options = ['1', '2', '3', 'M']
 
 menu_prompt = menu_options[0] + ": Open Camera and capture\n" + \
-	menu_options[1] + ": Upload picture\n" + \
-	menu_options[2] + ": Capture real time\n" + \
-	menu_options[3] + ": Exit capture\n" + \
-	menu_options[4] + ": Return to menu"
+    menu_options[1] + ": Upload picture\n" + \
+    menu_options[2] + ": Capture real time\n" + \
+    menu_options[3] + ": Exit Classify"
+
 
 def main(process_online, single_classification, fps_rate):
-	print("Classify trash")
-	while(True):
-		print(menu_prompt)
-		print("Press the key to the corresponding action")
+    global CAMERA
+    print("Classify trash")
+    while(True):
+        print(menu_prompt)
+        print("Press the key to the corresponding action")
 
-		key = misc.read_input(menu_options)
-		
-		if(key == -1):
-			misc.print_invalid_input()
-			continue
+        key = misc.read_input(menu_options)
 
-		if(key == menu_options[0]):
-			camera_classify(process_online, single_classification)
-		elif(key == menu_options[1]):
-			file_classify(process_online, single_classification)
-		elif(key == menu_options[2]):
-			real_time_classify(process_online, single_classification, fps_rate)
-		elif(key == menu_options[3]):
-			misc.return_to_menu()
-		else:
-			misc.print_menu_return()
-			return False
+        if(key == -1):
+            misc.print_invalid_input()
+            continue
+
+        if(key == menu_options[0]):
+            camera_classify(process_online, single_classification)
+        elif(key == menu_options[1]):
+            file_classify(process_online, single_classification)
+        elif(key == menu_options[2]):
+            real_time_classify(process_online, single_classification, fps_rate)
+        else:
+            if CAMERA is not None:
+                CAMERA.close()
+                CAMERA = None
+            misc.print_menu_return()
+            return False
+
 
 def camera_classify(process_online, single_classification):
-	#clear screen
-	print("classifying from camera")
-	cc = CameraCapturer()
-	input('Enter to capture')
-	img = cc.capture()
-	# send img to Server or Local Model
-	res = ssd_preds(img, process_online, single_classification)
-	if res['error_code'] == 0:
-		preds = res['predictions']
-		for pred in preds:
-			print(pred)
-		#continue
-	else:
-		# error
-		print("Failed to classify")
-	del cc
+    global CAMERA
+    # clear screen
+    print("classifying from camera")
+    if CAMERA is None:
+        print("Starting up camera...")
+        CAMERA = CameraCapturer()
+    input('Enter to capture')
+    img = CAMERA.capture()
+    # send img to Server or Local Model
+    preds = ssd_preds(img, process_online, single_classification)
+    if preds is None:
+        print("Failed to classify")
+    else:
+        for pred in preds:
+            print(pred)
 
 
 def file_classify(process_online, single_classification):
 
-	print("classifying from file")
-	print("Enter image file path to be classifyed: ")
-	input_file = input()
-	img = cv2.imread(input_file)
+    print("classifying from file")
+    print("Enter image file path to be classifyed: ")
+    input_file = input()
+    img = cv2.imread(input_file)
 
-	if img is None:
-		print("Image could not be read")
+    if img is None:
+        print("Image could not be read")
+    else:
+        # send img to Server or Local Model
+        preds = ssd_preds(img, process_online, single_classification)
+        if preds is None:
+            print("Failed to classify")
+        else:
+            for pred in preds:
+                print(pred)
 
-		return 0
-
-	# send img to Server or Local Model
-	res = ssd_preds(img, process_online, single_classification)
-	if res['error_code'] == 0:
-		preds = res['predictions']
-		for pred in preds:
-			print(pred)
-		#continue
-	else:
-		# error
-		print("Failed to classify")
 
 def real_time_classify(process_online, single_classification, fps_rate):
-	print("classifying in real time")
-	
-	
-	# add real time camera function
-	with CameraRecorder(1, fps = fps_rate) as cr:
-		print("Active. To stop, press Q.")
-		while True:
-			img = cr.capture()
-			cv2.imshow("Python Webcam", img)
-			if cv2.waitKey(1) & 0xFF == ord('q'):
-				break
-			res = ssd_preds(img, process_online, single_classification)
+    global CAMERA
+    print("classifying in real time")
+    if CAMERA is not None:
+        CAMERA.close()
+        CAMERA = None
+    print("Starting up camera...")
 
-			if res['error_code'] == 0:
-				preds = res['predictions']
-				for pred in preds:
-					print(pred)
-				#continue
-			else:
-				# error
-				print("Failed to classify")
+    # add real time camera function
+    with CameraRecorder(1, fps=fps_rate) as cr:
+        print("Active. To stop, press Q.")
+        while True:
+            img = cr.capture()
+            cv2.imshow("Classifing Webcam", img)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+            preds = ssd_preds(img, process_online, single_classification)
+            if preds is None:
+                print("Failed to classify")
+            else:
+                for pred in preds:
+                    print(pred)
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

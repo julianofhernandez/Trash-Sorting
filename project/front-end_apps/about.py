@@ -1,9 +1,7 @@
-'''
+"""
 about.py
 This gives the about informational section of the program
-
-Last modified 11/2 by Jeff de Jesus
-'''
+"""
 
 import misc
 
@@ -25,38 +23,39 @@ Travis Hammond
 Project Owner: Dr. Clark Fitzgerald
 """
 
-menu_options = ['1', '2', '3', '4', 'Q']
+menu_options = ['1', '2', '3', 'M']
 
 menu_prompt = menu_options[0] + ": About Information\n" + \
-              menu_options[1] + ": Menu Information\n" + \
-              menu_options[2] + ": Credits\n" + \
-              menu_options[3] + ": Quit"
+    menu_options[1] + ": Menu Information\n" + \
+    menu_options[2] + ": Credits\n" + \
+    menu_options[3] + ": Exit About"
 
 
 def main():
-	print("About: ")
-	while (True):
-		print("Select what you want information on.")
-		print(menu_prompt)
+    print("About: ")
+    while (True):
+        print("Select what you want information on.")
+        print(menu_prompt)
 
-		key = misc.read_input(menu_options)
+        key = misc.read_input(menu_options)
 
-		if (key == -1):
-			misc.print_invalid_input()
-			continue
+        if (key == -1):
+            misc.print_invalid_input()
+            continue
 
-		if (key == menu_options[0]):
-			print(about_info + "\n")
+        if (key == menu_options[0]):
+            print(about_info + "\n")
 
-		elif (key == menu_options[1]):
-			print(menu_info + "\n")
+        elif (key == menu_options[1]):
+            print(menu_info + "\n")
 
-		elif (key == menu_options[2]):
-			print(credit_info)
+        elif (key == menu_options[2]):
+            print(credit_info)
 
-		else:
-			print("Quitting\n")
-			return 0
+        else:
+            misc.print_menu_return()
+            return False
+
 
 if __name__ == "__main__":
     main()

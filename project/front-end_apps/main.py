@@ -17,55 +17,59 @@ menu_options = ['1', '2', '3', '4', '5', 'Q']
 
 # the text prompt for this menu
 menu_prompt = menu_options[0] + ": Annotate\n" + \
-	menu_options[1] + ": Classify\n" + \
-	menu_options[2] + ": Trash info\n" + \
-	menu_options[3] + ": About\n" + \
-	menu_options[4] + ": Settings\n" + \
-	menu_options[5] + ": Quit"
+    menu_options[1] + ": Classify\n" + \
+    menu_options[2] + ": Trash info\n" + \
+    menu_options[3] + ": About\n" + \
+    menu_options[4] + ": Settings\n" + \
+    menu_options[5] + ": Quit"
+
 
 def main():
-	''' This is the main function. This version will only
-	read in the first character of each input line and treat
-	those inputs as valid by trimming the rest of the input
-	'''
-	print("Menu")
+    ''' This is the main function. This version will only
+    read in the first character of each input line and treat
+    those inputs as valid by trimming the rest of the input
+    '''
+    print("Menu")
 
-	while(True):
-		print(menu_prompt)
-		print("Press the key to the corresponding action")
+    while(True):
+        print(menu_prompt)
+        print("Press the key to the corresponding action")
 
-		# collect input from user, if input is invalid -1 is returned
-		key = misc.read_input(menu_options)
-		
-		if(key == -1):
-			misc.print_invalid_input()
-			continue
-			
-		if(key == menu_options[0]):
+        # collect input from user, if input is invalid -1 is returned
+        key = misc.read_input(menu_options)
 
-			# open annotate
-			annotate.main(settings.PROCESS_ONLINE, settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
-		elif(key == menu_options[1]):
+        if(key == -1):
+            misc.print_invalid_input()
+            continue
 
-			# open classify
-			classify.main(settings.PROCESS_ONLINE, settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
-		elif(key == menu_options[2]):
+        if(key == menu_options[0]):
 
-			# open trash info
-			trash_info.main()
-		elif(key == menu_options[3]):
+            # open annotate
+            annotate.main(settings.PROCESS_ONLINE,
+                          settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
+        elif(key == menu_options[1]):
 
-			# open about
-			about.main()
-		elif(key == menu_options[4]):
+            # open classify
+            classify.main(settings.PROCESS_ONLINE,
+                          settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
+        elif(key == menu_options[2]):
 
-			# open settings
-			settings.main()
-		else:
+            # open trash info
+            trash_info.main()
+        elif(key == menu_options[3]):
 
-			# quit program
-			print("Goodbye")
-			return 0
+            # open about
+            about.main()
+        elif(key == menu_options[4]):
+
+            # open settings
+            settings.main()
+        else:
+
+            # quit program
+            print("Goodbye")
+            return 0
+
 
 if __name__ == "__main__":
     main()

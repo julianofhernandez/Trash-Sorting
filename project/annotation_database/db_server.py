@@ -8,16 +8,7 @@ if we allow for images of different extensions
 
 import sqlite3
 import os
-from flask import Flask, jsonify, request, send_file, send_from_directory, Blueprint
-
-
-DEV_KEY = "secretkey"
-
-TABLE_NAME = "image_data"
-
-IMAGE_DIR = "images/"
-
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+from flask import jsonify, request, send_from_directory, Blueprint
 
 
 """
@@ -30,14 +21,17 @@ https://flask.palletsprojects.com/en/2.2.x/blueprints/
 """
 db_server = Blueprint('db_server', __name__)
 
-# database to connect to for all sqlite connections
-# for prod replace with database :memory:
-IMAGE_DATA_DB = "imageDB.db"
+DEV_KEY = None
+IMAGE_DIR = 'images/'
+IMAGE_DATA_DB = 'imageDB.db'
+NUM_ENTRIES = None
+
 
 def create_db():
     """
     Sets up the Sqlite database and creates the tables
     """
+    global IMAGE_DATA_DB
     conn = sqlite3.connect(IMAGE_DATA_DB)
     cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS image_data (
@@ -50,21 +44,35 @@ def create_db():
     conn.commit()
     conn.close()
 
-create_db()
 
 def get_max_entries():
+    global IMAGE_DATA_DB
     conn = sqlite3.connect(IMAGE_DATA_DB)
     cursor = conn.cursor()
-    cursor.execute("SELECT MAX(id) FROM image_data")
+    cursor.execute('SELECT MAX(id) FROM image_data')
     num_entries = cursor.fetchone()[0]
     conn.close()
     return 0 if num_entries is None else num_entries
 
-NUM_ENTRIES = get_max_entries() + 1
+
+def create_files():
+    global IMAGE_DIR
+    if not os.path.exists(IMAGE_DIR):
+        os.makedirs(IMAGE_DIR)
 
 
+def setup():
+    global NUM_ENTRIES, DEV_KEY
+    create_db()
+    create_files()
+    NUM_ENTRIES = get_max_entries() + 1
+    if os.path.exists('KEY.ps') and os.path.isfile('KEY.ps'):
+        DEV_KEY = open('KEY.ps', 'r').read()
+    else:
+        DEV_KEY = 'secretkey'
 
-def invalid_request(error_msg = 'Invalid Key', error_code = 1, code = 401):
+
+def invalid_request(error_msg='Invalid Key', error_code=1, code=401):
     """
     Returns Format for invalid response. By default returns a response
     for an invalid developer key
@@ -76,42 +84,30 @@ def invalid_request(error_msg = 'Invalid Key', error_code = 1, code = 401):
     }), code
 
 
-def allowed_file(filename):
-    """
-    Returns true if the file is in a valid format
-    """
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-#@app.route("/create/entry", methods = ['POST'])
-@db_server.route("/create/entry", methods = ['POST'])
+@db_server.route('/create/entry', methods=['POST'])
 def handle_entry():
     """
     Creates a new entry in the database. Uploads an image
     to the directory and other data to database
     """
-    global NUM_ENTRIES
+    global NUM_ENTRIES, IMAGE_DIR, IMAGE_DATA_DB
     if 'key' not in request.form or request.form['key'] != DEV_KEY:
         return invalid_request()
     elif 'image' not in request.files:
-        return invalid_request(error_msg = 'Missing image in file part of request',
-                               error_code = 3, code = 200)
+        return invalid_request(error_msg='Missing image in file part of request',
+                               error_code=3, code=200)
     elif 'annotation' not in request.form:
-        return invalid_request(error_msg = 'Missing annotation in form request',
-                               error_code = 4, code = 200)
+        return invalid_request(error_msg='Missing annotation in form request',
+                               error_code=4, code=200)
     elif 'num_annotations' not in request.form:
-        return invalid_request(error_msg = 'Missing num_annotations in form request',
-                               error_code = 5, code = 200)
+        return invalid_request(error_msg='Missing num_annotations in form request',
+                               error_code=5, code=200)
     elif 'dataset' not in request.form:
-        return invalid_request(error_msg = 'Missing dataset in form request',
-                               error_code = 6, code = 200)
+        return invalid_request(error_msg='Missing dataset in form request',
+                               error_code=6, code=200)
     elif 'metadata' not in request.form:
-        return invalid_request(error_msg = 'Missing metadata in form request',
-                               error_code = 7, code = 200)
-    #elif not request.files['image'].filename or not allowed_file(request.files['image'].filename):
-    #    return invalid_request(error_msg = 'Invalid image file.',
-    #                           error_code = 8, code = 200)
+        return invalid_request(error_msg='Missing metadata in form request',
+                               error_code=7, code=200)
     else:
         error_msg = None
         error_code = 0
@@ -131,7 +127,8 @@ def handle_entry():
                     VALUES
                     (?, ?, ?, ?, ?)"""
 
-            entry = [NUM_ENTRIES, annotation, num_annotations, dataset, metadata]
+            entry = [NUM_ENTRIES, annotation,
+                     num_annotations, dataset, metadata]
             NUM_ENTRIES += 1
 
             # save image to directory
@@ -150,7 +147,7 @@ def handle_entry():
         except Exception as e:
             error_msg = str(e)
             error_code = 2
-            data = 0 
+            data = 0
         return jsonify({
             'data': data,
             'error_msg': error_msg,
@@ -158,13 +155,14 @@ def handle_entry():
         }), 200
 
 
-#@app.route('/read/entry/image/<id>')
 @db_server.route('/read/entry/image/<id>')
 def handle_get_entry_image(id):
+    global IMAGE_DIR
     error_msg = None
     error_code = 0
     try:
-        file = [filename for filename in os.listdir(IMAGE_DIR) if filename.startswith(id)][0]
+        file = [filename for filename in os.listdir(
+            IMAGE_DIR) if filename.startswith(id)][0]
         return send_from_directory(IMAGE_DIR, file), 200
     except IndexError as e:
         error_msg = str(e)
@@ -178,19 +176,19 @@ def handle_get_entry_image(id):
     }), 200
 
 
-#@app.route('/read/entry/<id>')
 @db_server.route('/read/entry/data/<id>')
 def handle_get_entry_metadata(id):
     """
     Query for a single entry's data
     """
+    global IMAGE_DATA_DB
     error_msg = None
     error_code = 0
     data = None
     try:
         conn = sqlite3.connect(IMAGE_DATA_DB)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM image_data WHERE id = :id", {'id': id})
+        cursor.execute('SELECT * FROM image_data WHERE id = :id', {'id': id})
         entry = cursor.fetchone()
         conn.close()
         if entry:
@@ -212,12 +210,12 @@ def handle_get_entry_metadata(id):
     }), 200
 
 
-#@app.route("/read/search/<filter>", methods = ['GET'])
-@db_server.route("/read/search/<filter>", methods = ['GET'])
+@db_server.route('/read/search/<filter>', methods=['GET'])
 def handle_search_entries(filter):
     """
     Query for all entries given a single search
     """
+    global IMAGE_DATA_DB
     error_msg = None
     error_code = 0
     data = None
@@ -232,10 +230,10 @@ def handle_search_entries(filter):
         for row in rows:
             data.append(
                 {'id': row[0],
-                'annotation': row[1],
-                'num_annotations': row[2],
-                'dataset': row[3],
-                'metadata': row[4]}
+                 'annotation': row[1],
+                 'num_annotations': row[2],
+                 'dataset': row[3],
+                 'metadata': row[4]}
             )
     except Exception as e:
         error_msg = str(e)
@@ -248,19 +246,20 @@ def handle_search_entries(filter):
     }), 200
 
 
-#@app.route("/read/annotation/min", methods = ['GET'])
-@db_server.route("/read/annotation/min", methods = ['GET'])
+@db_server.route('/read/annotation/min', methods=['GET'])
 def handle_get_entry_min_annotation():
     """
     Query for entry with no or least annotations
     """
+    global IMAGE_DATA_DB
     data = None
     error_msg = None
     error_code = 0
     try:
         conn = sqlite3.connect(IMAGE_DATA_DB)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM image_data ORDER BY num_annotations ASC LIMIT 1")
+        cursor.execute(
+            'SELECT * FROM image_data ORDER BY num_annotations ASC LIMIT 1')
         entry = cursor.fetchone()
         conn.close()
 
@@ -276,7 +275,7 @@ def handle_get_entry_min_annotation():
     except Exception as e:
         error_msg = str(e)
         error_code = 2
-    
+
     return jsonify({
         'data': data,
         'error_msg': error_msg,
@@ -284,19 +283,20 @@ def handle_get_entry_min_annotation():
     }), 200
 
 
-#@app.route("/read/annotation/max", methods = ['GET'])
-@db_server.route("/read/annotation/max", methods = ['GET'])
+@db_server.route('/read/annotation/max', methods=['GET'])
 def handle_get_entry_max_annotations():
     """
     Query for entry with most annotations
     """
+    global IMAGE_DATA_DB
     data = None
     error_msg = None
     error_code = 0
     try:
         conn = sqlite3.connect(IMAGE_DATA_DB)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM image_data ORDER BY num_annotations DESC LIMIT 1")
+        cursor.execute(
+            'SELECT * FROM image_data ORDER BY num_annotations DESC LIMIT 1')
         entry = cursor.fetchone()
         conn.close()
 
@@ -312,7 +312,7 @@ def handle_get_entry_max_annotations():
     except Exception as e:
         error_msg = str(e)
         error_code = 2
-    
+
     return jsonify({
         'data': data,
         'error_msg': error_msg,
@@ -320,12 +320,12 @@ def handle_get_entry_max_annotations():
     }), 200
 
 
-#@app.route("/update/approve/<id>", methods=['PUT'])
-@db_server.route("/update/approve/<id>", methods=['PUT'])
+@db_server.route('/update/approve/<id>', methods=['PUT'])
 def handle_annotation_approved(id):
     """
     Increment Annotation approval
-    """ 
+    """
+    global IMAGE_DATA_DB, DEV_KEY
     if 'key' not in request.form or request.form['key'] != DEV_KEY:
         return invalid_request()
 
@@ -335,14 +335,14 @@ def handle_annotation_approved(id):
     try:
         conn = sqlite3.connect(IMAGE_DATA_DB)
         cursor = conn.cursor()
-        statement = "UPDATE image_data SET num_annotations = num_annotations + 1 WHERE id = :id"
+        statement = 'UPDATE image_data SET num_annotations = num_annotations + 1 WHERE id = :id'
         cursor.execute(statement, {'id': id})
         conn.commit()
         conn.close()
     except Exception as e:
         error_msg = str(e)
         error_code = 2
-        successful = False 
+        successful = False
 
     return jsonify({
         'successful': successful,
@@ -351,12 +351,12 @@ def handle_annotation_approved(id):
     }), 200
 
 
-#@app.route("/update/disapprove/<id>", methods=['PUT'])
-@db_server.route("/update/disaprove/<id>", methods=['PUT'])
+@db_server.route('/update/disaprove/<id>', methods=['PUT'])
 def handle_annotation_disapproved(id):
     """
     Decrement Annotation approval
-    """ 
+    """
+    global IMAGE_DATA_DB, DEV_KEY
     if 'key' not in request.form or request.form['key'] != DEV_KEY:
         return invalid_request()
 
@@ -366,14 +366,14 @@ def handle_annotation_disapproved(id):
     try:
         conn = sqlite3.connect(IMAGE_DATA_DB)
         cursor = conn.cursor()
-        statement = "UPDATE image_data SET num_annotations = MAX(num_annotations - 1, 0) WHERE id = :id"
+        statement = 'UPDATE image_data SET num_annotations = MAX(num_annotations - 1, 0) WHERE id = :id'
         cursor.execute(statement, {'id': id})
         conn.commit()
         conn.close()
     except Exception as e:
         error_msg = str(e)
         error_code = 2
-        successful = False 
+        successful = False
 
     return jsonify({
         'successful': successful,
@@ -382,15 +382,16 @@ def handle_annotation_disapproved(id):
     }), 200
 
 
-#Leave blank - note on Rest api google doc
-@db_server.route("/update/mix-annotation/<id>", methods=['PUT'])
+# Leave blank - note on Rest api google doc
+@db_server.route('/update/mix-annotation/<id>', methods=['PUT'])
 def handle_mix_annotation(id):
     """
     Mix annotations given when given unique image identifer
     """
+    global DEV_KEY
     if 'key' not in request.form or request.form['key'] != DEV_KEY:
         return invalid_request()
-    
+
     error_msg = None
     error_code = 0
     successful = True
@@ -402,12 +403,12 @@ def handle_mix_annotation(id):
     }), 200
 
 
-#@app.route("/update/entry/<id>", methods=['PUT'])
-@db_server.route("/update/entry/<id>", methods=['PUT'])
+@db_server.route('/update/entry/<id>', methods=['PUT'])
 def handle_entry_update(id):
     """
     Edit all data of an entry besides ID and Image content
     """
+    global IMAGE_DATA_DB, DEV_KEY
     if 'key' not in request.form or request.form['key'] != DEV_KEY:
         return invalid_request()
 
@@ -419,14 +420,14 @@ def handle_entry_update(id):
         cursor = conn.cursor()
         for col in ['metadata', 'annotation', 'dataset', 'num_annotations']:
             if col in request.form:
-                statement = f"UPDATE image_data SET {col} = :{col} WHERE id = :id"
+                statement = f'UPDATE image_data SET {col} = :{col} WHERE id = :id'
                 cursor.execute(statement, {'id': id, col: request.form[col]})
         conn.commit()
         conn.close()
     except Exception as e:
         error_msg = str(e)
         error_code = 2
-        successful = False 
+        successful = False
 
     return jsonify({
         'successful': successful,
@@ -435,14 +436,14 @@ def handle_entry_update(id):
     }), 200
 
 
-#@app.route("/delete/entry/<id>", methods=['DELETE'])
-@db_server.route("/delete/entry/<id>", methods=['DELETE'])
+@db_server.route('/delete/entry/<id>', methods=['DELETE'])
 def delete_image(id):
     """
     Remove image and all correlated info on it
     For troubleshooting refer to 
     https://stackoverflow.com/questions/26647248/how-to-delete-files-from-the-server-with-flask
     """
+    global IMAGE_DATA_DB, DEV_KEY, IMAGE_DIR
     if 'key' not in request.form or request.form['key'] != DEV_KEY:
         return invalid_request()
 
@@ -452,26 +453,21 @@ def delete_image(id):
     try:
         conn = sqlite3.connect(IMAGE_DATA_DB)
         cursor = conn.cursor()
-        statement = "DELETE FROM image_data WHERE id = ?"
+        statement = 'DELETE FROM image_data WHERE id = ?'
         cursor.execute(statement, [id])
         conn.commit()
         conn.close()
 
-        filename = [filename for filename in os.listdir(IMAGE_DIR) if filename.startswith(id)][0]
+        filename = [filename for filename in os.listdir(
+            IMAGE_DIR) if filename.startswith(id)][0]
         os.remove(os.path.join(IMAGE_DIR, filename))
     except Exception as e:
         error_msg = str(e)
         error_code = 2
-        successful = False 
+        successful = False
 
     return jsonify({
         'successful': successful,
         'error_msg': error_msg,
         'error_code': error_code
     }), 200
-
-
-
-if __name__ == "__main__":
-    #app.run(debug=False, threaded=False, host=HOST, port=PORT)
-    pass
