@@ -1,302 +1,378 @@
-[
+{
+  "new_categories" : [
     {
-      "bin": "Recycle",
       "id": 0,
-      "name": "Aluminium foil"
+      "name": "Garbage"
     },
     {
-      "bin": "Hazard",
       "id": 1,
-      "name": "Battery"
+      "name": "Recycle"
     },
     {
-      "bin": "Garbage",
       "id": 2,
-      "name": "Aluminium blister pack"
+      "name": "Compost"
+    }
+  ],
+  "category_translation": [
+    {
+      "new_category": "Recycle",
+      "id": 0,
+      "old_category": "Aluminium foil",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Trash",
+      "id": 1,
+      "old_category": "Battery",
+      "new_id": 0
+    },
+    {
+      "new_category": "Garbage",
+      "id": 2,
+      "old_category": "Aluminium blister pack",
+      "new_id": 0
+    },
+    {
+      "new_category": "Garbage",
       "id": 3,
-      "name": "Carded blister pack"
+      "old_category": "Carded blister pack",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 4,
-      "name": "Other plastic bottle"
+      "old_category": "Other plastic bottle",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 5,
-      "name": "Clear plastic bottle"
+      "old_category": "Clear plastic bottle",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 6,
-      "name": "Glass bottle"
+      "old_category": "Glass bottle",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 7,
-      "name": "Plastic bottle cap"
+      "old_category": "Plastic bottle cap",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 8,
-      "name": "Metal bottle cap"
+      "old_category": "Metal bottle cap",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 9,
-      "name": "Broken glass"
+      "old_category": "Broken glass",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 10,
-      "name": "Food Can"
+      "old_category": "Food Can",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 11,
-      "name": "Aerosol"
+      "old_category": "Aerosol",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 12,
-      "name": "Drink can"
+      "old_category": "Drink can",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 13,
-      "name": "Toilet tube"
+      "old_category": "Toilet tube",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 14,
-      "name": "Other carton"
+      "old_category": "Other carton",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 15,
-      "name": "Egg carton"
+      "old_category": "Egg carton",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 16,
-      "name": "Drink carton"
+      "old_category": "Drink carton",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 17,
-      "name": "Corrugated carton"
+      "old_category": "Corrugated carton",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 18,
-      "name": "Meal carton"
+      "old_category": "Meal carton",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 19,
-      "name": "Pizza box"
+      "old_category": "Pizza box",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 20,
-      "name": "Paper cup"
+      "old_category": "Paper cup",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 21,
-      "name": "Disposable plastic cup"
+      "old_category": "Disposable plastic cup",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 22,
-      "name": "Foam cup"
+      "old_category": "Foam cup",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 23,
-      "name": "Glass cup"
+      "old_category": "Glass cup",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 24,
-      "name": "Other plastic cup"
+      "old_category": "Other plastic cup",
+      "new_id": 0
     },
     {
-      "bin": "Compost",
+      "new_category": "Compost",
       "id": 25,
-      "name": "Food waste"
+      "old_category": "Food waste",
+      "new_id": 2
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 26,
-      "name": "Glass jar"
+      "old_category": "Glass jar",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 27,
-      "name": "Plastic lid"
+      "old_category": "Plastic lid",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 28,
-      "name": "Metal lid"
+      "old_category": "Metal lid",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 29,
-      "name": "Other plastic"
+      "old_category": "Other plastic",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 30,
-      "name": "Magazine paper"
+      "old_category": "Magazine paper",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 31,
-      "name": "Tissues"
+      "old_category": "Tissues",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 32,
-      "name": "Wrapping paper"
+      "old_category": "Wrapping paper",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 33,
-      "name": "Normal paper"
+      "old_category": "Normal paper",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 34,
-      "name": "Paper bag"
+      "old_category": "Paper bag",
+      "new_id": 1
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 35,
-      "name": "Plastified paper bag"
+      "old_category": "Plastified paper bag",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 36,
-      "name": "Plastic film"
+      "old_category": "Plastic film",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 37,
-      "name": "Six pack rings"
+      "old_category": "Six pack rings",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 38,
-      "name": "Garbage bag"
+      "old_category": "Garbage bag",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 39,
-      "name": "Other plastic wrapper"
+      "old_category": "Other plastic wrapper",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 40,
-      "name": "Single-use carrier bag"
+      "old_category": "Single-use carrier bag",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 41,
-      "name": "Polypropylene bag"
+      "old_category": "Polypropylene bag",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 42,
-      "name": "Crisp packet"
+      "old_category": "Crisp packet",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 43,
-      "name": "Spread tub"
+      "old_category": "Spread tub",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 44,
-      "name": "Tupperware"
+      "old_category": "Tupperware",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 45,
-      "name": "Disposable food container"
+      "old_category": "Disposable food container",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 46,
-      "name": "Foam food container"
+      "old_category": "Foam food container",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 47,
-      "name": "Other plastic container"
+      "old_category": "Other plastic container",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 48,
-      "name": "Plastic glooves"
+      "old_category": "Plastic glooves",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 49,
-      "name": "Plastic utensils"
+      "old_category": "Plastic utensils",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 50,
-      "name": "Pop tab"
+      "old_category": "Pop tab",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 51,
-      "name": "Rope & strings"
+      "old_category": "Rope & strings",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 52,
-      "name": "Scrap metal"
+      "old_category": "Scrap metal",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 53,
-      "name": "Shoe"
+      "old_category": "Shoe",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 54,
-      "name": "Squeezable tube"
+      "old_category": "Squeezable tube",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 55,
-      "name": "Plastic straw"
+      "old_category": "Plastic straw",
+      "new_id": 0
     },
     {
-      "bin": "Recycle",
+      "new_category": "Recycle",
       "id": 56,
-      "name": "Paper straw"
+      "old_category": "Paper straw",
+      "new_id": 1
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 57,
-      "name": "Styrofoam piece"
+      "old_category": "Styrofoam piece",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 58,
-      "name": "Unlabeled litter"
+      "old_category": "Unlabeled litter",
+      "new_id": 0
     },
     {
-      "bin": "Garbage",
+      "new_category": "Garbage",
       "id": 59,
-      "name": "Cigarette"
+      "old_category": "Cigarette",
+      "new_id": 0
     }
   ]
+}

@@ -8,7 +8,7 @@ python validate.py
 from datasets import create_valid_dataset, create_valid_loader
 from tqdm import tqdm
 from pprint import PrettyPrinter
-from utils import voc_labels as classes
+from utils import taco_labels as classes
 from torchmetrics.detection.mean_ap import MeanAveragePrecision
 from pprint import pprint
 

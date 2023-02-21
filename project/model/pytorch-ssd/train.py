@@ -18,7 +18,7 @@ from utils import (
     save_checkpoint,
     clip_gradient,
     label_map,
-    voc_labels as classes
+    taco_labels as classes
 )
 
 parser = argparse.ArgumentParser()
@@ -53,8 +53,7 @@ parser.add_argument(
 args = vars(parser.parse_args())
 
 # Data parameters
-# data_folder = args['data_dir']  # folder with data files
-data_folder = '/Users/danielsmagly/Desktop/TACO_dataset/TACO'
+data_folder = args['data_dir']  # folder with data files
 keep_difficult = False  # use objects considered difficult to detect?
 
 # Model parameters

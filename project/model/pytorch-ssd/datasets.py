@@ -64,20 +64,23 @@ class TACO(Dataset):
         self.root_dir = os.path.join(data_folder, 'data')
 
         self.download(data_folder)
-        self.split(data_folder)
-        
+        # Convert categories from 60 to 4
+        self.split()
+        trainAnnotations = self.convert_annotations_categories(os.path.join(self.root_dir, 'annotations_0_train.json'), \
+                            os.path.join(self.root_dir, 'annotations_0_train_new.json'))
+        valAnnotations = self.convert_annotations_categories(os.path.join(self.root_dir, 'annotations_0_val.json'), \
+                            os.path.join(self.root_dir, 'annotations_0_val_new.json'))
+
         # Open annotations file
         if self.is_train:
-            with open(os.path.join(self.root_dir, 'annotations_0_train.json'), 'r') as f:
+            with open(trainAnnotations, 'r') as f:
                 self.annotations = json.load(f)
         else:
-            with open(os.path.join(self.root_dir, 'annotations_0_val.json'), 'r') as f:
+            with open(valAnnotations, 'r') as f:
                 self.annotations = json.load(f)
         # Create images list
         self.image_ids = [image['id'] for image in self.annotations['images']]
         self.image_filepaths = [os.path.join(self.root_dir, image['file_name']) for image in self.annotations['images']]
-        self.width_height = [(image['width'], image['height']) for image in self.annotations['images']]
-        print(self.width_height)
         # Create classes list
         self.classes = [category['name'] for category in self.annotations['categories']]
         self.class_to_idx = {cls: i for i, cls in enumerate(self.classes)}
@@ -92,18 +95,44 @@ class TACO(Dataset):
             subprocess.run(["python", download_script, '--dataset_path', annotations_file], check=True)
         except subprocess.CalledProcessError as e:
             if e.returncode != 2:
-                raise Exception("Download script returned a returncode that's not expected")
+                print(f"Download script returned a returncode {e.returncode} that's not expected")
         download_check = os.path.join(dataset_dir, 'data', 'batch_1', '000001.jpg')
         if not os.path.exists(download_check):
             raise Exception(f"TACO download failed, try rerunning {download_script}")
 
-    def split(self, dataset_dir):        
+    def split(self):
         # Split training and validation datasets
-        split_script = os.path.join(dataset_dir, "detector", "split_dataset.py")
-        subprocess.run(["python", split_script, "--dataset_dir", os.path.join(dataset_dir, "data")], check=True)
-        split_check = os.path.join(dataset_dir, 'data', 'annotations_0_train.json')
+        split_script = os.path.join(self.data_folder, "detector", "split_dataset.py")
+        subprocess.run(["python", split_script, "--dataset_dir", self.root_dir], check=True)
+        split_check = os.path.join(self.data_folder, 'data', 'annotations_0_train.json')
         if not os.path.exists(split_check):
             raise Exception(f"Split failed, try rerunning {split_check}")
+
+    def convert_annotations_categories(self, oldAnnotationsFile, newAnnotationsFile='annotations_new.json', categoryTranslationFile='category_translation.json'):
+        # Load the category_translation.json file
+        with open(categoryTranslationFile, 'r') as f:
+            category_translation = json.load(f)
+        # Load the annotations.json file
+        with open(oldAnnotationsFile, 'r') as f:
+            annotations = json.load(f)
+        # Iterate over each annotation
+        for annotation in annotations['annotations']:
+            # Get the old category ID
+            old_category_id = int(annotation['category_id'])
+            # Check if there's a translation for the old category ID
+            if int(category_translation['category_translation'][old_category_id]['id']) == old_category_id:
+                # If there is, update the category ID to the new value
+                new_category_id = category_translation['category_translation'][old_category_id]['new_id']
+                annotation['category_id'] = new_category_id
+        # Update categories
+        print(f"Translated {len(annotations['categories'])} categories to {len(category_translation['new_categories'])} categories")
+        annotations['categories'] = category_translation['new_categories']
+        # Write the updated annotations to a new file
+        if os.path.exists(newAnnotationsFile):
+            os.remove(newAnnotationsFile)
+        with open(newAnnotationsFile, 'w') as f:
+            json.dump(annotations, f)
+        return newAnnotationsFile
 
     def round_0_to_1(self, val):
         if val >= 0 and val <= 1:
