@@ -9,6 +9,21 @@ The World Bank’s 2012 study of MSW reported that the most important way to red
 
 ## Installation
 
+Python Version: 3.9
+
+Run ```python3 -m pip install requirements.txt```
+
+## Start training 
+Navigate to project/model/pytorch-ssd/
+
+Run ```python3 train.py``` this will install the dataset which may take a while (1500 images).
+
+usage: train.py [-h] [-b BATCH_SIZE] [-i ITERATIONS] [-j WORKERS] [-pf PRINT_FREQUENCY] [-lr LEARNING_RATE] [-ckpt CHECKPOINT] [-d DATA_DIR]
+
+## Run validation
+Navigate to project/model/pytorch-ssd/
+
+Run ```python3 validation.py```
 
 ## Database Design ERD
 ```json

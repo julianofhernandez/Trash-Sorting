@@ -44,11 +44,11 @@ parser.add_argument(
 )
 parser.add_argument(
     '-ckpt', '--checkpoint', default=None, type=str,
-    help='path to trained checkpoint (trained on Pascal VOC)'
+    help='path to trained checkpoint'
 )
 parser.add_argument(
     '-d', '--data-dir', dest='data_dir', default='TACO',
-    help='path to the VOCdevkit directory'
+    help='path to the TACO directory'
 )
 args = vars(parser.parse_args())
 
