@@ -37,24 +37,24 @@ def main():
         print("Select what you want information on.")
         print(menu_prompt)
 
-        key = misc.read_input(menu_options)
+        reprompt = handle_key(key=misc.read_input(menu_options))
+        if not reprompt:
+            break
 
-        if (key == -1):
-            misc.print_invalid_input()
-            continue
 
-        if (key == menu_options[0]):
-            print(about_info + "\n")
-
-        elif (key == menu_options[1]):
-            print(menu_info + "\n")
-
-        elif (key == menu_options[2]):
-            print(credit_info)
-
-        else:
-            misc.print_menu_return()
-            return False
+def handle_key(key):
+    if (key == -1):
+        misc.print_invalid_input()
+    elif (key == menu_options[0]):
+        print(about_info + "\n")
+    elif (key == menu_options[1]):
+        print(menu_info + "\n")
+    elif (key == menu_options[2]):
+        print(credit_info)
+    else:
+        misc.print_menu_return()
+        return False
+    return True
 
 
 if __name__ == "__main__":
