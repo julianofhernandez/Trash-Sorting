@@ -25,8 +25,8 @@ parser.add_argument(
     help='number of parallel workers'
 )
 parser.add_argument(
-    '-d', '-data-dir', dest='data_dir', default='VOCdevkit',
-    help='path to the VOCdevkit directory'
+    '-d', '-data-dir', dest='data_dir', default='TACO',
+    help='path to the TACO directory'
 )
 args = vars(parser.parse_args())
 

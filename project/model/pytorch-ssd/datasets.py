@@ -163,31 +163,31 @@ class TACO(Dataset):
         labels = [ann['category_id']+1 for ann in annotations]
 
         # Convert the bbox format from [x, y, width, height] to [x1, y1, x2, y2]
-        orig_boxes = [[b[0], b[1], b[0]+b[2], b[1]+b[3]] for b in orig_boxes]
+        #orig_boxes = [[b[0], b[1], b[0]+b[2], b[1]+b[3]] for b in orig_boxes]
         
         boxes = []
         for box in orig_boxes:
-            xmin_final = ((box[0]/image_width)*self.width) / self.width
-            xmax_final = ((box[2]/image_width)*self.width) / self.width
-            ymin_final = ((box[1]/image_height)*self.height) / self.height
-            ymax_final = ((box[3]/image_height)*self.height) /self.height
+            x_min = box[0]/image_width
+            y_min = box[1]/image_height
+            width = box[2]/image_width
+            height = box[3]/image_height
 
-            xmax_final = self.round_0_to_1(xmax_final)
-            ymin_final = self.round_0_to_1(ymin_final)
-            ymax_final = self.round_0_to_1(ymax_final)
-            xmin_final = self.round_0_to_1(xmin_final)
+            x_min_norm = x_min / image_width
+            y_min_norm = y_min / image_height
+            width_norm = width / image_width
+            height_norm = height / image_height
 
-            boxes.append([xmin_final, ymin_final, xmax_final, ymax_final])
-        difficultues = 1
+            boxes.append([x_min_norm, y_min_norm, width_norm, height_norm])
+        difficulties = 1
 
-        return image, image_resized, orig_boxes, boxes, labels, difficultues
+        return image, image_resized, orig_boxes, boxes, labels, difficulties
     
     def __getitem__(self, idx):
         image, image_resized, orig_boxes, boxes, labels, diffculties = \
             self.load_image_and_labels(index=idx)
 
-        if len(orig_boxes)==0:
-            return self.__getitem__(idx+1)
+        #if len(orig_boxes)==0:
+            # return self.__getitem__(idx+1)
 
         if self.use_train_aug:
             
