@@ -1,8 +1,7 @@
 """
 settings.py
 where the settings of the program should be modified.
-For now all the settings are not saved in file and
-will be saved here
+Settings saved in 'settings.cfg' config file.
 """
 
 import misc
@@ -10,6 +9,7 @@ import os
 import json
 
 # defaults
+CONFIG_FILE = 'settings.cfg'
 PROCESS_ONLINE = True
 SINGLE_CLASSIFICATION = False
 FPS_RATE = 10
@@ -17,17 +17,17 @@ MAX_FPS = 30
 MIN_FPS = 5
 
 
-def load():
+def load(filename=CONFIG_FILE):
     global PROCESS_ONLINE, SINGLE_CLASSIFICATION, FPS_RATE
-    with open('settings.cfg', 'r') as file:
+    with open(filename, 'r') as file:
         settings = json.load(file)
     PROCESS_ONLINE = settings['PROCESS_ONLINE']
     SINGLE_CLASSIFICATION = settings['SINGLE_CLASSIFICATION']
     FPS_RATE = settings['FPS_RATE']
 
 
-def save():
-    with open('settings.cfg', 'w') as file:
+def save(filename=CONFIG_FILE):
+    with open(filename, 'w') as file:
         json.dump({'PROCESS_ONLINE': PROCESS_ONLINE,
                    'SINGLE_CLASSIFICATION': SINGLE_CLASSIFICATION,
                    'FPS_RATE': FPS_RATE}, file)
@@ -52,27 +52,33 @@ menu_prompt = menu_options[0] + ": Toggle Online/Offline Computation (currently:
 
 
 def main():
-    while(True):
-        print(menu_prompt.format(PROCESS_ONLINE,
-              SINGLE_CLASSIFICATION, FPS_RATE))
+    while (True):
+        print(menu_prompt.format(
+            'online' if PROCESS_ONLINE else 'offline',
+            'single' if SINGLE_CLASSIFICATION else 'multi',
+            FPS_RATE))
         print("Press the key to the corresponding action")
 
-        key = misc.read_input(menu_options)
+        reprompt = handle_key(key=misc.read_input(menu_options))
+        if not reprompt:
+            break
 
-        if(key == -1):
-            misc.print_invalid_input()
-            continue
-
-        if(key == menu_options[0]):
-            toggle_computation_mode()
-        elif(key == menu_options[1]):
-            toggle_classification_mode()
-        elif(key == menu_options[2]):
-            toggle_fps()
-        else:
-            misc.print_menu_return()
-            return False
         save()
+
+
+def handle_key(key):
+    if (key == -1):
+        misc.print_invalid_input()
+    elif (key == menu_options[0]):
+        toggle_computation_mode()
+    elif (key == menu_options[1]):
+        toggle_classification_mode()
+    elif (key == menu_options[2]):
+        toggle_fps()
+    else:
+        misc.print_menu_return()
+        return False
+    return True
 
 
 def toggle_computation_mode():
@@ -85,11 +91,11 @@ def toggle_computation_mode():
 
     key = misc.read_input(sub_options)
 
-    if(key == -1):
+    if (key == -1):
         misc.print_invalid_input()
         return -1
 
-    if(key == sub_options[0]):
+    if (key == sub_options[0]):
         PROCESS_ONLINE = True
         print("Processing is online")
     else:
@@ -107,11 +113,11 @@ def toggle_classification_mode():
 
     key = misc.read_input(sub_options)
 
-    if(key == -1):
+    if (key == -1):
         misc.print_invalid_input()
         return -1
 
-    if(key == sub_options[0]):
+    if (key == sub_options[0]):
         SINGLE_CLASSIFICATION = True
         print("classification is singular")
     else:

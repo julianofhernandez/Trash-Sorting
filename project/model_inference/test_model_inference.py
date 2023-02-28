@@ -6,165 +6,190 @@ import numpy as np
 
 class TestCreate:
     def test_invalid_key(self):
-        res = requests.post('http://localhost:5001/create/model/apple',
+        res = requests.post('http://localhost:5001/create/model/test',
                             data={'key': 'wrongkey',
                                   'metadata': json.dumps({'a': 5})},
                             files={'model': open('README.md', 'rb')})
-        print(res.content)
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 1,\\n  "error_msg": "Invalid Key",\\n  "successful": false\\n}\\n\'')
+        print(json.loads(res.content))
+        print(json.dumps(res.content.decode()))
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 1,
+                                           'error_msg': 'Invalid Key',
+                                           'successful': False}
 
     def test_already_exists(self):
-        res = requests.post('http://localhost:5001/create/model/apple',
+        res = requests.post('http://localhost:5001/create/model/test',
                             data={'key': 'secretkey',
                                   'metadata': json.dumps({'a': 5})},
                             files={'model': open('README.md', 'rb')})
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 5,\\n  "error_msg": "Model already exists",\\n  "successful": false\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 5,
+                                           'error_msg': 'Model already exists',
+                                           'successful': False}
+    
 
     def test_missing_model(self):
-        res = requests.post('http://localhost:5001/create/model/win',
+        res = requests.post('http://localhost:5001/create/model/test2',
                             data={'key': 'secretkey',
                                   'metadata': json.dumps({'a': 5})},
                             files={})
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 3,\\n  "error_msg": "Missing model in files part of request",\\n  "successful": false\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 3,
+                                           'error_msg': 'Missing model in files part of request',
+                                           'successful': False}
 
     def test_missing_metadata(self):
-        res = requests.post('http://localhost:5001/create/model/win',
+        res = requests.post('http://localhost:5001/create/model/test2',
                             data={'key': 'secretkey'},
                             files={'model': open('README.md', 'rb')})
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 4,\\n  "error_msg": "Missing metadata in form part of request",\\n  "successful": false\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 4,
+                                           'error_msg': 'Missing metadata in form part of request',
+                                           'successful': False}
 
     def test_new_success(self):
-        res = requests.post('http://localhost:5001/create/model/win',
+        res = requests.post('http://localhost:5001/create/model/test2',
                             data={'key': 'secretkey',
                                   'metadata': json.dumps({'b': 6})},
                             files={'model': open('README.md', 'rb')})
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 0,\\n  "error_msg": null,\\n  "successful": true\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 0,
+                                           'error_msg': None,
+                                           'successful': True}
 
 
 class TestReadInference:
     def test_no_image(self):
         res = requests.post(
-            'http://localhost:5001/read/inference/apple', files={})
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 3,\\n  "error_msg": "Missing image in files part of request",\\n  "model_name": "apple",\\n  "predictions": []\\n}\\n\'')
+            'http://localhost:5001/read/inference/test', files={})
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 3,
+                                           'error_msg': 'Missing image in files part of request',
+                                           'model_name': 'test',
+                                           'predictions': []}
 
-    def test_exception(self):
-        # TODO rewrite after fully implementing ssd.py
+    def test_success(self):
         byte_arr = BytesIO()
         byte_arr.write(np.random.randint(0, 127, 10, dtype=np.uint8).tobytes())
         byte_arr.seek(0)
         res = requests.post(
-            'http://localhost:5001/read/inference/apple', files={'image': byte_arr})
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 2,\\n  "error_msg": "only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean arrays are valid indices",\\n  "model_name": "apple",\\n  "predictions": []\\n}\\n\'')
+            'http://localhost:5001/read/inference/test', files={'image': byte_arr})
+        res_content = json.loads(res.content)
 
-    def test_success(self):
-        # TODO write after fully implementing ssd.py
-        pass
+        assert res.status_code == 200
+        assert 'error_code' in res_content and res_content['error_code'] == 0
+        assert 'error_msg' in res_content and res_content['error_msg'] is None
+        assert 'model_name' in res_content and res_content['model_name'] == 'test'
+        assert 'predictions' in res_content
+        assert set(['bounding_box', 'class_probs', 'obj_label', 'trash_bin_label']
+                   ).issubset(res_content['predictions'][0])
 
 
 class TestReadBatchInf:
     def test_missing_images(self):
         res = requests.post(
-            'http://localhost:5001/read/batch-inference/apple', data={'num_image': 2}, files={})
+            'http://localhost:5001/read/batch-inference/test', data={'num_image': 2}, files={})
         res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "batch_predictions": [],\\n  "error_code": 3,\\n  "error_msg": "Missing image_0 in files part of request",\\n  "model_name": "apple"\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'batch_predictions': [],
+                                           'error_code': 3,
+                                           'error_msg': 'Missing image_0 in files part of request',
+                                           'model_name': 'test'}
 
     def test_missing_num_image(self):
         byte_arr, byte_arr2 = '', ''
-        res = requests.post('http://localhost:5001/read/batch-inference/apple',
+        res = requests.post('http://localhost:5001/read/batch-inference/test',
                             data={}, files={'image_0': byte_arr, 'image_1': byte_arr2})
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "batch_predictions": [],\\n  "error_code": 4,\\n  "error_msg": "Missing num_image in form part of request",\\n  "model_name": "apple"\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'batch_predictions': [],
+                                           'error_code': 4,
+                                           'error_msg': 'Missing num_image in form part of request',
+                                           'model_name': 'test'}
 
-    def test_exception(self):
-        # TODO rewrite after fully implementing ssd.py
+    def test_success(self):
         byte_arr = BytesIO()
         byte_arr.write(np.random.randint(0, 127, 10, dtype=np.uint8).tobytes())
         byte_arr.seek(0)
-        byte_arr2 = BytesIO()
-        byte_arr2.write(np.random.randint(
-            0, 127, 10, dtype=np.uint8).tobytes())
-        byte_arr2.seek(0)
+        res = requests.post(
+            'http://localhost:5001/read/inference/test', files={'image': byte_arr})
+        res_content = json.loads(res.content)
 
-        res = requests.post('http://localhost:5001/read/batch-inference/apple', data={
-                            'num_image': 2}, files={'image_0': byte_arr, 'image_1': byte_arr2})
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "batch_predictions": [],\\n  "error_code": 2,\\n  "error_msg": "invalid index to scalar variable.",\\n  "model_name": "apple"\\n}\\n\'')
-
-    def test_success(self):
-        # TODO write after fully implementing ssd.py
-        pass
+        assert res.status_code == 200
+        assert 'error_code' in res_content and res_content['error_code'] == 0
+        assert 'error_msg' in res_content and res_content['error_msg'] is None
+        assert 'model_name' in res_content and res_content['model_name'] == 'test'
+        assert 'predictions' in res_content
+        assert set(['bounding_box', 'class_probs', 'obj_label', 'trash_bin_label']
+                   ).issubset(res_content['predictions'][0])
 
 
 class TestReadModelList:
     def test_list(self):
         res = requests.get('http://localhost:5001/read/model/list')
         res, res.content, json.loads(res.content)['model_list']
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 0,\\n  "error_msg": null,\\n  "model_list": [\\n    {\\n      "metadata": "{\\\\"a\\\\": 5}",\\n      "model_name": "apple"\\n    },\\n    {\\n      "metadata": "{\\\\"b\\\\": 6}",\\n      "model_name": "win"\\n    }\\n  ]\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 0,
+                                           'error_msg': None,
+                                           'model_list':
+                                           [{'metadata': json.dumps({'a': 5}), 'model_name': 'test'},
+                                            {'metadata': json.dumps({'b': 6}), 'model_name': 'test2'}]
+                                           }
 
 
 class TestReadModel:
     def test_unknown(self):
         res = requests.get('http://localhost:5001/read/model/watermelon')
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 3,\\n  "error_msg": "Model Not Found"\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 3,
+                                           'error_msg': 'Model Not Found'}
 
     def test_known(self):
-        res = requests.get('http://localhost:5001/read/model/apple')
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                "b'## Model Inference\\n\\nREST API Server\\n'")
+        res = requests.get('http://localhost:5001/read/model/test')
+        assert res.status_code == 200
+        assert str(res.content) == "b'test'"
 
 
 class TestReadMetadata:
     def test_unknown(self):
         res = requests.get('http://localhost:5001/read/metadata/watermelon')
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 3,\\n  "error_msg": "Model Metadata Not Found",\\n  "metadata": ""\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 3,
+                                           'error_msg': 'Model Metadata Not Found',
+                                           'metadata': ''}
 
     def test_known(self):
-        res = requests.get('http://localhost:5001/read/metadata/apple')
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 0,\\n  "error_msg": null,\\n  "metadata": "{\\\\"a\\\\": 5}"\\n}\\n\'')
+        res = requests.get('http://localhost:5001/read/metadata/test')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 0,
+                                           'error_msg': None,
+                                           'metadata': json.dumps({'a': 5})}
 
 
 class TestUpdate:
     def test_invalid_key(self):
-        res = requests.put('http://localhost:5001/update/model/apple',
+        res = requests.put('http://localhost:5001/update/model/test',
                            data={'key': 'badkey', 'metadata': json.dumps({'a': 7})})
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 1,\\n  "error_msg": "Invalid Key",\\n  "successful": false\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 1,
+                                           'error_msg': 'Invalid Key',
+                                           'successful': False}
 
     def test_model(self):
-        res = requests.put('http://localhost:5001/update/model/win',
+        res = requests.put('http://localhost:5001/update/model/test2',
                            data={'key': 'secretkey', 'model': open('README.md', 'rb')})
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 0,\\n  "error_msg": null,\\n  "successful": true\\n}\\n\'')
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 0,
+                                           'error_msg': None,
+                                           'successful': True}
 
     def test_metadata(self):
-        res = requests.put('http://localhost:5001/update/model/apple',
+        res = requests.put('http://localhost:5001/update/model/test',
                            data={'key': 'secretkey', 'metadata': json.dumps({'a': 7})})
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 0,\\n  "error_msg": null,\\n  "successful": true\\n}\\n\'')
-        res = requests.put('http://localhost:5001/update/model/apple',
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 0,
+                                           'error_msg': None,
+                                           'successful': True}
+        res = requests.put('http://localhost:5001/update/model/test',
                            data={'key': 'secretkey', 'metadata': json.dumps({'a': 5})})
         res, res.content
 
@@ -172,14 +197,16 @@ class TestUpdate:
 class TestDelete:
     def test_invalid_key(self):
         res = requests.delete(
-            'http://localhost:5001/delete/model/apple', data={'key': 'badkey'})
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 1,\\n  "error_msg": "Invalid Key",\\n  "successful": false\\n}\\n\'')
+            'http://localhost:5001/delete/model/test', data={'key': 'badkey'})
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 1,
+                                           'error_msg': 'Invalid Key',
+                                           'successful': False}
 
     def test_success(self):
         res = requests.delete(
-            'http://localhost:5001/delete/model/win', data={'key': 'secretkey'})
-        res, res.content
-        assert (str(res), str(res.content)) == ('<Response [200]>',
-                                                'b\'{\\n  "error_code": 0,\\n  "error_msg": null,\\n  "successful": true\\n}\\n\'')
+            'http://localhost:5001/delete/model/test2', data={'key': 'secretkey'})
+        assert res.status_code == 200
+        assert json.loads(res.content) == {'error_code': 0,
+                                           'error_msg': None,
+                                           'successful': True}

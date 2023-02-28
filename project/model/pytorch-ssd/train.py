@@ -4,13 +4,15 @@ import torch.backends.cudnn as cudnn
 import torch.optim
 import torch.utils.data
 import argparse
-
+from torch.utils.data import DataLoader, Dataset
 
 
 from model import SSD300, MultiBoxLoss
 from datasets import (
     create_train_dataset, 
     create_train_loader,
+    collate_fn,
+    TACO
 )
 from utils import (
     adjust_learning_rate, 
@@ -44,11 +46,11 @@ parser.add_argument(
 )
 parser.add_argument(
     '-ckpt', '--checkpoint', default=None, type=str,
-    help='path to trained checkpoint (trained on Pascal VOC)'
+    help='path to trained checkpoint'
 )
 parser.add_argument(
     '-d', '--data-dir', dest='data_dir', default='TACO',
-    help='path to the VOCdevkit directory'
+    help='path to the TACO directory'
 )
 args = vars(parser.parse_args())
 
@@ -90,7 +92,7 @@ def main():
         start_epoch = 0
         model = SSD300(n_classes=n_classes)
 
-        print(model)
+        # print(model)
 
         # Total parameters and trainable parameters.
         total_params = sum(p.numel() for p in model.parameters())
@@ -123,20 +125,20 @@ def main():
     criterion = MultiBoxLoss(priors_cxcy=model.priors_cxcy).to(device)
 
     # Custom dataloaders
-    train_dataset = create_train_dataset(
-        data_folder=data_folder,
+    train_dataset = TACO(
+        "TACO",
         train=True,
-        keep_difficult=keep_difficult,
-        resize_width=300,
-        resize_height=300,
-        use_train_aug=False,
-        classes=list(classes)
+        width=300,
+        height=300,
+        classes=classes
     )
-    print(f'Training dataset has {len(train_dataset)} images')
-    train_loader = create_train_loader(
-        train_dataset=train_dataset,
-        batch_size=batch_size,
-        num_workers=workers,   
+
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=1,
+        shuffle=False,
+        num_workers=0,
+        collate_fn=collate_fn
     )
 
     # Calculate total number of epochs to train and the epochs to decay learning rate at (i.e. convert iterations to epochs).
@@ -186,19 +188,19 @@ def train(train_loader, model, criterion, optimizer, epoch):
     start = time.time()
 
     # Batches
-    for i, (images, boxes, labels, _) in enumerate(train_loader):
+    for i, (images, boxes, labels) in enumerate(train_loader):
         data_time.update(time.time() - start)
 
         # Move to default device
         images = images.to(device)  # (batch_size (N), 3, 300, 300)
-        boxes = [b.to(device) for b in boxes]
-        labels = [l.to(device) for l in labels]
+        boxes_device = [b.to(device) for b in boxes]
+        labels_device = [l.to(device) for l in labels]
 
         # Forward prop.
         predicted_locs, predicted_scores = model(images)  # (N, 8732, 4), (N, 8732, n_classes)
 
         # Loss
-        loss = criterion(predicted_locs, predicted_scores, boxes, labels)  # scalar
+        loss = criterion(predicted_locs, predicted_scores, boxes_device, labels_device)  # scalar
 
         # Backward prop.
         optimizer.zero_grad()
@@ -227,22 +229,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
                   'Loss val: {loss.val:.25f} Avg loss: ({loss.avg:.25f})\t'.format(epoch, i, len(train_loader),
                                                                   batch_time=batch_time,
                                                                   data_time=data_time, loss=losses))
-    del predicted_locs, predicted_scores, images, boxes, labels  # free some memory since their histories may be stored
-
-"""def accuracy_score(model, train_loader, device):
-    model.eval()
-    total = 0
-    correct = 0
-    with torch.no_grad():
-        for images, boxes, labels, _ in train_loader:
-            images = images.to(device)
-            
-            labels = [l.to(device) for l in labels]
-            outputs = model(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-    return 100 * correct / total"""
+    del predicted_locs, predicted_scores, images, boxes_device, labels_device  # free some memory since their histories may be stored
 
 
 if __name__ == '__main__':
