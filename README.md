@@ -11,7 +11,7 @@ The World Bank’s 2012 study of MSW reported that the most important way to red
 
 Python Version: 3.9
 
-Run ```python3 -m pip install requirements.txt```
+Run ```python3 -m pip install -r requirements.txt```
 
 ## Start training 
 Navigate to project/model/pytorch-ssd/
