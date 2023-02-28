@@ -9,7 +9,7 @@ function request_classify(){
         const formData = new FormData();
         formData.append('image', fileInput.files[0]);
 
-        fetch('http://localhost:5001/read/inference/apple', {
+        fetch('http://localhost:5001/read/inference/test', {
             method: 'POST',
             body: formData,
             headers: {
