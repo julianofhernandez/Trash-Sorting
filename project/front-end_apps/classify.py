@@ -4,9 +4,7 @@ the classify menu to be used to collect the data to be classified
 by the user
 """
 
-import settings
 import misc
-import main
 import cv2
 from camera import *
 from ssd import ssd_preds
