@@ -5,12 +5,13 @@ USAGE:
 python validate.py
 """
 
-from datasets import create_valid_dataset, create_valid_loader
 from tqdm import tqdm
 from pprint import PrettyPrinter
 from utils import taco_labels as classes
 from torchmetrics.detection.mean_ap import MeanAveragePrecision
 from pprint import pprint
+from datasets import TACO, collate_fn
+from torch.utils.data import DataLoader, Dataset
 
 import torch
 import argparse
@@ -25,8 +26,8 @@ parser.add_argument(
     help='number of parallel workers'
 )
 parser.add_argument(
-    '-d', '-data-dir', dest='data_dir', default='VOCdevkit',
-    help='path to the VOCdevkit directory'
+    '-d', '-data-dir', dest='data_dir', default='TACO',
+    help='path to the TACO directory'
 )
 args = vars(parser.parse_args())
 
@@ -50,23 +51,40 @@ model = model.to(device)
 model.eval()
 
 # Load test data
-test_dataset = create_valid_dataset(
-    data_folder=data_folder,
+
+# Custom dataloaders
+test_dataset = TACO(
+    "TACO",
     train=False,
-    keep_difficult=keep_difficult,
-    resize_width=300,
-    resize_height=300,
-    use_train_aug=False,
-    classes=list(classes),
-)
-print(f'Validation dataset has {len(test_dataset)} images')
-test_loader = create_valid_loader(
-    valid_dataset=test_dataset,
-    batch_size=batch_size,
-    num_workers=workers
+    width=300,
+    height=300,
+    classes=classes
 )
 
+test_loader = DataLoader(
+    test_dataset,
+    batch_size=1,
+    shuffle=False,
+    num_workers=0,
+    collate_fn=collate_fn
+)
 metric = MeanAveragePrecision(class_metrics=True)
+
+def pretty_print_metrics(metrics_dict):
+    print("- map: {}".format(metrics_dict['map']))
+    print("- map_small: {}".format(metrics_dict['map_small']))
+    print("- map_medium: {}".format(metrics_dict['map_medium']))
+    print("- map_large: {}".format(metrics_dict['map_large']))
+    print("- mar_1: {}".format(metrics_dict['mar_1']))
+    print("- mar_10: {}".format(metrics_dict['mar_10']))
+    print("- mar_100: {}".format(metrics_dict['mar_100']))
+    print("- mar_small: {}".format(metrics_dict['mar_small']))
+    print("- mar_medium: {}".format(metrics_dict['mar_medium']))
+    print("- mar_large: {}".format(metrics_dict['mar_large']))
+    print("- map_50: {}".format(metrics_dict['map_50'] if 'map_50' in metrics_dict else -1))
+    print("- map_75: {}".format(metrics_dict['map_75'] if 'map_75' in metrics_dict else -1))
+    print("- map_per_class: {}".format(metrics_dict['map_per_class'] if 'map_per_class' in metrics_dict else -1))
+    print("- mar_100_per_class: {}".format(metrics_dict['mar_100_per_class'] if 'mar_100_per_class' in metrics_dict else -1))
 
 def evaluate(test_loader, model):
     """
@@ -83,7 +101,7 @@ def evaluate(test_loader, model):
 
     with torch.no_grad():
         # Batches
-        for i, (images, boxes, labels, difficulties) in enumerate(tqdm(test_loader, desc='Evaluating')):
+        for i, (images, boxes, labels) in enumerate(tqdm(test_loader, desc='Evaluating')):
             # true_dict = dict()
             # preds_dict = dict()
             # if i == 1:
@@ -104,7 +122,6 @@ def evaluate(test_loader, model):
             # Store this batch's results for mAP calculation
             boxes = [b.to(device) for b in boxes]
             labels = [l.to(device) for l in labels]
-            difficulties = [d.to(device) for d in difficulties]
 
             for j, batch_data in enumerate(det_boxes_batch):
                 true_dict = dict()
@@ -125,6 +142,7 @@ def evaluate(test_loader, model):
 
         metric.update(preds, target)
         pprint(metric.compute())
+        pretty_print_metrics(metric.compute())
 
 if __name__ == '__main__':
     evaluate(test_loader, model)

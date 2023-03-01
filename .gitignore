@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Ignore model weights
+*.pth.tar
+
 # C extensions
 *.so
 
