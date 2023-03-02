@@ -53,15 +53,35 @@ def camera_classify(process_online, single_classification):
     if CAMERA is None:
         print("Starting up camera...")
         CAMERA = CameraCapturer()
-    input('Enter to capture')
+
+
+    print("\nPress SPACE to capture, Press ESCAPE to exit")
     img = CAMERA.capture()
-    # send img to Server or Local Model
-    preds = ssd_preds(img, process_online, single_classification)
-    if preds is None:
-        print("Failed to classify")
-    else:
-        for pred in preds:
-            print(pred)
+    
+    while(img is not None):
+        img = CAMERA.capture()
+        cv2.imshow('Press SPACE to capture, Press ESCAPE to exit', img)
+        key = cv2.waitKey(1) & 0xFF
+        if key == 32:
+            print("\nCaptured")
+
+            # send img to Server or Local Model
+            preds = ssd_preds(img, process_online, single_classification)
+            if preds is None:
+                print("Failed to classify")
+            else:
+                for pred in preds:
+                    print(pred)
+
+            break
+        elif key == 27:
+            img = None
+            break
+            
+    cv2.destroyAllWindows()
+    cv2.waitKey(1)
+    CAMERA.close()
+    CAMERA = None
 
 
 def file_classify(process_online, single_classification):
@@ -93,10 +113,10 @@ def real_time_classify(process_online, single_classification, fps_rate):
 
     # add real time camera function
     with CameraRecorder(1, fps=fps_rate) as cr:
-        print("Active. To stop, press Q.")
+        print("Active. Press Q to stop")
         while True:
             img = cr.capture()
-            cv2.imshow("Classifing Webcam", img)
+            cv2.imshow("Classifing. Press Q to stop", img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
             preds = ssd_preds(img, process_online, single_classification)
@@ -106,6 +126,7 @@ def real_time_classify(process_online, single_classification, fps_rate):
                 for pred in preds:
                     print(pred)
     cv2.destroyAllWindows()
+    cv2.waitKey(1)
 
 
 if __name__ == "__main__":
