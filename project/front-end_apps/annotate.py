@@ -84,9 +84,27 @@ def main(process_online, single_classification, fps_rate):
             misc.print_invalid_input()
             continue
         if(key[0] == menu_options[0]):
-            open_annotation(live_capture=True)
+            img = open_from_camera()
+
+            if img is None:
+                print("image could not be read")
+                continue
+
+            annotation = handle_annotation_ui(img)
+            
+            upload_annotation(annotation, img)
+            
         elif(key[0] == menu_options[1]):
-            open_annotation(path=True)
+            img = open_from_path()
+
+            if img is None:
+                print("image could not be read")
+                continue
+            
+            annotation = handle_annotation_ui(img)
+            
+            upload_annotation(annotation, img)
+            
         else:
             if CAMERA is not None:
                 CAMERA.close()
@@ -96,9 +114,10 @@ def main(process_online, single_classification, fps_rate):
 
 
 def handle_annotation_ui(img, prev_annotation=None):
+    print("\n Draw: Left click drag\n Reset: Double Right Click\n Done: Ctrl + Right Click\n Exit: Esc")
     annotation = Annotations(prev_annotation)
 
-    # define mouse callback function to draw circle
+    # define mouse callback function to draw bounding boxes
     def mouse_callback(event, x, y, flags, param):
         """
         Ref - https://www.tutorialspoint.com/opencv-python-how-to-draw-a-rectangle-using-mouse-events
@@ -117,6 +136,9 @@ def handle_annotation_ui(img, prev_annotation=None):
 
     # Create a window and bind the function to window
     cv2.namedWindow("Annotation Window")
+
+    # Make window threaded
+    cv2.startWindowThread()
 
     # Connect the mouse button to our callback function
     cv2.setMouseCallback("Annotation Window", mouse_callback)
@@ -137,6 +159,8 @@ def handle_annotation_ui(img, prev_annotation=None):
         if annotation.is_done():
             break
     cv2.destroyAllWindows()
+    # needed on MacOS to update window state
+    cv2.waitKey(1)
     return annotation
 
 
@@ -153,31 +177,63 @@ def open_annotation(live_capture=False, path=False):
     - reset all annotation 
     - Finish Annotation
 
-
+    Use of this function is deprecated to make code more modular and testable.
+    Portions of this code have been split up via functionality so this function is no
+    longer useful, but is being kept here for developers
     """
-    global CAMERA
+    
     # Live capture to annotate
     if live_capture is True:
-        print("Annotating from camera")
-        if CAMERA is None:
-            print("Starting up camera...")
-            CAMERA = CameraCapturer()
-        input("Enter to Capture")
-        img = CAMERA.capture()
-        if img is None:
-            print("Image could not be read")
-            return 0
-        print("\nCaptured !\n Draw: Left click drag\n Reset: Double Right Click\n Done: Ctrl + Right Click\n Exit: Esc")
+       return open_from_camera()
     elif path is True:
-        path = input("Type in the path\n")
-        img = cv2.imread(path)
-        if img is None:
-            print('Image could not be read')
-            return 0
-        print("\n Draw: Left click drag\n Reset: Double Right Click\n Done: Ctrl + Right Click\n Exit: Esc")
+        return open_from_path()
+    return None
 
-    annotation = handle_annotation_ui(img)
+def open_from_camera():
+    """
+    Opens up the Users camera and displays the camera on the screen. Once the user
+    presses SPACEBAR, the camera capture the image and return the image.
+    """
+    global CAMERA
+    print("Annotating from camera")
+    if CAMERA is None:
+        print("Starting up camera...")
+        CAMERA = CameraCapturer()
 
+    print("\nPress SPACE to capture, Press ESCAPE to exit")
+    img = CAMERA.capture()
+        
+    while(img is not None):
+        img = CAMERA.capture()
+        cv2.imshow('Press SPACE to capture, Press ESCAPE to exit', img)
+        key = cv2.waitKey(1) & 0xFF
+        if key == 32:
+            print("\nCaptured")
+            break
+        elif key == 27:
+            img = None
+            break
+
+    cv2.destroyAllWindows()
+    cv2.waitKey(1)
+    CAMERA.close()
+    CAMERA = None
+        
+    return img
+
+def open_from_path():
+    """
+    Prompts the user to open an image. Returns None if failed to open
+    """
+    
+    path = input("Type in the path\n")
+    
+    return cv2.imread(path)
+
+def upload_annotation(annotation, img):
+    """
+    Uploads annotations to the annotation database
+    """
     if annotation.is_done():
         # Send to server
         print(annotation.annotations)
@@ -197,7 +253,6 @@ def open_annotation(live_capture=False, path=False):
     else:
         print("Exited Annotation UI")
         pass
-
 
 if __name__ == "__main__":
     main()

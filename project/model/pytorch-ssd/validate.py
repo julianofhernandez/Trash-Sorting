@@ -15,6 +15,7 @@ from torch.utils.data import DataLoader, Dataset
 
 import torch
 import argparse
+import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -86,6 +87,20 @@ def pretty_print_metrics(metrics_dict):
     print("- map_per_class: {}".format(metrics_dict['map_per_class'] if 'map_per_class' in metrics_dict else -1))
     print("- mar_100_per_class: {}".format(metrics_dict['mar_100_per_class'] if 'mar_100_per_class' in metrics_dict else -1))
 
+def store_mAP_values(metrics_dict):
+    mAP_values = [
+        metrics_dict['map'].item(),
+        metrics_dict['map_50'].item(),
+        metrics_dict['map_75'].item(),
+        metrics_dict['map_small'].item(),
+        metrics_dict['map_medium'].item(),
+        metrics_dict['map_large'].item()
+    ]
+
+    json_string = json.dumps(mAP_values)
+    with open('stored_mAP_Values.json', 'w') as f:
+        f.write(json_string)
+
 def evaluate(test_loader, model):
     """
     Evaluate.
@@ -143,6 +158,7 @@ def evaluate(test_loader, model):
         metric.update(preds, target)
         pprint(metric.compute())
         pretty_print_metrics(metric.compute())
+        store_mAP_values(metric.compute())
 
 if __name__ == '__main__':
     evaluate(test_loader, model)

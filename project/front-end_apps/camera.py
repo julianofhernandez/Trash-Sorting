@@ -9,6 +9,7 @@ from time import sleep, time
 
 import numpy as np
 import cv2
+import os
 
 
 class CameraCapturer():
@@ -18,7 +19,14 @@ class CameraCapturer():
         self.fps = fps
         self.frame_width = frame_width
         self.frame_height = frame_height
-        self.camera = cv2.VideoCapture(self.camera_device, cv2.CAP_MSMF)
+        
+        # CAP_MSMF is for Microsoft Media Foundation API so disable it for other systems
+        # 'nt' means OS is Windows
+        if os.name == 'nt':
+            self.camera = cv2.VideoCapture(self.camera_device, cv2.CAP_MSMF)
+        else:
+            self.camera = cv2.VideoCapture(self.camera_device)
+            
         if self.frame_width is not None:
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, self.frame_width)
         if self.frame_height is not None:
@@ -59,7 +67,14 @@ class CameraRecorder:
 
     def start_recording(self):
         self.stop_event.clear()
-        self.camera = cv2.VideoCapture(self.camera_device, cv2.CAP_MSMF)
+
+        # CAP_MSMF is for Microsoft Media Foundation API so disable it for other systems
+        # 'nt' means OS is Windows
+        if os.name == 'nt':
+            self.camera = cv2.VideoCapture(self.camera_device, cv2.CAP_MSMF)
+        else:
+            self.camera = cv2.VideoCapture(self.camera_device)
+
         if self.frame_width is not None:
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, self.frame_width)
         if self.frame_height is not None:
