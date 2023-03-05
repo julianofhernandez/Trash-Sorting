@@ -44,7 +44,7 @@ class CameraRecorder:
         self.frame_width = frame_width
         self.frame_height = frame_height
 
-        self.frames = deque(maxlen=self.max_buffer_seconds * self.fps)
+        self.frames = deque(maxlen=int(self.max_buffer_seconds * self.fps))
         self.stop_event = Event()
 
     def clear(self):
