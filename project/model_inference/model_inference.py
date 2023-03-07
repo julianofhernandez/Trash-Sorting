@@ -3,7 +3,7 @@ import numpy as np
 import os
 from io import BytesIO
 from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
+#from flask_cors import CORS
 
 
 
@@ -61,7 +61,7 @@ setup()
 
 try:
     app = Flask(__name__)
-    CORS(app)   #Create CORS header setup to allow request from the domain
+    #CORS(app)   #Create CORS header setup to allow request from the domain
 except Exception as e:
     display('Failed to launch server, terminating process...')
     print(e)
