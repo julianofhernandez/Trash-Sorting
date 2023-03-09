@@ -91,20 +91,20 @@ def main(process_online, single_classification, fps_rate):
                 continue
 
             annotation = handle_annotation_ui(img)
-            
+
             upload_annotation(annotation, img)
-            
+
         elif(key[0] == menu_options[1]):
             img = open_from_path()
 
             if img is None:
                 print("image could not be read")
                 continue
-            
+
             annotation = handle_annotation_ui(img)
-            
+
             upload_annotation(annotation, img)
-            
+
         else:
             if CAMERA is not None:
                 CAMERA.close()
@@ -181,13 +181,14 @@ def open_annotation(live_capture=False, path=False):
     Portions of this code have been split up via functionality so this function is no
     longer useful, but is being kept here for developers
     """
-    
+
     # Live capture to annotate
     if live_capture is True:
-       return open_from_camera()
+        return open_from_camera()
     elif path is True:
         return open_from_path()
     return None
+
 
 def open_from_camera():
     """
@@ -202,7 +203,7 @@ def open_from_camera():
 
     print("\nPress SPACE to capture, Press ESCAPE to exit")
     img = CAMERA.capture()
-        
+
     while(img is not None):
         img = CAMERA.capture()
         cv2.imshow('Press SPACE to capture, Press ESCAPE to exit', img)
@@ -218,17 +219,19 @@ def open_from_camera():
     cv2.waitKey(1)
     CAMERA.close()
     CAMERA = None
-        
+
     return img
+
 
 def open_from_path():
     """
     Prompts the user to open an image. Returns None if failed to open
     """
-    
+
     path = input("Type in the path\n")
-    
+
     return cv2.imread(path)
+
 
 def upload_annotation(annotation, img):
     """
@@ -238,7 +241,7 @@ def upload_annotation(annotation, img):
         # Send to server
         print(annotation.annotations)
         byte_arr = BytesIO()
-        byte_arr.write(img.tobytes())
+        byte_arr.write(cv2.imencode('.jpg', img)[1])
         byte_arr.seek(0)
 
         res = requests.post(f'http://{HOST}:{PORT}/create/entry', data={
@@ -253,6 +256,7 @@ def upload_annotation(annotation, img):
     else:
         print("Exited Annotation UI")
         pass
+
 
 if __name__ == "__main__":
     main()

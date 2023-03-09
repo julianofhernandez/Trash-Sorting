@@ -3,6 +3,7 @@ import cv2
 import json
 from ssd import ssd_preds
 from camera import CameraRecorder
+from pprint import pprint
 
 
 if __name__ == '__main__':
@@ -15,8 +16,8 @@ if __name__ == '__main__':
     group.add_argument('-i', '--input',
                        help='filename to an input image')
     group.add_argument('-c', '--camera',
-                        action='store_true',
-                        help='Opens camera and takes a picture')
+                       action='store_true',
+                       help='Opens camera and takes a picture')
 
     # Add other command-line options
     parser.add_argument('-l', '--local',
@@ -30,35 +31,33 @@ if __name__ == '__main__':
                         help='Saves a prediction output as json instead of going to console')
 
     args = parser.parse_args()
-    
 
     if args.camera:
         with CameraRecorder(.5, fps=30) as cr:
-            print("Active. Press Q to stop")
+            print("Active. Press SPACE to capture.")
             while True:
                 img = cr.capture()
-                cv2.imshow("Classifing. Press Q to stop", img)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
+                cv2.imshow("Classifing. Press SPACE to capture.", img)
+                if cv2.waitKey(1) & 0xFF == 32:
                     break
         cv2.destroyAllWindows()
-        cv2.waitKey(1) 
+        cv2.waitKey(1)
     else:
         img = cv2.imread(args.input)
     if img is None:
         print("Image could not be read")
     else:
         # Send the image to the Server or Local Model for classification
-        preds = ssd_preds(img, args.online is not None, args.single)
-        
-        if preds is not None:
+        pred = ssd_preds(img, args.online is not None, args.single)
+
+        if pred is not None:
             if args.json:
                 # If output is to be saved as json file, open a file and save the predictions
                 with open(args.json, 'w') as f:
-                    json.dump(preds, f)
+                    json.dump(pred, f)
             else:
-                # If output is to be printed to console, iterate over predictions and print them
-                for pred in preds:
-                    print(pred)
+                # If output is to be printed to console
+                pprint(pred)
         else:
             # error
             print("Failed to classify")

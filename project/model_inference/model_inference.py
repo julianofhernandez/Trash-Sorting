@@ -3,9 +3,9 @@ import numpy as np
 import os
 from io import BytesIO
 from flask import Flask, request, jsonify, send_from_directory
+import cv2
+from PIL import Image
 #from flask_cors import CORS
-
-
 
 
 def display(data):
@@ -18,14 +18,6 @@ display('Attempting to initialize the server...')
 HOST = 'localhost'
 PORT = 5001  # https://stackoverflow.com/a/72797062
 
-LABELS = {
-    0: 'water bottles',
-    1: 'platic bags'
-}
-TRASH_BIN_LABELS = {
-    'water bottles': 'recylable',
-    'plastic bags': 'recyclable'
-}
 MODELS_DIR = 'models/'
 MODELS = {}
 DEV_KEY = None
@@ -61,7 +53,7 @@ setup()
 
 try:
     app = Flask(__name__)
-    #CORS(app)   #Create CORS header setup to allow request from the domain
+    # CORS(app)   #Create CORS header setup to allow request from the domain
 except Exception as e:
     display('Failed to launch server, terminating process...')
     print(e)
@@ -120,10 +112,9 @@ def handle_read_inference(model_name):
     """
         This function will take a model name and an image to make a single prediction.
     """
-    global LABELS, TRASH_BIN_LABELS
     error_msg = None
     error_code = 0
-    predictions = []
+    prediction_data = None
     if 'image' not in request.files:
         error_msg = 'Missing image in files part of request'
         error_code = 3
@@ -131,33 +122,16 @@ def handle_read_inference(model_name):
         try:
             byte_arr = BytesIO()
             request.files['image'].save(byte_arr)
-            img = np.frombuffer(byte_arr.getvalue(), np.uint8)
+            img = Image.open(byte_arr)
 
-            # Predict the correct label fo the image, returns bouding box, probs
-            predictions_single = ssd_preds(img, model_name)
-
-            for i in range(len(predictions_single)):
-                # Get the sample of predictions, ex. [0.7, 0.6, 0.1]
-                class_probs = predictions_single[i]['class_probs']
-                # This will return the highest confidence value
-                ndx = np.argmax(class_probs)
-                label = LABELS[ndx]                            # Get the label
-                # Get the trash_bin_label ex. recycle...
-                trash_bin_label = TRASH_BIN_LABELS[label]
-                # Get the coordinate of the prediction in the image
-                bounding_box = predictions_single[i]['bounding_box']
-                predictions.append({
-                    'obj_label': label,
-                    'trash_bin_label': trash_bin_label,
-                    'bounding_box': bounding_box,
-                    'class_probs': class_probs
-                })
+            # Predict the correct label for an image, returns probs and other info
+            prediction_data = ssd_preds(img, model_name)[0]
         except Exception as e:
             error_msg = str(e)
             error_code = 2
     return jsonify({
         'model_name': model_name,
-        'predictions': predictions,
+        'predictions': prediction_data,
         'error_msg': error_msg,
         'error_code': error_code,
     }), 200
@@ -168,10 +142,9 @@ def handle_batch_inference(model_name):
     """
         This function will take a model name and multiple images to make predictions.
     """
-    global LABELS, TRASH_BIN_LABELS
     error_msg = None
     error_code = 0
-    batch_predictions = []
+    prediction_data = None
     if 'image_0' not in request.files:
         error_msg = 'Missing image_0 in files part of request'
         error_code = 3
@@ -186,39 +159,17 @@ def handle_batch_inference(model_name):
             for i in range(num_images):
                 byte_arr = BytesIO()
                 request.files[f'image_{i}'].save(byte_arr)
-                img = np.frombuffer(byte_arr.getvalue(), np.uint8)
-                imgs.append(img)
+                imgs.append(Image.open(byte_arr))
 
-            # Predict the correct label fo the image, returns bouding box, probs
-            all_predictions = ssd_preds(imgs, model_name)
-
-            for predictions_single in all_predictions:
-                predictions = []
-                for i in range(len(predictions_single)):
-                    # Get the sample of predictions, ex. [0.7, 0.6, 0.1]
-                    class_probs = predictions_single[i]['probs']
-                    # This will return the highest confidence value
-                    ndx = np.argmax(class_probs)
-                    # Get the label
-                    label = LABELS[ndx]
-                    # Get the trash_bin_label ex. recycle...
-                    trash_bin_label = TRASH_BIN_LABELS[label]
-                    # Get the coordinate of the prediction in the image
-                    bounding_box = predictions_single[i]['bbox']
-                    predictions.append({
-                        'obj_label': label,
-                        'trash_bin_label': trash_bin_label,
-                        'bounding_box': bounding_box,
-                        'class_probs': class_probs
-                    })
-                batch_predictions.append(predictions)
+            # Predict the correct label for all the image, returns probs and other info
+            prediction_data = ssd_preds(imgs, model_name)
         except Exception as e:
             error_msg = str(e)
             error_code = 2
 
     return jsonify({
         'model_name': model_name,
-        'batch_predictions': batch_predictions,
+        'batch_predictions': prediction_data,
         'error_msg': error_msg,
         'error_code': error_code,
         'model_name': model_name

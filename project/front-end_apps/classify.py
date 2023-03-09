@@ -8,6 +8,7 @@ import misc
 import cv2
 from camera import *
 from ssd import ssd_preds
+from pprint import pprint
 
 CAMERA = None
 
@@ -54,10 +55,9 @@ def camera_classify(process_online, single_classification):
         print("Starting up camera...")
         CAMERA = CameraCapturer()
 
-
     print("\nPress SPACE to capture, Press ESCAPE to exit")
     img = CAMERA.capture()
-    
+
     while(img is not None):
         img = CAMERA.capture()
         cv2.imshow('Press SPACE to capture, Press ESCAPE to exit', img)
@@ -66,18 +66,16 @@ def camera_classify(process_online, single_classification):
             print("\nCaptured")
 
             # send img to Server or Local Model
-            preds = ssd_preds(img, process_online, single_classification)
-            if preds is None:
+            pred = ssd_preds(img, process_online, single_classification)
+            if pred is None:
                 print("Failed to classify")
             else:
-                for pred in preds:
-                    print(pred)
-
+                pprint(pred)
             break
         elif key == 27:
             img = None
             break
-            
+
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     CAMERA.close()
@@ -95,12 +93,11 @@ def file_classify(process_online, single_classification):
         print("Image could not be read")
     else:
         # send img to Server or Local Model
-        preds = ssd_preds(img, process_online, single_classification)
-        if preds is None:
+        pred = ssd_preds(img, process_online, single_classification)
+        if pred is None:
             print("Failed to classify")
         else:
-            for pred in preds:
-                print(pred)
+            pprint(pred)
 
 
 def real_time_classify(process_online, single_classification, fps_rate):
@@ -119,12 +116,11 @@ def real_time_classify(process_online, single_classification, fps_rate):
             cv2.imshow("Classifing. Press Q to stop", img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            preds = ssd_preds(img, process_online, single_classification)
-            if preds is None:
+            pred = ssd_preds(img, process_online, single_classification)
+            if pred is None:
                 print("Failed to classify")
             else:
-                for pred in preds:
-                    print(pred)
+                pprint(pred)
     cv2.destroyAllWindows()
     cv2.waitKey(1)
 

@@ -2,6 +2,7 @@ import json
 import requests
 from io import BytesIO
 import numpy as np
+import cv2
 
 
 class TestCreate:
@@ -26,7 +27,6 @@ class TestCreate:
         assert json.loads(res.content) == {'error_code': 5,
                                            'error_msg': 'Model already exists',
                                            'successful': False}
-    
 
     def test_missing_model(self):
         res = requests.post('http://localhost:5001/create/model/test2',
@@ -66,11 +66,12 @@ class TestReadInference:
         assert json.loads(res.content) == {'error_code': 3,
                                            'error_msg': 'Missing image in files part of request',
                                            'model_name': 'test',
-                                           'predictions': []}
+                                           'predictions': None}
 
     def test_success(self):
         byte_arr = BytesIO()
-        byte_arr.write(np.random.randint(0, 127, 10, dtype=np.uint8).tobytes())
+        image = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
+        byte_arr.write(cv2.imencode('.jpg', image)[1])
         byte_arr.seek(0)
         res = requests.post(
             'http://localhost:5001/read/inference/test', files={'image': byte_arr})
@@ -82,7 +83,7 @@ class TestReadInference:
         assert 'model_name' in res_content and res_content['model_name'] == 'test'
         assert 'predictions' in res_content
         assert set(['bounding_box', 'class_probs', 'obj_label', 'trash_bin_label']
-                   ).issubset(res_content['predictions'][0])
+                   ).issubset(set(res_content['predictions']))
 
 
 class TestReadBatchInf:
@@ -91,7 +92,7 @@ class TestReadBatchInf:
             'http://localhost:5001/read/batch-inference/test', data={'num_image': 2}, files={})
         res, res.content
         assert res.status_code == 200
-        assert json.loads(res.content) == {'batch_predictions': [],
+        assert json.loads(res.content) == {'batch_predictions': None,
                                            'error_code': 3,
                                            'error_msg': 'Missing image_0 in files part of request',
                                            'model_name': 'test'}
@@ -101,14 +102,15 @@ class TestReadBatchInf:
         res = requests.post('http://localhost:5001/read/batch-inference/test',
                             data={}, files={'image_0': byte_arr, 'image_1': byte_arr2})
         assert res.status_code == 200
-        assert json.loads(res.content) == {'batch_predictions': [],
+        assert json.loads(res.content) == {'batch_predictions': None,
                                            'error_code': 4,
                                            'error_msg': 'Missing num_image in form part of request',
                                            'model_name': 'test'}
 
     def test_success(self):
         byte_arr = BytesIO()
-        byte_arr.write(np.random.randint(0, 127, 10, dtype=np.uint8).tobytes())
+        image = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
+        byte_arr.write(cv2.imencode('.jpg', image)[1])
         byte_arr.seek(0)
         res = requests.post(
             'http://localhost:5001/read/inference/test', files={'image': byte_arr})
@@ -120,7 +122,7 @@ class TestReadBatchInf:
         assert 'model_name' in res_content and res_content['model_name'] == 'test'
         assert 'predictions' in res_content
         assert set(['bounding_box', 'class_probs', 'obj_label', 'trash_bin_label']
-                   ).issubset(res_content['predictions'][0])
+                   ).issubset(set(res_content['predictions']))
 
 
 class TestReadModelList:

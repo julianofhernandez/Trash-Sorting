@@ -1,6 +1,7 @@
 import requests
 import json
 from io import BytesIO
+import cv2
 
 
 def ssd_preds(images, process_online, single_classification):
@@ -8,18 +9,12 @@ def ssd_preds(images, process_online, single_classification):
         images = [images]
     if process_online and len(images) == 1:
         byte_arr = BytesIO()
-        byte_arr.write(images[0].tobytes())
+        byte_arr.write(cv2.imencode('.jpg', images[0])[1])
         byte_arr.seek(0)
         res = requests.post(
-            'http://127.0.0.1:5001/read/inference/apple', files={'image': byte_arr})
+            'http://127.0.0.1:5001/read/inference/default', files={'image': byte_arr})
         if res.status_code == 200:
             res = json.loads(res.content)
-            if res['error_code'] == 0:
-                res = res['predictions']
-                if single_classification:
-                    res = [res[0]]  # May need to adjust this
-            else:
-                return None
         else:
             return None
 
@@ -28,21 +23,14 @@ def ssd_preds(images, process_online, single_classification):
         for index, img in enumerate(images):
 
             byte_arr = BytesIO()
-            byte_arr.write(img.tobytes())
+            byte_arr.write(cv2.imencode('.jpg', img)[1])
             byte_arr.seek(0)
             byte_arrs[f"image_{index}"] = byte_arr
 
-        res = requests.post('http://127.0.0.1:5001/read/batch-inference/apple',
+        res = requests.post('http://127.0.0.1:5001/read/batch-inference/default',
                             data={'num_image': len(byte_arrs)}, files=byte_arrs)
         if res.status_code == 200:
             res = json.loads(res.content)
-            if res['error_code'] == 0:
-                res = res['batch_predictions']
-                if single_classification:
-                    res = [[preds[0]]
-                           for preds in res]  # May need to adjust this
-            else:
-                return None
         else:
             return None
     else:
