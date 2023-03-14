@@ -240,9 +240,6 @@ def upload_annotation(annotation, img):
     if annotation.is_done():
         # Send to server
         print(annotation.annotations)
-        byte_arr = BytesIO()
-        byte_arr.write(cv2.imencode('.jpg', img)[1])
-        byte_arr.seek(0)
 
         res = requests.post(f'http://{HOST}:{PORT}/create/entry', data={
             'key': SECRET_KEY,
@@ -251,7 +248,7 @@ def upload_annotation(annotation, img):
             'dataset': 'custom',
             'metadata': ''
         },
-            files={'image': byte_arr})
+            files={'image': img})
         # Option to get entry
     else:
         print("Exited Annotation UI")

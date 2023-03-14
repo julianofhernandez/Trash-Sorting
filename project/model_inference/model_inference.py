@@ -2,27 +2,17 @@ from ssd import ssd_preds
 import numpy as np
 import os
 from io import BytesIO
-from flask import Flask, request, jsonify, send_from_directory
+from flask import request, jsonify, send_from_directory, Blueprint
 import cv2
 from PIL import Image
-#from flask_cors import CORS
 
-
-def display(data):
-    print('[Server]: ' + data)
-
-
-display('Attempting to initialize the server...')
-
-
-HOST = 'localhost'
-PORT = 5001  # https://stackoverflow.com/a/72797062
 
 MODELS_DIR = 'models/'
 MODELS = {}
 DEV_KEY = None
 METADATAS_DIR = 'metadatas/'
 
+model_inference = Blueprint('model_inference', __name__)
 
 def existing_models():
     global MODELS_DIR, MODELS
@@ -47,21 +37,7 @@ def setup():
     else:
         DEV_KEY = 'secretkey'
 
-
-setup()
-
-
-try:
-    app = Flask(__name__)
-    # CORS(app)   #Create CORS header setup to allow request from the domain
-except Exception as e:
-    display('Failed to launch server, terminating process...')
-    print(e)
-    exit()
-display('Successfully launched server')
-
-
-@app.route('/create/model/<model_name>', methods=['POST'])
+@model_inference.route('/create/model/<model_name>', methods=['POST'])
 def handle_model_create(model_name):
     """
     This function allows a model and metadata to be uploaded to the server to later be used or downloaded.
@@ -107,7 +83,7 @@ def handle_model_create(model_name):
     }), 200
 
 
-@app.route('/read/inference/<model_name>', methods=['POST'])
+@model_inference.route('/read/inference/<model_name>', methods=['POST'])
 def handle_read_inference(model_name):
     """
         This function will take a model name and an image to make a single prediction.
@@ -137,7 +113,7 @@ def handle_read_inference(model_name):
     }), 200
 
 
-@app.route('/read/batch-inference/<model_name>', methods=['POST'])
+@model_inference.route('/read/batch-inference/<model_name>', methods=['POST'])
 def handle_batch_inference(model_name):
     """
         This function will take a model name and multiple images to make predictions.
@@ -176,7 +152,7 @@ def handle_batch_inference(model_name):
     }), 200
 
 
-@app.route('/read/model/list', methods=['GET'])
+@model_inference.route('/read/model/list', methods=['GET'])
 def handle_model_list():
     """
     Get list of models that are usable with their metadata.
@@ -205,7 +181,7 @@ def handle_model_list():
     }), 200
 
 
-@app.route('/read/model/<model_name>', methods=['GET'])
+@model_inference.route('/read/model/<model_name>', methods=['GET'])
 def handle_download_model(model_name):
     """
         Send the model to the user from the server as a file.
@@ -220,7 +196,7 @@ def handle_download_model(model_name):
     }), 200
 
 
-@app.route('/read/metadata/<model_name>', methods=['GET'])
+@model_inference.route('/read/metadata/<model_name>', methods=['GET'])
 def handle_metadata(model_name):
     """
         Send the model metadata to the user.
@@ -244,7 +220,7 @@ def handle_metadata(model_name):
     }), 200
 
 
-@app.route('/update/model/<model_name>', methods=['PUT'])
+@model_inference.route('/update/model/<model_name>', methods=['PUT'])
 def handle_update_model(model_name):
     """
     Overwrite the model or metadata of the specified model.
@@ -281,7 +257,7 @@ def handle_update_model(model_name):
     return jsonify(result), 200
 
 
-@app.route('/delete/model/<model_name>', methods=['DELETE'])
+@model_inference.route('/delete/model/<model_name>', methods=['DELETE'])
 def delete_model(model_name):
     """
     Delete the model and metadata of the specified model.
@@ -313,10 +289,3 @@ def delete_model(model_name):
         'error_code': 1
     }
     return jsonify(result), 200
-
-
-if __name__ == '__main__':
-    #from werkzeug.middleware.profiler import ProfilerMiddleware
-    # app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[
-    #                                  5], profile_dir='./')
-    app.run(debug=False, threaded=False, host=HOST, port=PORT)
