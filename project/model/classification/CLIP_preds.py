@@ -48,7 +48,7 @@ def clip_preds(images, model_name):
                              "Plastic utensils", "Pop tab", "Rope & strings", "Scrap metal", "Shoe",
                              "Squeezable tube", "Plastic straw", "Paper straw", "Styrofoam piece",
                              "Unlabeled litter", "Cigarette"]
-        trash_bins_categories = ["Garbage", "Recylable",
+        trash_bins_categories = ["Garbage", "Recyclable",
                                  "Organic Waste", "Household hazardous waste"]
 
         # Encode the object and trash bin descriptions using the CLIP model
