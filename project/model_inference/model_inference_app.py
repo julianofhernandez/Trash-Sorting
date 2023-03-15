@@ -3,7 +3,7 @@ The Rest API for model inference stuff.
 """
 
 from flask import Flask
-#from flask_cors import CORS
+from flask_cors import CORS
 import argparse
 
 def display(data):
@@ -27,7 +27,7 @@ def create_app():
 
 try:
     app = create_app()
-    #CORS(app)   #Create CORS header setup to allow request from the domain
+    CORS(app)   #Create CORS header setup to allow request from the domain
 except Exception as e:
     display('Failed to launch server, terminating process...')
     print(e)

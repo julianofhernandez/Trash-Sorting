@@ -132,13 +132,17 @@ class TestReadBatchInf:
             'http://localhost:5000/read/inference/test', data={'image': open(tmp_img, 'rb')})
         res_content = res.get_json()
 
+        print(res_content)
+
         assert res.status_code == 200
         assert 'error_code' in res_content and res_content['error_code'] == 0
         assert 'error_msg' in res_content and res_content['error_msg'] is None
         assert 'model_name' in res_content and res_content['model_name'] == 'test'
-        assert 'predictions' in res_content
+        assert 'batch_predictions' in res_content
         assert set(['bounding_box', 'class_probs', 'obj_label', 'trash_bin_label']
-                   ).issubset(set(res_content['predictions']))
+                   ).issubset(set(res_content['batch_predictions'][0]))
+        assert set(['bounding_box', 'class_probs', 'obj_label', 'trash_bin_label']
+                   ).issubset(set(res_content['batch_predictions'][1]))
 
 
 class TestReadModelList:

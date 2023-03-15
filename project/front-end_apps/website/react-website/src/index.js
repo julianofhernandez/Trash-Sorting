@@ -1,5 +1,3 @@
-// @flow
-
 import React from "react";
 import ReactDOM from "react-dom";
 
@@ -15,4 +13,3 @@ if (rootElement) {
 } else {
   throw new Error("Could not find root element to mount to!");
 }
-

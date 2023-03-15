@@ -14,6 +14,8 @@ import {
 
 import type { NotificationProps } from "tabler-react";
 
+import { Hexagons } from "tabler-icons-react";
+
 type Props = {|
   +children: React.Node,
 |};
@@ -69,7 +71,7 @@ class SiteWrapper extends React.Component<Props, State> {
       <Site.Wrapper
         headerProps={{
           href: "/",
-          alt: "Trash Sorting",
+          alt: "Trash Sorter",
           //****Add logo here using the code on the right. :  imageURL: "", 
           navItems: (
             <Nav.Item type="div" className="d-none d-md-flex">
@@ -95,32 +97,30 @@ class SiteWrapper extends React.Component<Props, State> {
             <a href="#">Eigth Link</a>,
           ],
           note:
-            "Premium and Open Source dashboard template with responsive and high quality UI. For Free!",
+            "A classifier for determining the proper way to dispose of items you are unsure of.",
           copyright: (
             <React.Fragment>
-              Copyright © 2019
-              <a href="."> Tabler-react</a>. Theme by
+              UI from
               <a
-                href="https://codecalm.net"
+                href="https://github.com/tabler/tabler-react"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 {" "}
-                codecalm.net
+                tabler-react
               </a>{" "}
-              All rights reserved.
             </React.Fragment>
           ),
           nav: (
             <React.Fragment>
               <Grid.Col auto={true}>
                 <List className="list-inline list-inline-dots mb-0">
-                  <List.Item className="list-inline-item">
+                  {/* <List.Item className="list-inline-item">
                     <a href="./docs/index.html">Documentation</a>
                   </List.Item>
                   <List.Item className="list-inline-item">
                     <a href="./faq.html">FAQ</a>
-                  </List.Item>
+                  </List.Item> */}
                 </List>
               </Grid.Col>
               <Grid.Col auto={true}>

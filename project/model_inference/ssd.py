@@ -25,7 +25,7 @@ def ssd_preds(images, model_name):
         images = [images]
 
     if model_name.upper() == 'DEFAULT':
-        #model_name = 'efficientnet_v2_l'
+        # model_name = 'efficientnet_v2_l'
         model_name = 'clip'
 
     # Match model name to the appropriate model specific ssd preds method
@@ -43,10 +43,41 @@ def ssd_preds(images, model_name):
 
 def old_test_ssd_preds(images, model_name):
     result = {
-        'bounding_box': [((.5, .5), (.7, .7))],
-        'class_probs': [1.0, 0, 0, 0, 0],
-        'obj_label': 'test',
-        'trash_bin_label': 'test'
+        # 'bounding_box': [((.5, .5), (.7, .7))],
+        # 'class_probs': [1.0, 0, 0, 0, 0],
+        # 'obj_label': 'test',
+        # 'trash_bin_label': 'test'
+        "object_class": "Other plastic bottle",
+        "object_class_probs": [
+            0.3539431691169739, 0.3484818935394287, 0.06859111785888672,
+            0.054287757724523544, 0.039106689393520355, 0.03449060395359993,
+            0.030443403869867325, 0.026867564767599106, 0.026444964110851288,
+            0.0173428263515234
+        ],
+        "object_classes": [
+            "Other plastic bottle",
+            "Clear plastic bottle",
+            "Other plastic container",
+            "Disposable plastic cup",
+            "Other plastic cup",
+            "Other plastic",
+            "Polypropylene bag",
+            "Plastic glooves",
+            "Plastic lid",
+            "Single-use carrier bag"
+        ],
+        "object_trash_class": "Garbage",
+        "object_trash_class_probs": [0.25, 0.25, 0.25, 0.25],
+        "trash_class": "Recylable",
+        "trash_class_probs": [
+            0.02020263671875, 0.88623046875, 0.07867431640625, 0.01500701904296875
+        ],
+        "trash_classes": [
+            "Garbage",
+            "Recylable",
+            "Organic Waste",
+            "Household hazardous waste"
+        ]
     }
     return [result for _ in images]
 
