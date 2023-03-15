@@ -16,29 +16,23 @@ import misc
 menu_options = ['1', '2', '3', '4', '5', 'Q']
 
 # the text prompt for this menu
-menu_prompt = menu_options[0] + ": Annotate\n" + \
-    menu_options[1] + ": Classify\n" + \
-    menu_options[2] + ": Trash info\n" + \
-    menu_options[3] + ": About\n" + \
-    menu_options[4] + ": Settings\n" + \
-    menu_options[5] + ": Quit"
-
+menu_prompt = "1: Annotate\n2: Classify\n3: Trash info\n4: About\n5: Settings\nQ: Quit"
 
 def main():
     ''' This is the main function. This version will only
     read in the first character of each input line and treat
     those inputs as valid by trimming the rest of the input
     '''
-    print("Menu")
+    print("Main Menu")
 
     while(True):
         print(menu_prompt)
-        print("Press the key to the corresponding action")
+        print("Press the key to the corresponding action.")
 
         # collect input from user, if input is invalid -1 is returned
         key = misc.read_input(menu_options)
 
-        if(key == -1):
+        if(key not in menu_options):
             misc.print_invalid_input()
             continue
 

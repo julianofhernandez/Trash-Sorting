@@ -14,10 +14,8 @@ CAMERA = None
 
 menu_options = ['1', '2', '3', 'M']
 
-menu_prompt = menu_options[0] + ": Open Camera and capture\n" + \
-    menu_options[1] + ": Upload picture\n" + \
-    menu_options[2] + ": Capture real time\n" + \
-    menu_options[3] + ": Exit Classify"
+menu_prompt = "1: Open Camera and capture\n2: Upload picture\n" \
+              "3: Capture real time\nM: Exit Classify"
 
 
 def main(process_online, single_classification, fps_rate):
@@ -29,7 +27,7 @@ def main(process_online, single_classification, fps_rate):
 
         key = misc.read_input(menu_options)
 
-        if(key == -1):
+        if(key not in menu_options):
             misc.print_invalid_input()
             continue
 
@@ -84,7 +82,7 @@ def camera_classify(process_online, single_classification):
 
 def file_classify(process_online, single_classification):
 
-    print("classifying from file")
+    print("Classifying from file")
     print("Enter image file path to be classifyed: ")
     input_file = input()
     img = cv2.imread(input_file)
@@ -102,7 +100,7 @@ def file_classify(process_online, single_classification):
 
 def real_time_classify(process_online, single_classification, fps_rate):
     global CAMERA
-    print("classifying in real time")
+    print("Classifying in real time")
     if CAMERA is not None:
         CAMERA.close()
         CAMERA = None

@@ -45,10 +45,8 @@ setup()
 menu_options = ['1', '2', '3', 'M']
 sub_options = ['1', '2']
 
-menu_prompt = menu_options[0] + ": Toggle Online/Offline Computation (currently: {})\n" + \
-    menu_options[1] + ": Toggle Single/Multi object Classification (currently: {})\n" + \
-    menu_options[2] + ": Change FPS for live capture (currently: {})\n" + \
-    menu_options[3] + ": Exit Settings"
+menu_prompt = "1: Toggle Online/Offline Computation (currently: {})\n2: Toggle Single/Multi object Classification (currently: {})\n" \
+              "3: Change FPS for live capture (currently: {})\nM: Exit Settings"
 
 
 def main():
@@ -65,7 +63,6 @@ def main():
 
         save()
 
-
 def handle_key(key):
     if (key == -1):
         misc.print_invalid_input()
@@ -80,14 +77,15 @@ def handle_key(key):
         return False
     return True
 
-
+""" 
+Toggles the computation between online and offline
+"""
 def toggle_computation_mode():
-    """ Toggles the computation between online and offline
-    """
+
     global PROCESS_ONLINE
     print("Do you want online or offline computation?")
-    print(sub_options[0] + ": online")
-    print(sub_options[1] + ": offline")
+    print("1: online")
+    print("2: offline")
 
     key = misc.read_input(sub_options)
 
@@ -102,14 +100,15 @@ def toggle_computation_mode():
         PROCESS_ONLINE = False
         print("Processing is offline")
 
-
+""" 
+Toggles the classification mode between single and multi
+"""
 def toggle_classification_mode():
-    """ Toggles the classification mode between single and multi
-    """
+
     global SINGLE_CLASSIFICATION
     print("Do you want single or multi object classification?")
-    print(sub_options[0] + ": single")
-    print(sub_options[1] + ": multi")
+    print("1: single")
+    print("2: multi")
 
     key = misc.read_input(sub_options)
 
@@ -124,10 +123,11 @@ def toggle_classification_mode():
         SINGLE_CLASSIFICATION = False
         print("classification is multi")
 
-
+"""
+Adjusts the FPS rate for live capture
+"""
 def toggle_fps():
-    """ Adjusts the FPS rate for live capture
-    """
+
     global FPS_RATE
     print("Enter a number for the framerate for live capture")
     print("Min framerate: ", MIN_FPS)

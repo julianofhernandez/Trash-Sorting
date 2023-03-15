@@ -21,11 +21,7 @@ and egg shells. \n"""
 
 menu_options = ['1', '2', '3', 'M']
 
-menu_prompt = menu_options[0] + ": Trash\n" + \
-    menu_options[1] + ": Recycle\n" + \
-    menu_options[2] + ": Compost\n" + \
-    menu_options[3] + ": Exit Trash Info"
-
+menu_prompt = "1: Trash\n2: Recycle\n3: Compost\nM: Exit Trash Info"
 
 def main():
     while(True):
@@ -34,7 +30,7 @@ def main():
 
         key = misc.read_input(menu_options)
 
-        if(key == -1):
+        if(key not in menu_options):
             misc.print_invalid_input()
             continue
 

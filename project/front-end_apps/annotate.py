@@ -69,10 +69,8 @@ class Annotations:
 menu_options = ['1', '2', 'M']
 
 # the text prompt for this menu
-menu_prompt = menu_options[0] + ": Opens GUI to capture a photo and annotate\n" + \
-    menu_options[1] + ": Opens GUI and loads image from path to annotate\n" + \
-    menu_options[2] + ": Exit Annotation"
-
+menu_prompt = "1: Opens GUI to capture a photo and annotate\n" \
+              "2: Opens GUI and loads image from path to annotate\nM: Exit Annotation"
 
 def main(process_online, single_classification, fps_rate):
     global CAMERA
@@ -84,26 +82,26 @@ def main(process_online, single_classification, fps_rate):
             misc.print_invalid_input()
             continue
         if(key[0] == menu_options[0]):
-            img = open_from_camera()
+            image = open_from_camera()
 
-            if img is None:
-                print("image could not be read")
+            if image is None:
+                print("Image could not be read")
                 continue
 
-            annotation = handle_annotation_ui(img)
+            annotation = handle_annotation_ui(image)
 
-            upload_annotation(annotation, img)
+            upload_annotation(annotation, image)
 
         elif(key[0] == menu_options[1]):
-            img = open_from_path()
+            image = open_from_path()
 
-            if img is None:
+            if image is None:
                 print("image could not be read")
                 continue
 
-            annotation = handle_annotation_ui(img)
+            annotation = handle_annotation_ui(image)
 
-            upload_annotation(annotation, img)
+            upload_annotation(annotation, image)
 
         else:
             if CAMERA is not None:
@@ -113,7 +111,7 @@ def main(process_online, single_classification, fps_rate):
             return False
 
 
-def handle_annotation_ui(img, prev_annotation=None):
+def handle_annotation_ui(image, prev_annotation=None):
     print("\n Draw: Left click drag\n Reset: Double Right Click\n Done: Ctrl + Right Click\n Exit: Esc")
     annotation = Annotations(prev_annotation)
 
@@ -144,15 +142,15 @@ def handle_annotation_ui(img, prev_annotation=None):
     cv2.setMouseCallback("Annotation Window", mouse_callback)
 
     # display the window
-    img_original = img.copy()
+    image_original = image.copy()
     while True:
-        img = img_original.copy()
+        image = image_original.copy()
         for (x1, y1), (x2, y2) in annotation.annotations:
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), thickness=1)
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), thickness=1)
         if annotation.is_active():
             (x1, y1), (x2, y2) = annotation.current_annotation
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), thickness=1)
-        cv2.imshow("Annotation Window", img)
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), thickness=1)
+        cv2.imshow("Annotation Window", image)
         # 27 is Escape key to Discrad and exit
         if cv2.waitKey(1) == 27:
             break
@@ -202,17 +200,17 @@ def open_from_camera():
         CAMERA = CameraCapturer()
 
     print("\nPress SPACE to capture, Press ESCAPE to exit")
-    img = CAMERA.capture()
+    image = CAMERA.capture()
 
-    while(img is not None):
-        img = CAMERA.capture()
-        cv2.imshow('Press SPACE to capture, Press ESCAPE to exit', img)
+    while(image is not None):
+        image = CAMERA.capture()
+        cv2.imshow('Press SPACE to capture, Press ESCAPE to exit', image)
         key = cv2.waitKey(1) & 0xFF
         if key == 32:
             print("\nCaptured")
             break
         elif key == 27:
-            img = None
+            image = None
             break
 
     cv2.destroyAllWindows()
@@ -220,7 +218,7 @@ def open_from_camera():
     CAMERA.close()
     CAMERA = None
 
-    return img
+    return image
 
 
 def open_from_path():
@@ -233,7 +231,7 @@ def open_from_path():
     return cv2.imread(path)
 
 
-def upload_annotation(annotation, img):
+def upload_annotation(annotation, image):
     """
     Uploads annotations to the annotation database
     """
@@ -248,7 +246,7 @@ def upload_annotation(annotation, img):
             'dataset': 'custom',
             'metadata': ''
         },
-            files={'image': img})
+            files={'image': image})
         # Option to get entry
     else:
         print("Exited Annotation UI")

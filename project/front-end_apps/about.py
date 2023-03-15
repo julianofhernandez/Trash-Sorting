@@ -23,13 +23,12 @@ Travis Hammond
 Project Owner: Dr. Clark Fitzgerald
 """
 
+#Acceptable menu options.
 menu_options = ['1', '2', '3', 'M']
 
-menu_prompt = menu_options[0] + ": About Information\n" + \
-    menu_options[1] + ": Menu Information\n" + \
-    menu_options[2] + ": Credits\n" + \
-    menu_options[3] + ": Exit About"
-
+#Text prompt for each menu option.
+menu_prompt = "1: About Information\n2: Menu Information\n" \
+              "3: Credits\nM: Exit About"
 
 def main():
     print("About: ")
@@ -43,14 +42,18 @@ def main():
 
 
 def handle_key(key):
-    if (key == -1):
+    if (key not in menu_options):
         misc.print_invalid_input()
+
     elif (key == menu_options[0]):
         print(about_info + "\n")
+
     elif (key == menu_options[1]):
         print(menu_info + "\n")
+
     elif (key == menu_options[2]):
         print(credit_info)
+
     else:
         misc.print_menu_return()
         return False
