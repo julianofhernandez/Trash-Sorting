@@ -17,7 +17,13 @@ MAX_FPS = 30
 MIN_FPS = 5
 
 
-def load(filename=CONFIG_FILE):
+def load(filename: str = CONFIG_FILE) -> None:
+    """
+    Load settings from a JSON configuration file.
+
+    Parameters:
+        filename: A string representing the file name of the JSON configuration file.
+    """
     global PROCESS_ONLINE, SINGLE_CLASSIFICATION, FPS_RATE
     with open(filename, 'r') as file:
         settings = json.load(file)
@@ -26,14 +32,23 @@ def load(filename=CONFIG_FILE):
     FPS_RATE = settings['FPS_RATE']
 
 
-def save(filename=CONFIG_FILE):
+def save(filename: str = CONFIG_FILE) -> None:
+    """
+    Save settings to a JSON configuration file.
+
+    Parameters:
+        filename: A string representing the file name of the JSON configuration file.
+    """
     with open(filename, 'w') as file:
         json.dump({'PROCESS_ONLINE': PROCESS_ONLINE,
                    'SINGLE_CLASSIFICATION': SINGLE_CLASSIFICATION,
                    'FPS_RATE': FPS_RATE}, file)
 
 
-def setup():
+def setup() -> None:
+    """
+    Load settings if the configuration file exists; otherwise, save default settings.
+    """
     if os.path.exists('settings.cfg'):
         load()
     else:
@@ -49,7 +64,10 @@ menu_prompt = "1: Toggle Online/Offline Computation (currently: {})\n2: Toggle S
               "3: Change FPS for live capture (currently: {})\nM: Exit Settings"
 
 
-def main():
+def main() -> None:
+    """
+    Main function for interacting with the settings menu.
+    """
     while (True):
         print(menu_prompt.format(
             'online' if PROCESS_ONLINE else 'offline',
@@ -63,7 +81,17 @@ def main():
 
         save()
 
-def handle_key(key):
+
+def handle_key(key: str) -> bool:
+    """
+    Handle the user's menu selection and call the appropriate function.
+
+    Parameters:
+        key: A string representing the user's menu selection.
+
+    Returns:
+        A boolean indicating whether to reprompt the user for input (True) or exit the menu loop (False).
+    """
     if (key == -1):
         misc.print_invalid_input()
     elif (key == menu_options[0]):
@@ -77,11 +105,11 @@ def handle_key(key):
         return False
     return True
 
-""" 
-Toggles the computation between online and offline
-"""
-def toggle_computation_mode():
 
+def toggle_computation_mode() -> None:
+    """
+    Toggle the computation mode between online and offline.
+    """
     global PROCESS_ONLINE
     print("Do you want online or offline computation?")
     print("1: online")
@@ -100,11 +128,11 @@ def toggle_computation_mode():
         PROCESS_ONLINE = False
         print("Processing is offline")
 
-""" 
-Toggles the classification mode between single and multi
-"""
-def toggle_classification_mode():
 
+def toggle_classification_mode():
+    """
+    Toggle the classification mode between single and multi-object.
+    """
     global SINGLE_CLASSIFICATION
     print("Do you want single or multi object classification?")
     print("1: single")
@@ -123,11 +151,11 @@ def toggle_classification_mode():
         SINGLE_CLASSIFICATION = False
         print("classification is multi")
 
-"""
-Adjusts the FPS rate for live capture
-"""
-def toggle_fps():
 
+def toggle_fps() -> None:
+    """
+    Adjust the FPS rate for live capture.
+    """
     global FPS_RATE
     print("Enter a number for the framerate for live capture")
     print("Min framerate: ", MIN_FPS)

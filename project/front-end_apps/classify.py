@@ -9,6 +9,7 @@ import cv2
 from camera import *
 from ssd import ssd_preds
 from pprint import pprint
+from typing import Union
 
 CAMERA = None
 
@@ -18,7 +19,17 @@ menu_prompt = "1: Open Camera and capture\n2: Upload picture\n" \
               "3: Capture real time\nM: Exit Classify"
 
 
-def main(process_online, single_classification, fps_rate):
+def main(process_online: bool, single_classification: bool, fps_rate: int) -> bool:
+    """
+    Main function for the classification process.
+    
+    Parameters:
+        process_online: A boolean to determine if online processing is enabled.
+        single_classification: A boolean to determine if single classification mode is enabled.
+        fps_rate: An integer representing the frames per second rate.
+    Returns:
+        False when the user exits the menu loop.
+    """
     global CAMERA
     print("Classify trash")
     while(True):
@@ -45,7 +56,14 @@ def main(process_online, single_classification, fps_rate):
             return False
 
 
-def camera_classify(process_online, single_classification):
+def camera_classify(process_online: bool, single_classification: bool) -> None:
+    """
+    Capture and classify an image using the camera.
+
+    Parameters:
+        process_online: A boolean to determine if online processing is enabled.
+        single_classification: A boolean to determine if single classification mode is enabled.
+    """
     global CAMERA
     # clear screen
     print("classifying from camera")
@@ -80,8 +98,14 @@ def camera_classify(process_online, single_classification):
     CAMERA = None
 
 
-def file_classify(process_online, single_classification):
+def file_classify(process_online: bool, single_classification: bool) -> None:
+    """
+    Classify an image from a file.
 
+    Parameters:
+        process_online: A boolean to determine if online processing is enabled.
+        single_classification: A boolean to determine if single classification mode is enabled.
+    """
     print("Classifying from file")
     print("Enter image file path to be classifyed: ")
     input_file = input()
@@ -98,7 +122,15 @@ def file_classify(process_online, single_classification):
             pprint(pred)
 
 
-def real_time_classify(process_online, single_classification, fps_rate):
+def real_time_classify(process_online: bool, single_classification: bool, fps_rate: int) -> None:
+    """
+    Classify objects in real-time using the camera.
+
+    Parameters:
+        process_online: A boolean to determine if online processing is enabled.
+        single_classification: A boolean to determine if single classification mode is enabled.
+        fps_rate: An integer representing the frames per second rate.
+    """
     global CAMERA
     print("Classifying in real time")
     if CAMERA is not None:

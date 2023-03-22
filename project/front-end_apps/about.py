@@ -23,17 +23,21 @@ Travis Hammond
 Project Owner: Dr. Clark Fitzgerald
 """
 
-#Acceptable menu options.
+# Acceptable menu options.
 menu_options = ['1', '2', '3', 'M']
 
-#Text prompt for each menu option.
-menu_prompt = "1: About Information\n2: Menu Information\n" \
-              "3: Credits\nM: Exit About"
+# Text prompt for each menu option.
+menu_prompt = '1: About Information\n2: Menu Information\n' \
+              '3: Credits\nM: Exit About'
 
 def main():
-    print("About: ")
-    while (True):
-        print("Select what you want information on.")
+    """
+    This function is the main entry point to the program. It provides information to the user
+    about the application and allows the user to select what they want information on.
+    """
+    print('About: ')
+    while True:
+        print('Select what you want information on.')
         print(menu_prompt)
 
         reprompt = handle_key(key=misc.read_input(menu_options))
@@ -41,15 +45,24 @@ def main():
             break
 
 
-def handle_key(key):
+def handle_key(key: str) -> bool:
+    """
+    This function handles the selected menu option and provides the appropriate information to the user.
+    
+    Parameters:
+        key (str): The selected menu option.
+
+    Returns:
+        bool: A flag indicating whether the user should be prompted for more input.
+    """
     if (key not in menu_options):
         misc.print_invalid_input()
 
     elif (key == menu_options[0]):
-        print(about_info + "\n")
+        print(about_info + '\n')
 
     elif (key == menu_options[1]):
-        print(menu_info + "\n")
+        print(menu_info + '\n')
 
     elif (key == menu_options[2]):
         print(credit_info)
@@ -60,5 +73,5 @@ def handle_key(key):
     return True
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

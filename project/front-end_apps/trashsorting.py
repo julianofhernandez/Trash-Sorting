@@ -6,7 +6,8 @@ from camera import CameraRecorder
 from pprint import pprint
 
 
-if __name__ == '__main__':
+def parse_args() -> argparse.Namespace:
+    """Parses command line arguments"""
     parser = argparse.ArgumentParser(
         prog='Trash Sorting Application',
         description='This application classifies trash in images.')
@@ -30,8 +31,11 @@ if __name__ == '__main__':
     parser.add_argument('-j', '--json',
                         help='Saves a prediction output as json instead of going to console')
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def main(args: argparse.Namespace) -> None:
+    """Main function that runs the application."""
     if args.camera:
         with CameraRecorder(.5, fps=30) as cr:
             print("Active. Press SPACE to capture.")
@@ -61,3 +65,8 @@ if __name__ == '__main__':
         else:
             # error
             print("Failed to classify")
+
+
+if __name__ == '__main__':
+    args = parse_args()
+    main(args)

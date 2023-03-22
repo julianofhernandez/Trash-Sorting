@@ -1,9 +1,8 @@
-'''
+"""
 main.py
 This is the main file that the end user should be running
 in order to access the application
-Last modified 11/3 by Jeff de Jesus
-'''
+"""
 
 import annotate
 import classify
@@ -18,48 +17,41 @@ menu_options = ['1', '2', '3', '4', '5', 'Q']
 # the text prompt for this menu
 menu_prompt = "1: Annotate\n2: Classify\n3: Trash info\n4: About\n5: Settings\nQ: Quit"
 
-def main():
-    ''' This is the main function. This version will only
+def main() -> int:
+    """
+    This is the main function. This version will only
     read in the first character of each input line and treat
     those inputs as valid by trimming the rest of the input
-    '''
+    """
     print("Main Menu")
 
-    while(True):
+    while True:
         print(menu_prompt)
         print("Press the key to the corresponding action.")
 
         # collect input from user, if input is invalid -1 is returned
         key = misc.read_input(menu_options)
 
-        if(key not in menu_options):
+        if key not in menu_options:
             misc.print_invalid_input()
             continue
 
-        if(key == menu_options[0]):
-
+        if key == menu_options[0]:
             # open annotate
-            annotate.main(settings.PROCESS_ONLINE,
-                          settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
-        elif(key == menu_options[1]):
-
+            annotate.main(settings.PROCESS_ONLINE, settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
+        elif key == menu_options[1]:
             # open classify
-            classify.main(settings.PROCESS_ONLINE,
-                          settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
-        elif(key == menu_options[2]):
-
+            classify.main(settings.PROCESS_ONLINE, settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
+        elif key == menu_options[2]:
             # open trash info
             trash_info.main()
-        elif(key == menu_options[3]):
-
+        elif key == menu_options[3]:
             # open about
             about.main()
-        elif(key == menu_options[4]):
-
+        elif key == menu_options[4]:
             # open settings
             settings.main()
         else:
-
             # quit program
             print("Goodbye")
             return 0

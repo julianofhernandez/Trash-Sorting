@@ -7,8 +7,8 @@ to images for training.
 import misc
 from camera import *
 import cv2
-from io import BytesIO
 import requests
+from typing import List, Tuple, Union, Optional
 
 SECRET_KEY = 'secretkey'
 HOST = 'localhost'
@@ -17,7 +17,12 @@ CAMERA = None
 
 
 class Annotations:
-    def __init__(self, prev_annotations=None):
+    def __init__(self, prev_annotations: Optional[List[Tuple[Tuple[int, int], Tuple[int, int]]]] = None) -> None:
+        """
+        Parameters:
+            prev_annotations: A list of previous annotations as tuples containing two tuples (x, y) coordinates.
+                              Default is None, which initializes an empty list of annotations.
+        """
         if prev_annotations is None:
             self.annotations = []
         else:
@@ -26,42 +31,88 @@ class Annotations:
         self.done = False
         self.active = False
 
-    def add_annotation(self):
+    def add_annotation(self) -> None:
+        """
+        Appends the current annotation to the list of annotations.
+        """
         self.annotations.append(self.current_annotation)
 
-    def start_annotation(self, x, y):
+    def start_annotation(self, x: int, y: int) -> None:
+        """
+        Parameters:
+            x: The x-coordinate of the starting point.
+            y: The y-coordinate of the starting point.
+        """
         self.current_annotation[0] = (x, y)
 
-    def temp_annotation(self, x, y):
+    def temp_annotation(self, x: int, y: int) -> None:
+        """
+        Sets the temporary end point of the current annotation, if the starting point is not None.
+        
+        Parameters:
+            x: The x-coordinate of the temporary end point.
+            y: The y-coordinate of the temporary end point.
+        """
         if self.current_annotation[0] is not None:
             self.current_annotation[1] = (x, y)
             self.active = True
 
-    def end_annotation(self, x, y):
+    def end_annotation(self, x: int, y: int) -> None:
+        """
+        Sets the end point of the current annotation and appends it to the list of annotations.
+        
+        Parameters:
+            x: The x-coordinate of the end point.
+            y: The y-coordinate of the end point.
+        """
         self.current_annotation[1] = (x, y)
         self.annotations.append(tuple(self.current_annotation))
         self.active = False
         self.current_annotation = [None, None]
 
-    def is_active(self):
+    def is_active(self) -> bool:
+        """
+        Checks if the current annotation is active.
+
+        Returns:
+            True if active, otherwise False.
+        """
         return self.active
 
-    def reset_all_annotations(self):
+    def reset_all_annotations(self) -> None:
+        """
+        Resets all annotations by clearing the annotations list and setting the current annotation to [None, None].
+        """
         self.annotations = []
         self.current_annotation = [None, None]
         self.active = False
 
-    def reset_current_annotation(self):
+    def reset_current_annotation(self) -> None:
+        """
+        Resets the current annotation by setting its starting and ending points to None and setting active to False.
+        """
         self.current_annotation = [None, None]
         self.active = False
 
-    def reset_last_annotation(self):
+    def reset_last_annotation(self) -> None:
+        """
+        Removes the last annotation from the list of annotations.
+        """
         del self.annotations[-1]
 
-    def finish(self):
+    def finish(self) -> None:
+        """
+        Sets the done attribute to True, indicating that the annotation process is complete.
+        """
         self.done = True
 
-    def is_done(self):
+    def is_done(self) -> bool:
+        """
+        Checks if the annotation process is done.
+
+        Returns:
+            True if done, otherwise False.
+        """
         return self.done
 
 
@@ -72,7 +123,17 @@ menu_options = ['1', '2', 'M']
 menu_prompt = "1: Opens GUI to capture a photo and annotate\n" \
               "2: Opens GUI and loads image from path to annotate\nM: Exit Annotation"
 
-def main(process_online, single_classification, fps_rate):
+def main(process_online: bool, single_classification: bool, fps_rate: int) -> bool:
+    """
+    The main function that runs the menu loop for the annotation tool.
+    
+    Parameters:
+        process_online: A boolean to determine if online processing is enabled.
+        single_classification: A boolean to determine if single classification mode is enabled.
+        fps_rate: An integer representing the frames per second rate.
+    Returns:
+        False when the user exits the menu loop.
+    """
     global CAMERA
     while(True):
         print(menu_prompt)
@@ -89,9 +150,7 @@ def main(process_online, single_classification, fps_rate):
                 continue
 
             annotation = handle_annotation_ui(image)
-
             upload_annotation(annotation, image)
-
         elif(key[0] == menu_options[1]):
             image = open_from_path()
 
@@ -100,9 +159,7 @@ def main(process_online, single_classification, fps_rate):
                 continue
 
             annotation = handle_annotation_ui(image)
-
             upload_annotation(annotation, image)
-
         else:
             if CAMERA is not None:
                 CAMERA.close()
@@ -111,14 +168,32 @@ def main(process_online, single_classification, fps_rate):
             return False
 
 
-def handle_annotation_ui(image, prev_annotation=None):
+def handle_annotation_ui(image: np.ndarray, prev_annotation: Optional[List[Tuple[Tuple[int, int], Tuple[int, int]]]] = None) -> Annotations:
+    """
+    Handles the user interface for annotation, allowing the user to draw bounding boxes on the image.
+
+    Parameters:
+        image: A numpy.ndarray representing the image to be annotated.
+        prev_annotation: A list of previous annotations as tuples containing two tuples (x, y) coordinates.
+                         Default is None.
+    Returns:
+        An Annotations object containing the annotations made by the user.
+    """
     print("\n Draw: Left click drag\n Reset: Double Right Click\n Done: Ctrl + Right Click\n Exit: Esc")
     annotation = Annotations(prev_annotation)
 
     # define mouse callback function to draw bounding boxes
-    def mouse_callback(event, x, y, flags, param):
+    def mouse_callback(event: int, x: int, y: int, flags: int, param) -> None:
         """
+        The callback function for mouse events in the annotation user interface.
         Ref - https://www.tutorialspoint.com/opencv-python-how-to-draw-a-rectangle-using-mouse-events
+        
+        Parameters:
+            event: The mouse event.
+            x: The x-coordinate of the event.
+            y: The y-coordinate of the event.
+            flags: Additional flags related to the event.
+            param: Additional parameters related to the event.
         """
         nonlocal annotation
         if flags == cv2.EVENT_FLAG_CTRLKEY and event == cv2.EVENT_RBUTTONUP:
@@ -188,10 +263,13 @@ def open_annotation(live_capture=False, path=False):
     return None
 
 
-def open_from_camera():
+def open_from_camera() -> Union[None, np.ndarray]:
     """
-    Opens up the Users camera and displays the camera on the screen. Once the user
-    presses SPACEBAR, the camera capture the image and return the image.
+    Opens the user's camera and displays the camera feed. Captures the image when the user
+    presses the SPACEBAR and returns the image.
+    
+    Returns:
+        A numpy.ndarray representing the captured image, or None if no image was captured.
     """
     global CAMERA
     print("Annotating from camera")
@@ -231,9 +309,13 @@ def open_from_path():
     return cv2.imread(path)
 
 
-def upload_annotation(annotation, image):
+def upload_annotation(annotation: Annotations, image: np.ndarray) -> None:
     """
-    Uploads annotations to the annotation database
+    Uploads the annotations to the annotation database.
+
+    Parameters:
+        annotation: An Annotations object containing the annotations to be uploaded.
+        image: A numpy.ndarray representing the image with annotations.
     """
     if annotation.is_done():
         # Send to server
