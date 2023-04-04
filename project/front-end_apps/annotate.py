@@ -23,6 +23,7 @@ class Annotations:
             prev_annotations: A list of previous annotations as tuples containing two tuples (x, y) coordinates.
                               Default is None, which initializes an empty list of annotations.
         """
+        self.labels = []
         if prev_annotations is None:
             self.annotations = []
         else:
@@ -114,6 +115,14 @@ class Annotations:
             True if done, otherwise False.
         """
         return self.done
+    def add_label(self, label: str) -> None:
+        """
+        Adds a label to the list of labels.
+
+        Parameters:
+            label: The label to be added.
+        """
+        self.labels.append(label)
 
 
 # list of valid commands the user should be able to use in this menu
@@ -123,13 +132,13 @@ menu_options = ['1', '2', 'M']
 menu_prompt = "1: Opens GUI to capture a photo and annotate\n" \
               "2: Opens GUI and loads image from path to annotate\nM: Exit Annotation"
 
-def main(process_online: bool, single_classification: bool, fps_rate: int) -> bool:
+def main(process_online: bool, fps_rate: int) -> bool:
     """
     The main function that runs the menu loop for the annotation tool.
     
     Parameters:
         process_online: A boolean to determine if online processing is enabled.
-        single_classification: A boolean to determine if single classification mode is enabled.
+        
         fps_rate: An integer representing the frames per second rate.
     Returns:
         False when the user exits the menu loop.
@@ -197,6 +206,8 @@ def handle_annotation_ui(image: np.ndarray, prev_annotation: Optional[List[Tuple
         """
         nonlocal annotation
         if flags == cv2.EVENT_FLAG_CTRLKEY and event == cv2.EVENT_RBUTTONUP:
+            label = input("Enter label for the object: ")
+            annotation.add_label(label)
             annotation.finish()
         elif event == cv2.EVENT_LBUTTONDOWN:
             annotation.start_annotation(x, y)
@@ -324,6 +335,7 @@ def upload_annotation(annotation: Annotations, image: np.ndarray) -> None:
         res = requests.post(f'http://{HOST}:{PORT}/create/entry', data={
             'key': SECRET_KEY,
             'annotation': annotation.annotations,
+            'label': annotation.labels,
             'num_annotations': 1,
             'dataset': 'custom',
             'metadata': ''
