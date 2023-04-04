@@ -19,13 +19,12 @@ menu_prompt = "1: Open Camera and capture\n2: Upload picture\n" \
               "3: Capture real time\nM: Exit Classify"
 
 
-def main(process_online: bool, single_classification: bool, fps_rate: int) -> bool:
+def main(process_online: bool, fps_rate: int) -> bool:
     """
     Main function for the classification process.
     
     Parameters:
         process_online: A boolean to determine if online processing is enabled.
-        single_classification: A boolean to determine if single classification mode is enabled.
         fps_rate: An integer representing the frames per second rate.
     Returns:
         False when the user exits the menu loop.
@@ -43,11 +42,11 @@ def main(process_online: bool, single_classification: bool, fps_rate: int) -> bo
             continue
 
         if(key == menu_options[0]):
-            camera_classify(process_online, single_classification)
+            camera_classify(process_online)
         elif(key == menu_options[1]):
-            file_classify(process_online, single_classification)
+            file_classify(process_online)
         elif(key == menu_options[2]):
-            real_time_classify(process_online, single_classification, fps_rate)
+            real_time_classify(process_online, fps_rate)
         else:
             if CAMERA is not None:
                 CAMERA.close()
@@ -56,13 +55,12 @@ def main(process_online: bool, single_classification: bool, fps_rate: int) -> bo
             return False
 
 
-def camera_classify(process_online: bool, single_classification: bool) -> None:
+def camera_classify(process_online: bool) -> None:
     """
     Capture and classify an image using the camera.
 
     Parameters:
         process_online: A boolean to determine if online processing is enabled.
-        single_classification: A boolean to determine if single classification mode is enabled.
     """
     global CAMERA
     # clear screen
@@ -82,7 +80,7 @@ def camera_classify(process_online: bool, single_classification: bool) -> None:
             print("\nCaptured")
 
             # send img to Server or Local Model
-            pred = ssd_preds(img, process_online, single_classification)
+            pred = ssd_preds(img, process_online)
             if pred is None:
                 print("Failed to classify")
             else:
@@ -98,13 +96,12 @@ def camera_classify(process_online: bool, single_classification: bool) -> None:
     CAMERA = None
 
 
-def file_classify(process_online: bool, single_classification: bool) -> None:
+def file_classify(process_online: bool) -> None:
     """
     Classify an image from a file.
 
     Parameters:
         process_online: A boolean to determine if online processing is enabled.
-        single_classification: A boolean to determine if single classification mode is enabled.
     """
     print("Classifying from file")
     print("Enter image file path to be classifyed: ")
@@ -115,20 +112,20 @@ def file_classify(process_online: bool, single_classification: bool) -> None:
         print("Image could not be read")
     else:
         # send img to Server or Local Model
-        pred = ssd_preds(img, process_online, single_classification)
+        pred = ssd_preds(img, process_online)
         if pred is None:
             print("Failed to classify")
         else:
             pprint(pred)
 
 
-def real_time_classify(process_online: bool, single_classification: bool, fps_rate: int) -> None:
+def real_time_classify(process_online: bool, fps_rate: int) -> None:
     """
     Classify objects in real-time using the camera.
 
     Parameters:
         process_online: A boolean to determine if online processing is enabled.
-        single_classification: A boolean to determine if single classification mode is enabled.
+        
         fps_rate: An integer representing the frames per second rate.
     """
     global CAMERA
@@ -146,7 +143,7 @@ def real_time_classify(process_online: bool, single_classification: bool, fps_ra
             cv2.imshow("Classifing. Press Q to stop", img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            pred = ssd_preds(img, process_online, single_classification)
+            pred = ssd_preds(img, process_online)
             if pred is None:
                 print("Failed to classify")
             else:

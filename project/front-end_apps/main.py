@@ -38,10 +38,10 @@ def main() -> int:
 
         if key == menu_options[0]:
             # open annotate
-            annotate.main(settings.PROCESS_ONLINE, settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
+            annotate.main(settings.PROCESS_ONLINE, settings.FPS_RATE)
         elif key == menu_options[1]:
             # open classify
-            classify.main(settings.PROCESS_ONLINE, settings.SINGLE_CLASSIFICATION, settings.FPS_RATE)
+            classify.main(settings.PROCESS_ONLINE, settings.FPS_RATE)
         elif key == menu_options[2]:
             # open trash info
             trash_info.main()
