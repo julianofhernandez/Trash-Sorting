@@ -68,13 +68,13 @@ def old_test_ssd_preds(images, model_name):
         ],
         "object_trash_class": "Garbage",
         "object_trash_class_probs": [0.25, 0.25, 0.25, 0.25],
-        "trash_class": "Recylable",
+        "trash_class": "Recyclable",
         "trash_class_probs": [
             0.02020263671875, 0.88623046875, 0.07867431640625, 0.01500701904296875
         ],
         "trash_classes": [
             "Garbage",
-            "Recylable",
+            "Recyclable",
             "Organic Waste",
             "Household hazardous waste"
         ]
@@ -126,16 +126,17 @@ def efficentnet_preds(images, model_name):
 
         # Calculate probability distribution over the four trash classes
         trash_probs = np.array([0., 0., 0., 0.])
-        trash_classes = ['trash', 'recycling', 'compost', 'ewaste']
+        trash_classes = ["Garbage", "Recyclable","Organic Waste", "Household hazardous waste"]
         object_class_probs = outputs[ndxs]
         object_class_probs = object_class_probs / object_class_probs.sum()
         object_classes = [labels[ndx] for ndx in ndxs]
 
         # Sum probabilities for each trash class from the top 10 predictions
         for ndx in ndxs:
-            trash_probs[conversion_dict[str(
-                ndx)]['index']] += object_class_probs[ndx]
+            trash_probs[conversion_dict[str(ndx)]['index']] += outputs[ndx]
         trash_probs = trash_probs / trash_probs.sum()
+
+        trash_index = conversion_dict[str(ndxs[0])]['index']
 
         # Save classification results for the current image to a dictionary and append it to the results list
         result = {
@@ -144,7 +145,7 @@ def efficentnet_preds(images, model_name):
             'object_classes': object_classes,
 
             # conversion_dict[str(ndxs[0])]['bin_class']
-            'object_trash_class': trash_classes[np.argmax(trash_probs)],
+            'object_trash_class': trash_classes[trash_index],
             'object_trash_class_probs': trash_probs.tolist(),
 
             'trash_class': trash_classes[np.argmax(trash_probs)],
@@ -193,7 +194,7 @@ def clip_preds(images, model_name):
                              "Plastic utensils", "Pop tab", "Rope & strings", "Scrap metal", "Shoe",
                              "Squeezable tube", "Plastic straw", "Paper straw", "Styrofoam piece",
                              "Unlabeled litter", "Cigarette"]
-        trash_bins_categories = ["Garbage", "Recylable",
+        trash_bins_categories = ["Garbage", "Recyclable",
                                  "Organic Waste", "Household hazardous waste"]
 
         # Encode the object and trash bin descriptions using the CLIP model
