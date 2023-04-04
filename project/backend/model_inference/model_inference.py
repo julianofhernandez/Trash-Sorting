@@ -1,4 +1,4 @@
-from ssd import ssd_preds
+from model_inference.ssd import ssd_preds
 import numpy as np
 import os
 from io import BytesIO
@@ -6,13 +6,15 @@ from flask import request, jsonify, send_from_directory, Blueprint
 import cv2
 from PIL import Image
 
+cd = os.path.dirname(__file__)
 
-MODELS_DIR = 'models/'
+MODELS_DIR = os.path.join(cd, 'models/')
 MODELS = {}
 DEV_KEY = None
-METADATAS_DIR = 'metadatas/'
+METADATAS_DIR = os.path.join(cd, 'metadatas/')
 
 model_inference = Blueprint('model_inference', __name__)
+
 
 def existing_models():
     global MODELS_DIR, MODELS
@@ -36,6 +38,7 @@ def setup():
         DEV_KEY = open('KEY.ps', 'r').read()
     else:
         DEV_KEY = 'secretkey'
+
 
 @model_inference.route('/create/model/<model_name>', methods=['POST'])
 def handle_model_create(model_name):
