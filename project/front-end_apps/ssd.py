@@ -1,3 +1,4 @@
+import numpy as np
 import requests
 import json
 from io import BytesIO

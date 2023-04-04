@@ -24,11 +24,10 @@ def load(filename: str = CONFIG_FILE) -> None:
     Parameters:
         filename: A string representing the file name of the JSON configuration file.
     """
-    global PROCESS_ONLINE, SINGLE_CLASSIFICATION, FPS_RATE
+    global PROCESS_ONLINE, FPS_RATE
     with open(filename, 'r') as file:
         settings = json.load(file)
     PROCESS_ONLINE = settings['PROCESS_ONLINE']
-    SINGLE_CLASSIFICATION = settings['SINGLE_CLASSIFICATION']
     FPS_RATE = settings['FPS_RATE']
 
 
@@ -41,7 +40,6 @@ def save(filename: str = CONFIG_FILE) -> None:
     """
     with open(filename, 'w') as file:
         json.dump({'PROCESS_ONLINE': PROCESS_ONLINE,
-                   'SINGLE_CLASSIFICATION': SINGLE_CLASSIFICATION,
                    'FPS_RATE': FPS_RATE}, file)
 
 
@@ -57,10 +55,10 @@ def setup() -> None:
 
 setup()
 
-menu_options = ['1', '2', '3', 'M']
+menu_options = ['1', '2', 'M']
 sub_options = ['1', '2']
 
-menu_prompt = "1: Toggle Online/Offline Computation (currently: {})\n2: Toggle Single/Multi object Classification (currently: {})\n" \
+menu_prompt = "1: Toggle Online/Offline Computation (currently: {})\n" \
               "3: Change FPS for live capture (currently: {})\nM: Exit Settings"
 
 
@@ -71,7 +69,6 @@ def main() -> None:
     while (True):
         print(menu_prompt.format(
             'online' if PROCESS_ONLINE else 'offline',
-            'single' if SINGLE_CLASSIFICATION else 'multi',
             FPS_RATE))
         print("Press the key to the corresponding action")
 
