@@ -5,7 +5,6 @@ edit, and delete images and their annotations.
 Note: for format of the files when uploading to the database, include extension
 if we allow for images of different extensions
 """
-
 import sqlite3
 import os
 from flask import jsonify, request, send_from_directory, Blueprint
@@ -26,7 +25,9 @@ IMAGE_DIR = 'images/'
 IMAGE_DATA_DB = 'imageDB.db'
 NUM_ENTRIES = None
 
-
+"""The code creates a SQLite database named imageDB.db and a directory named images in the current 
+working directory where the images are stored. The create_db() function is responsible for setting 
+up the database and creating the necessary tables."""
 def create_db():
     """
     Sets up the Sqlite database and creates the tables
@@ -44,7 +45,7 @@ def create_db():
     conn.commit()
     conn.close()
 
-
+#The get_max_entries() function returns the maximum id in the image_data table. 
 def get_max_entries():
     global IMAGE_DATA_DB
     conn = sqlite3.connect(IMAGE_DATA_DB)
@@ -54,13 +55,13 @@ def get_max_entries():
     conn.close()
     return 0 if num_entries is None else num_entries
 
-
+#The create_files() function creates the images directory where the images will be stored. 
 def create_files():
     global IMAGE_DIR
     if not os.path.exists(IMAGE_DIR):
         os.makedirs(IMAGE_DIR)
 
-
+#The setup() function calls create_db(), create_files(), and get_max_entries() to set up the database and get the number of entries.
 def setup():
     global NUM_ENTRIES, DEV_KEY
     create_db()
@@ -71,7 +72,7 @@ def setup():
     else:
         DEV_KEY = 'secretkey'
 
-
+#This function returns a JSON response indicating that the request is invalid. The default error message is "Invalid Key" with error code 1 and HTTP response code 401 (Unauthorized).
 def invalid_request(error_msg='Invalid Key', error_code=1, code=401):
     """
     Returns Format for invalid response. By default returns a response
@@ -83,7 +84,7 @@ def invalid_request(error_msg='Invalid Key', error_code=1, code=401):
         'error_code': error_code
     }), code
 
-
+"""This function handles a POST request to create a new entry in the database. It checks for a valid developer key, an image file, and various form fields (annotation, num_annotations, dataset, and metadata). If all fields are present, it saves the image file to the images directory, inserts the data into the image_data table, and returns a JSON response with the new entry ID, error message (if any), and error code."""
 @db_server.route('/create/entry', methods=['POST'])
 def handle_entry():
     """
@@ -154,7 +155,7 @@ def handle_entry():
             'error_code': error_code,
         }), 200
 
-
+"""This function handles a GET request to retrieve an image file with the specified ID. It reads the image file from the images directory and returns it as a response."""
 @db_server.route('/read/entry/image/<id>')
 def handle_get_entry_image(id):
     global IMAGE_DIR
@@ -175,7 +176,7 @@ def handle_get_entry_image(id):
         'error_code': error_code
     }), 200
 
-
+"""This function handles a GET request to retrieve the data for an entry with the specified ID. It queries the image_data table for the specified id and returns the data as a JSON response."""
 @db_server.route('/read/entry/data/<id>')
 def handle_get_entry_metadata(id):
     """
@@ -209,7 +210,7 @@ def handle_get_entry_metadata(id):
         'error_code': error_code
     }), 200
 
-
+#Searches for entries in the database that match the given criteria and returns a list of matching IDs.
 @db_server.route('/read/search/<filter>', methods=['GET'])
 def handle_search_entries(filter):
     """
@@ -245,7 +246,7 @@ def handle_search_entries(filter):
         'error_code': error_code
     }), 200
 
-
+#Queries for entry with no or least annotations.
 @db_server.route('/read/annotation/min', methods=['GET'])
 def handle_get_entry_min_annotation():
     """
@@ -282,7 +283,7 @@ def handle_get_entry_min_annotation():
         'error_code': error_code
     }), 200
 
-
+#Queries for entry with most annotations.
 @db_server.route('/read/annotation/max', methods=['GET'])
 def handle_get_entry_max_annotations():
     """
@@ -319,7 +320,7 @@ def handle_get_entry_max_annotations():
         'error_code': error_code
     }), 200
 
-
+#Incrementa the annotation approval.
 @db_server.route('/update/approve/<id>', methods=['PUT'])
 def handle_annotation_approved(id):
     """
@@ -350,7 +351,7 @@ def handle_annotation_approved(id):
         'error_code': error_code
     }), 200
 
-
+#Decrements the annotation approval.
 @db_server.route('/update/disaprove/<id>', methods=['PUT'])
 def handle_annotation_disapproved(id):
     """
@@ -381,7 +382,7 @@ def handle_annotation_disapproved(id):
         'error_code': error_code
     }), 200
 
-
+#Mix the annotations given when given unique image identifer
 # Leave blank - note on Rest api google doc
 @db_server.route('/update/mix-annotation/<id>', methods=['PUT'])
 def handle_mix_annotation(id):
@@ -402,7 +403,7 @@ def handle_mix_annotation(id):
         'error_code': error_code
     }), 200
 
-
+#Edits all the data of an entry besides ID and Image content.
 @db_server.route('/update/entry/<id>', methods=['PUT'])
 def handle_entry_update(id):
     """
@@ -435,7 +436,7 @@ def handle_entry_update(id):
         'error_code': error_code
     }), 200
 
-
+#Removes the image and all correlated info on it.
 @db_server.route('/delete/entry/<id>', methods=['DELETE'])
 def delete_image(id):
     """
