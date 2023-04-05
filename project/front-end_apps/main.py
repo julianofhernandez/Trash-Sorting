@@ -9,13 +9,14 @@ import classify
 import trash_info
 import about
 import settings
+import download_model
 import misc
 
 # list of valid commands the user should be able to use in this menu
-menu_options = ['1', '2', '3', '4', '5', 'Q']
+menu_options = ['1', '2', '3', '4', '5', '6', 'Q']
 
 # the text prompt for this menu
-menu_prompt = "1: Annotate\n2: Classify\n3: Trash info\n4: About\n5: Settings\nQ: Quit"
+menu_prompt = "1: Annotate\n2: Classify\n3: Trash info\n4: About\n5: Settings\n6: Download model\nQ: Quit"
 
 def main() -> int:
     """
@@ -51,6 +52,9 @@ def main() -> int:
         elif key == menu_options[4]:
             # open settings
             settings.main()
+        elif key == menu_options[5]:
+            # open download model
+            download_model.main()
         else:
             # quit program
             print("Goodbye")
