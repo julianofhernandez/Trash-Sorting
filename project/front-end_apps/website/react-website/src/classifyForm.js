@@ -2,13 +2,12 @@ import * as React from "react";
 import { Page, Button, Form, Alert, GalleryCard, Grid } from "tabler-react";
 import { Trash, Leaf, Recycle, Biohazard } from "tabler-icons-react";
 
-const DEV_MODELS_URL = "http://localhost:5001/read/model/list";
-const DEV_BASE_READ_URL = "http://localhost:5001/read/inference/";
-const DEV_BASE_READ_BATCH_URL = "http://localhost:5001/read/batch-inference/";
+/* If this server is in Development set DEV_MODE to true, ortherwise set to false */
+const DEV_MODE = true;
 
-const MODELS_URL = "/read/model/list";
-const BASE_READ_URL = "/read/inference/";
-const BASE_READ_BATCH_URL = "/read/batch-inference/";
+const MODELS_URL = DEV_MODE ? "http://localhost:5001/read/model/list" : "/read/model/list";
+const BASE_READ_URL =  DEV_MODE ? "http://localhost:5001/read/inference/" : "/read/inference/";
+const BASE_READ_BATCH_URL =  DEV_MODE ? "http://localhost:5001/read/batch-inference/" : "/read/batch-inference/";
 
 const BIN = {
   Garbage: "Garbage",
@@ -263,6 +262,8 @@ class ClassifyForm extends React.Component {
         break;
       case BIN.Hazard:
         icon = <Biohazard size={24} strokeWidth={2} color={"orange"} />;
+        break;
+      default:
         break;
     }
     return icon;

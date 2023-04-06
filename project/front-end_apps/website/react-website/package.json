@@ -5,6 +5,8 @@
   "license": "MIT",
   "dependencies": {
     "d3-scale": "^3.0.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.7",
     "formik": "^1.0.2",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
