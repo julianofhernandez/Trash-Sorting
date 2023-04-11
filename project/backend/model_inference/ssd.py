@@ -4,8 +4,10 @@ import numpy as np
 import torch
 from torchvision.models import efficientnet_v2_l, EfficientNet_V2_L_Weights
 import clip
+import open_clip
+from PIL import Image
 
-
+CLIP_MODELS = 'ViT-g-14'
 MODELS = {}
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"  # 'cuda'
 
@@ -26,15 +28,15 @@ def ssd_preds(images, model_name):
 
     if model_name.upper() == 'DEFAULT':
         # model_name = 'efficientnet_v2_l'
-        model_name = 'clip'
+        model_name = 'ViT-H-14'
 
     # Match model name to the appropriate model specific ssd preds method
     if model_name.startswith('efficientnet_v2_l'):
         results = efficentnet_preds(images, model_name)
     elif model_name.startswith('test'):
         results = old_test_ssd_preds(images, model_name)
-    elif model_name.startswith('clip'):
-        results = clip_preds(images, model_name)
+    elif model_name.startswith('ViT'):
+        results = open_clip_preds(images, model_name)
     else:
         results = []
 
@@ -68,13 +70,13 @@ def old_test_ssd_preds(images, model_name):
         ],
         "object_trash_class": "Garbage",
         "object_trash_class_probs": [0.25, 0.25, 0.25, 0.25],
-        "trash_class": "Recylable",
+        "trash_class": "Recyclable",
         "trash_class_probs": [
             0.02020263671875, 0.88623046875, 0.07867431640625, 0.01500701904296875
         ],
         "trash_classes": [
             "Garbage",
-            "Recylable",
+            "Recyclable",
             "Organic Waste",
             "Household hazardous waste"
         ]
@@ -126,16 +128,17 @@ def efficentnet_preds(images, model_name):
 
         # Calculate probability distribution over the four trash classes
         trash_probs = np.array([0., 0., 0., 0.])
-        trash_classes = ['trash', 'recycling', 'compost', 'ewaste']
+        trash_classes = ["Garbage", "Recyclable","Organic Waste", "Household hazardous waste"]
         object_class_probs = outputs[ndxs]
         object_class_probs = object_class_probs / object_class_probs.sum()
         object_classes = [labels[ndx] for ndx in ndxs]
 
         # Sum probabilities for each trash class from the top 10 predictions
         for ndx in ndxs:
-            trash_probs[conversion_dict[str(
-                ndx)]['index']] += object_class_probs[ndx]
+            trash_probs[conversion_dict[str(ndx)]['index']] += outputs[ndx]
         trash_probs = trash_probs / trash_probs.sum()
+
+        trash_index = conversion_dict[str(ndxs[0])]['index']
 
         # Save classification results for the current image to a dictionary and append it to the results list
         result = {
@@ -144,7 +147,7 @@ def efficentnet_preds(images, model_name):
             'object_classes': object_classes,
 
             # conversion_dict[str(ndxs[0])]['bin_class']
-            'object_trash_class': trash_classes[np.argmax(trash_probs)],
+            'object_trash_class': trash_classes[trash_index],
             'object_trash_class_probs': trash_probs.tolist(),
 
             'trash_class': trash_classes[np.argmax(trash_probs)],
@@ -155,8 +158,14 @@ def efficentnet_preds(images, model_name):
 
     return results
 
+def get_weights(CLIP_MODELS):
+    m = {'ViT-g-14': 'laion2B-s12B-b42K',
+         'ViT-H-14': 'laion2B-s32B-b79K',
+         'ViT-L-14': 'laion2B-s32B-b82K',
+         'ViT-B-16': 'laion2B-s34B-b88K'}
+    return m[CLIP_MODELS]
 
-def clip_preds(images, model_name):
+def open_clip_preds(images, model_name):
     """This function takes in a list of images and a model name and returns a list of dictionaries containing the classification results for each image.
 
     Args:
@@ -172,10 +181,9 @@ def clip_preds(images, model_name):
             model_name]
     else:
         # Load the CLIP model and preprocess function
-        model, preprocess = clip.load("ViT-B/32")
-        model.eval()
-        # model, _, preprocess = open_clip.create_model_and_transforms('ViT-H-14', pretrained='laion2b_s32b_b79k')
-        # tokenizer = open_clip.get_tokenizer('ViT-H-14')
+        
+        model, _, preprocess = open_clip.create_model_and_transforms(model_name, pretrained=get_weights(model_name))
+        tokenizer = open_clip.get_tokenizer(model_name)
 
         # Define the object and trash bin categories and their descriptions
         object_categories = ["Aluminium foil", "Battery", "Aluminium blister pack", "Carded blister pack",
@@ -193,7 +201,7 @@ def clip_preds(images, model_name):
                              "Plastic utensils", "Pop tab", "Rope & strings", "Scrap metal", "Shoe",
                              "Squeezable tube", "Plastic straw", "Paper straw", "Styrofoam piece",
                              "Unlabeled litter", "Cigarette"]
-        trash_bins_categories = ["Garbage", "Recylable",
+        trash_bins_categories = ["Garbage", "Recyclable",
                                  "Organic Waste", "Household hazardous waste"]
 
         # Encode the object and trash bin descriptions using the CLIP model
@@ -203,9 +211,9 @@ def clip_preds(images, model_name):
             f"photo of {label}" for label in trash_bins_categories]
 
         # Tokenize and send to device
-        object_descriptions_tokens = clip.tokenize(
+        object_descriptions_tokens = tokenizer(
             object_descriptions).to(DEVICE)
-        trash_bins_descriptions_tokens = clip.tokenize(
+        trash_bins_descriptions_tokens = tokenizer(
             trash_bins_descriptions).to(DEVICE)
 
         # Encode the descriptions
@@ -247,13 +255,9 @@ def clip_preds(images, model_name):
         object_class_probs = object_class_probs / object_class_probs.sum()
         object_classes = [object_categories[index]
                           for index in object_indices]
-        # object_classes[np.argmax(object_class_probs)]
         object_class = object_categories[object_indices[0]]
 
         object_trash_probs = np.array([0., 0., 0., 0.]) + 1
-        # for ndx in object_indices:
-        #    object_trash_probs[conversion_dict[str(
-        #        ndx)]['index']] += object_class_probs[ndx]
         object_trash_probs = object_trash_probs / object_trash_probs.sum()
 
         result = {

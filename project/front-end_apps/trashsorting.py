@@ -1,6 +1,8 @@
 import argparse
+import shutil
 import cv2
 import json
+
 from ssd import ssd_preds
 from camera import CameraRecorder
 from pprint import pprint
@@ -19,6 +21,8 @@ def parse_args() -> argparse.Namespace:
     group.add_argument('-c', '--camera',
                        action='store_true',
                        help='Opens camera and takes a picture')
+    group.add_argument('-d', '--download', nargs=2,
+                        help='Copy model from one location and save it to specified directory')
 
     # Add other command-line options
     parser.add_argument('-l', '--local',
@@ -30,18 +34,24 @@ def parse_args() -> argparse.Namespace:
                         help='Only classify a single object in the image')
     parser.add_argument('-j', '--json',
                         help='Saves a prediction output as json instead of going to console')
-
     return parser.parse_args()
 
 
 def main(args: argparse.Namespace) -> None:
     """Main function that runs the application."""
+
+    if args.download:
+        print("Downloading model...")
+        model_source, model_destination = args.download
+        shutil.copy(model_source, model_destination)
+        print("File download successful!")
+
     if args.camera:
         with CameraRecorder(.5, fps=30) as cr:
             print("Active. Press SPACE to capture.")
             while True:
                 img = cr.capture()
-                cv2.imshow("Classifing. Press SPACE to capture.", img)
+                cv2.imshow("Classifying. Press SPACE to capture.", img)
                 if cv2.waitKey(1) & 0xFF == 32:
                     break
         cv2.destroyAllWindows()
@@ -65,7 +75,6 @@ def main(args: argparse.Namespace) -> None:
         else:
             # error
             print("Failed to classify")
-
 
 if __name__ == '__main__':
     args = parse_args()

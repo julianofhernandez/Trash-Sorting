@@ -1,6 +1,6 @@
 {
-  "short_name": "tabler-react",
-  "name": "tabler-react",
+  "short_name": "Trash Classifier",
+  "name": "Trash Classifier",
   "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#000000",
