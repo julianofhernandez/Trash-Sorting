@@ -3,6 +3,7 @@ import requests
 import json
 from io import BytesIO
 from typing import List, Union, Dict, Any
+import cv2
 
 
 def ssd_preds(images: Union[List[np.ndarray], np.ndarray], process_online: bool, single_classification: bool) -> Union[Dict[str, Any], None]:
