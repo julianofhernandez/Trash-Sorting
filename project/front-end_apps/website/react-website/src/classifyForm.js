@@ -1,29 +1,22 @@
 import * as React from "react";
-import {
-  Page,
-  Button,
-  Form,
-  Alert,
-  GalleryCard,
-  Grid,
-} from "tabler-react";
+import { Page, Button, Form, Alert, GalleryCard, Grid } from "tabler-react";
 import { Trash, Leaf, Recycle, Biohazard } from "tabler-icons-react";
 
-const DEV_MODELS_URL = "http://localhost:5001/read/model/list";
-const DEV_BASE_READ_URL = "http://localhost:5001/read/inference/";
-const DEV_BASE_READ_BATCH_URL = "http://localhost:5001/read/batch-inference/";
+/* If this server is in Development set DEV_MODE to true, ortherwise set to false */
+const DEV_MODE = true;
 
-const MODELS_URL = "http://nsm-stats.csus.edu:80/read/model/list";
-const BASE_READ_URL = "http://nsm-stats.csus.edu:80/read/inference/";
-const BASE_READ_BATCH_URL =
-  "http://nsm-stats.csus.edu:80/read/batch-inference/";
+const MODELS_URL = DEV_MODE ? "http://localhost:5001/read/model/list" : "/read/model/list";
+const BASE_READ_URL =  DEV_MODE ? "http://localhost:5001/read/inference/" : "/read/inference/";
+const BASE_READ_BATCH_URL =  DEV_MODE ? "http://localhost:5001/read/batch-inference/" : "/read/batch-inference/";
 
 const BIN = {
   Garbage: "Garbage",
-  Recyclable: "Recylable",
+  Recyclable: "Recyclable",
   Organic: "Organic Waste",
   Hazard: "Household hazardous waste",
 };
+
+const FILE_INPUT_LIMIT = 10;
 
 class ClassifyForm extends React.Component {
   constructor(props) {
@@ -34,24 +27,29 @@ class ClassifyForm extends React.Component {
       fileInputCount: 1,
       filesToSubmit: [],
       submittedFiles: [],
+      isSubmitDisabled: true,
+      isAddFileDisabled: true,
       response: null,
       serverError: null,
     };
     this.handleDropdownChange = this.handleDropdownChange.bind(this);
     this.handleAddFileInput = this.handleAddFileInput.bind(this);
     this.handleRemoveFileInput = this.handleRemoveFileInput.bind(this);
+    this.handleFileChange = this.handleFileChange.bind(this);
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.submitSingleFile = this.submitSingleFile.bind(this);
     this.submitMultipleFiles = this.submitMultipleFiles.bind(this);
-    this.handleFormSubmit = this.handleFormSubmit.bind(this);
-    this.handleFileChange = this.handleFileChange.bind(this);
     this.getInferenceOutput = this.getInferenceOutput.bind(this);
     this.getIconFromTextClass = this.getIconFromTextClass.bind(this);
   }
 
   /* Add a file input element */
   handleAddFileInput() {
+    const { fileInputCount } = this.state;
     this.setState({
-      fileInputCount: this.state.fileInputCount + 1,
+      fileInputCount: fileInputCount + 1,
+      isSubmitDisabled: true,
+      isAddFileDisabled: true,
     });
   }
 
@@ -67,13 +65,15 @@ class ClassifyForm extends React.Component {
       this.setState({
         fileInputCount: newFileInputCount,
         filesToSubmit: newFiles,
+        isSubmitDisabled: newFiles.length === newFileInputCount ? false : true,
+        isAddFileDisabled: newFiles.length < newFileInputCount ? true : false,
       });
     }
   }
 
   /* Populate "select model" dropdown upon initial app load */
   componentDidMount() {
-    fetch(DEV_MODELS_URL, {
+    fetch(MODELS_URL, {
       method: "GET",
       headers: {
         //specify which domains are allowed to make requests to server
@@ -126,7 +126,7 @@ class ClassifyForm extends React.Component {
     formData.append("num_image", filesToSubmit.length);
     filesToSubmit.forEach((file, i) => formData.append(`image_${i}`, file));
 
-    fetch(DEV_BASE_READ_BATCH_URL + selectedModel, {
+    fetch(BASE_READ_BATCH_URL + selectedModel, {
       method: "POST",
       body: formData,
       headers: {
@@ -157,7 +157,7 @@ class ClassifyForm extends React.Component {
     const formData = new FormData();
     formData.append("image", filesToSubmit[0]);
 
-    fetch(DEV_BASE_READ_URL + selectedModel, {
+    fetch(BASE_READ_URL + selectedModel, {
       method: "POST",
       body: formData,
       headers: {
@@ -184,7 +184,7 @@ class ClassifyForm extends React.Component {
 
   /* Replacing or adding a new file */
   handleFileChange(event) {
-    const { filesToSubmit } = this.state;
+    const { filesToSubmit, fileInputCount } = this.state;
 
     // index of file change event
     const index = parseInt(event.target.name.slice(-1));
@@ -193,6 +193,13 @@ class ClassifyForm extends React.Component {
     if (typeof filesToSubmit[index] === "undefined") {
       this.setState({
         filesToSubmit: [...filesToSubmit, event.target.files[0]],
+        isSubmitDisabled:
+          filesToSubmit.length + 1 === fileInputCount ? false : true,
+        isAddFileDisabled:
+          filesToSubmit.length + 1 === fileInputCount &&
+          filesToSubmit.length + 1 < FILE_INPUT_LIMIT
+            ? false
+            : true,
       });
     }
     // replace an existing file
@@ -256,12 +263,21 @@ class ClassifyForm extends React.Component {
       case BIN.Hazard:
         icon = <Biohazard size={24} strokeWidth={2} color={"orange"} />;
         break;
+      default:
+        break;
     }
     return icon;
   }
 
   render() {
-    const { fileInputCount, options, serverError } = this.state;
+    const {
+      fileInputCount,
+      isAddFileDisabled,
+      isSubmitDisabled,
+      response,
+      options,
+      serverError,
+    } = this.state;
 
     // variable number of file inputs
     const fileInputs = [...Array(fileInputCount)].map((_, i) => (
@@ -278,7 +294,11 @@ class ClassifyForm extends React.Component {
       <div>
         <Form.Group label="File Input">
           {fileInputs}
-          <Button link onClick={this.handleAddFileInput}>
+          <Button
+            link
+            onClick={this.handleAddFileInput}
+            disabled={isAddFileDisabled}
+          >
             Add another file
           </Button>
           {fileInputCount > 1 && (
@@ -295,15 +315,15 @@ class ClassifyForm extends React.Component {
               color="primary"
               className="ml-auto"
               onClick={this.handleFormSubmit}
-              disabled={this.state.filesToSubmit.length < 1 ? true : false}
+              disabled={isSubmitDisabled}
             >
               Bin it!
             </Button>
           </div>
         </Form.Group>
         <Page.Card title="Result">
-          {!this.state.response && this.getInferenceOutput()}
-          {this.state.response && this.getInferenceOutput()}
+          {!response && this.getInferenceOutput()}
+          {response && this.getInferenceOutput()}
         </Page.Card>
       </div>
     );

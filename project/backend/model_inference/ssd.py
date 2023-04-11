@@ -4,8 +4,10 @@ import numpy as np
 import torch
 from torchvision.models import efficientnet_v2_l, EfficientNet_V2_L_Weights
 import clip
+import open_clip
+from PIL import Image
 
-
+CLIP_MODELS = 'ViT-g-14'
 MODELS = {}
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"  # 'cuda'
 
@@ -26,15 +28,15 @@ def ssd_preds(images, model_name):
 
     if model_name.upper() == 'DEFAULT':
         # model_name = 'efficientnet_v2_l'
-        model_name = 'clip'
+        model_name = 'ViT-H-14'
 
     # Match model name to the appropriate model specific ssd preds method
     if model_name.startswith('efficientnet_v2_l'):
         results = efficentnet_preds(images, model_name)
     elif model_name.startswith('test'):
         results = old_test_ssd_preds(images, model_name)
-    elif model_name.startswith('clip'):
-        results = clip_preds(images, model_name)
+    elif model_name.startswith('ViT'):
+        results = open_clip_preds(images, model_name)
     else:
         results = []
 
@@ -156,8 +158,14 @@ def efficentnet_preds(images, model_name):
 
     return results
 
+def get_weights(CLIP_MODELS):
+    m = {'ViT-g-14': 'laion2B-s12B-b42K',
+         'ViT-H-14': 'laion2B-s32B-b79K',
+         'ViT-L-14': 'laion2B-s32B-b82K',
+         'ViT-B-16': 'laion2B-s34B-b88K'}
+    return m[CLIP_MODELS]
 
-def clip_preds(images, model_name):
+def open_clip_preds(images, model_name):
     """This function takes in a list of images and a model name and returns a list of dictionaries containing the classification results for each image.
 
     Args:
@@ -173,10 +181,9 @@ def clip_preds(images, model_name):
             model_name]
     else:
         # Load the CLIP model and preprocess function
-        model, preprocess = clip.load("ViT-B/32")
-        model.eval()
-        # model, _, preprocess = open_clip.create_model_and_transforms('ViT-H-14', pretrained='laion2b_s32b_b79k')
-        # tokenizer = open_clip.get_tokenizer('ViT-H-14')
+        
+        model, _, preprocess = open_clip.create_model_and_transforms(model_name, pretrained=get_weights(model_name))
+        tokenizer = open_clip.get_tokenizer(model_name)
 
         # Define the object and trash bin categories and their descriptions
         object_categories = ["Aluminium foil", "Battery", "Aluminium blister pack", "Carded blister pack",
@@ -204,9 +211,9 @@ def clip_preds(images, model_name):
             f"photo of {label}" for label in trash_bins_categories]
 
         # Tokenize and send to device
-        object_descriptions_tokens = clip.tokenize(
+        object_descriptions_tokens = tokenizer(
             object_descriptions).to(DEVICE)
-        trash_bins_descriptions_tokens = clip.tokenize(
+        trash_bins_descriptions_tokens = tokenizer(
             trash_bins_descriptions).to(DEVICE)
 
         # Encode the descriptions
@@ -248,13 +255,9 @@ def clip_preds(images, model_name):
         object_class_probs = object_class_probs / object_class_probs.sum()
         object_classes = [object_categories[index]
                           for index in object_indices]
-        # object_classes[np.argmax(object_class_probs)]
         object_class = object_categories[object_indices[0]]
 
         object_trash_probs = np.array([0., 0., 0., 0.]) + 1
-        # for ndx in object_indices:
-        #    object_trash_probs[conversion_dict[str(
-        #        ndx)]['index']] += object_class_probs[ndx]
         object_trash_probs = object_trash_probs / object_trash_probs.sum()
 
         result = {
