@@ -3,7 +3,7 @@ import shutil
 import cv2
 import json
 
-from ssd import ssd_preds
+from ssd import preds
 from camera import CameraRecorder
 from pprint import pprint
 
@@ -62,7 +62,7 @@ def main(args: argparse.Namespace) -> None:
         print("Image could not be read")
     else:
         # Send the image to the Server or Local Model for classification
-        pred = ssd_preds(img, args.online is not None, args.single)
+        pred = preds(img, args.online is not None, args.single)
 
         if pred is not None:
             if args.json:
