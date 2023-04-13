@@ -1,4 +1,4 @@
-from ssd import ssd_preds
+from ssd import preds
 import numpy as np
 import os
 from io import BytesIO
@@ -104,7 +104,7 @@ def handle_read_inference(model_name):
             img = Image.open(byte_arr)
 
             # Predict the correct label for an image, returns probs and other info
-            prediction_data = ssd_preds(img, model_name)[0]
+            prediction_data = preds(img, model_name)[0]
         except Exception as e:
             error_msg = str(e)
             error_code = 2
@@ -141,7 +141,7 @@ def handle_batch_inference(model_name):
                 imgs.append(Image.open(byte_arr))
 
             # Predict the correct label for all the image, returns probs and other info
-            prediction_data = ssd_preds(imgs, model_name)
+            prediction_data = preds(imgs, model_name)
         except Exception as e:
             error_msg = str(e)
             error_code = 2

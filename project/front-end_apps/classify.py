@@ -7,7 +7,7 @@ by the user
 import misc
 import cv2
 from camera import *
-from ssd import ssd_preds
+from ssd import preds
 from pprint import pprint
 from typing import Union
 
@@ -80,7 +80,7 @@ def camera_classify(process_online: bool) -> None:
             print("\nCaptured")
 
             # send img to Server or Local Model
-            pred = ssd_preds(img, process_online)
+            pred = preds(img, process_online)
             if pred is None:
                 print("Failed to classify")
             else:
@@ -112,7 +112,7 @@ def file_classify(process_online: bool) -> None:
         print("Image could not be read")
     else:
         # send img to Server or Local Model
-        pred = ssd_preds(img, process_online)
+        pred = preds(img, process_online)
         if pred is None:
             print("Failed to classify")
         else:
@@ -143,7 +143,7 @@ def real_time_classify(process_online: bool, fps_rate: int) -> None:
             cv2.imshow("Classifing. Press Q to stop", img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            pred = ssd_preds(img, process_online)
+            pred = preds(img, process_online)
             if pred is None:
                 print("Failed to classify")
             else:
