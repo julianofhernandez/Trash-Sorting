@@ -38,7 +38,7 @@ def preds(images: Union[List[np.ndarray], np.ndarray], process_online: bool, sin
         # Send the image to the remote server for processing
         res = requests.post(
             'http://127.0.0.1:5001/read/inference/default', files={'image': byte_arr})
-        
+
         # If the request is successful, parse the JSON response
         if res.status_code == 200:
             res = json.loads(res.content)
@@ -65,7 +65,7 @@ def preds(images: Union[List[np.ndarray], np.ndarray], process_online: bool, sin
             res = json.loads(res.content)
         else:
             return None
-        
+
     # If process_online is False, raise an error (local model processing is not implemented)
     else:
         # Load model and predict

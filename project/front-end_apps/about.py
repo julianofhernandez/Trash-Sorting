@@ -30,6 +30,7 @@ menu_options = ['1', '2', '3', 'M']
 menu_prompt = '1: About Information\n2: Menu Information\n' \
               '3: Credits\nM: Exit About'
 
+
 def main():
     """
     This function is the main entry point to the program. It provides information to the user
@@ -48,7 +49,7 @@ def main():
 def handle_key(key: str) -> bool:
     """
     This function handles the selected menu option and provides the appropriate information to the user.
-    
+
     Parameters:
         key (str): The selected menu option.
 

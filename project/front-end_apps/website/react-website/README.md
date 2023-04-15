@@ -4,11 +4,7 @@ Make sure you have Node.js 8+ and yarn installed.
 
 Change to react-website directory and run following commands:
 
-1. `yarn add tabler-react`
-
-2. `yarn install`
-
-3. `yarn add tabler-icons-react`
+1. `yarn install` (may also need to run `yarn add tabler-react tabler-icons-react`)
 
 # Running
 
@@ -18,4 +14,4 @@ Change to react-website directory and run following commands:
 
 # Building
 
-1. `yarn build`
+1. `yarn build` generates a build folder in the current directory

@@ -3,11 +3,17 @@ import { Page, Button, Form, Alert, GalleryCard, Grid } from "tabler-react";
 import { Trash, Leaf, Recycle, Biohazard } from "tabler-icons-react";
 
 /* If this server is in Development set DEV_MODE to true, ortherwise set to false */
-const DEV_MODE = true;
+const DEV_MODE = false;
 
-const MODELS_URL = DEV_MODE ? "http://localhost:5001/read/model/list" : "/read/model/list";
-const BASE_READ_URL =  DEV_MODE ? "http://localhost:5001/read/inference/" : "/read/inference/";
-const BASE_READ_BATCH_URL =  DEV_MODE ? "http://localhost:5001/read/batch-inference/" : "/read/batch-inference/";
+const MODELS_URL = DEV_MODE
+  ? "http://localhost:5001/read/model/list"
+  : "/read/model/list";
+const BASE_READ_URL = DEV_MODE
+  ? "http://localhost:5001/read/inference/"
+  : "/read/inference/";
+const BASE_READ_BATCH_URL = DEV_MODE
+  ? "http://localhost:5001/read/batch-inference/"
+  : "/read/batch-inference/";
 
 const BIN = {
   Garbage: "Garbage",
@@ -87,7 +93,11 @@ class ClassifyForm extends React.Component {
       .then((response) => response.json())
       .then((data) => data["model_list"].map((item) => item.model_name))
       .then((options) => {
-        this.setState({ options });
+        this.setState({
+          options: DEV_MODE
+            ? options
+            : options.filter((option) => option !== "test"),
+        });
         // select first model by default
         this.setState({ selectedModel: options[0] });
       })
@@ -152,7 +162,6 @@ class ClassifyForm extends React.Component {
   }
 
   submitSingleFile() {
-    // console.log("submitting single file...");
     const { selectedModel, filesToSubmit } = this.state;
     const formData = new FormData();
     formData.append("image", filesToSubmit[0]);

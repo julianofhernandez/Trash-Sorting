@@ -49,7 +49,7 @@ class Annotations:
     def temp_annotation(self, x: int, y: int) -> None:
         """
         Sets the temporary end point of the current annotation, if the starting point is not None.
-        
+
         Parameters:
             x: The x-coordinate of the temporary end point.
             y: The y-coordinate of the temporary end point.
@@ -61,7 +61,7 @@ class Annotations:
     def end_annotation(self, x: int, y: int) -> None:
         """
         Sets the end point of the current annotation and appends it to the list of annotations.
-        
+
         Parameters:
             x: The x-coordinate of the end point.
             y: The y-coordinate of the end point.
@@ -115,6 +115,7 @@ class Annotations:
             True if done, otherwise False.
         """
         return self.done
+
     def add_label(self, label: str) -> None:
         """
         Adds a label to the list of labels.
@@ -132,26 +133,27 @@ menu_options = ['1', '2', 'M']
 menu_prompt = "1: Opens GUI to capture a photo and annotate\n" \
               "2: Opens GUI and loads image from path to annotate\nM: Exit Annotation"
 
+
 def main(process_online: bool, fps_rate: int) -> bool:
     """
     The main function that runs the menu loop for the annotation tool.
-    
+
     Parameters:
         process_online: A boolean to determine if online processing is enabled.
-        
+
         fps_rate: An integer representing the frames per second rate.
     Returns:
         False when the user exits the menu loop.
     """
     global CAMERA
-    while(True):
+    while (True):
         print(menu_prompt)
         key = misc.read_input_tokens(menu_options)
 
-        if(key == -1):
+        if (key == -1):
             misc.print_invalid_input()
             continue
-        if(key[0] == menu_options[0]):
+        if (key[0] == menu_options[0]):
             image = open_from_camera()
 
             if image is None:
@@ -160,7 +162,7 @@ def main(process_online: bool, fps_rate: int) -> bool:
 
             annotation = handle_annotation_ui(image)
             upload_annotation(annotation, image)
-        elif(key[0] == menu_options[1]):
+        elif (key[0] == menu_options[1]):
             image = open_from_path()
 
             if image is None:
@@ -196,7 +198,7 @@ def handle_annotation_ui(image: np.ndarray, prev_annotation: Optional[List[Tuple
         """
         The callback function for mouse events in the annotation user interface.
         Ref - https://www.tutorialspoint.com/opencv-python-how-to-draw-a-rectangle-using-mouse-events
-        
+
         Parameters:
             event: The mouse event.
             x: The x-coordinate of the event.
@@ -278,7 +280,7 @@ def open_from_camera() -> Union[None, np.ndarray]:
     """
     Opens the user's camera and displays the camera feed. Captures the image when the user
     presses the SPACEBAR and returns the image.
-    
+
     Returns:
         A numpy.ndarray representing the captured image, or None if no image was captured.
     """
@@ -291,7 +293,7 @@ def open_from_camera() -> Union[None, np.ndarray]:
     print("\nPress SPACE to capture, Press ESCAPE to exit")
     image = CAMERA.capture()
 
-    while(image is not None):
+    while (image is not None):
         image = CAMERA.capture()
         cv2.imshow('Press SPACE to capture, Press ESCAPE to exit', image)
         key = cv2.waitKey(1) & 0xFF

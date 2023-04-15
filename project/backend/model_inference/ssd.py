@@ -1,17 +1,25 @@
-import os #Imports os, which provides a way to interact with the operating system and perform tasks such as reading and writing files.
-import json #Imports json, which is used to handle JSON data, such as loading and writing JSON files.
-import numpy as np #Imports numpy, which is a popular library for numerical computations, including array operations.
-import torch #Imports the PyTorch library, which is commonly used for machine learning and deep learning tasks.
-from torchvision.models import efficientnet_v2_l, EfficientNet_V2_L_Weights #Imports classes from the torchvision.models module that allow for the use of EfficientNet V2 Large model.
-import clip #Imports a neural network-based natural language processing and computer vision AI model by OpenAI. It allows you to train models that can understand the relationship between images and text.
+# Imports os, which provides a way to interact with the operating system and perform tasks such as reading and writing files.
+import os
+# Imports json, which is used to handle JSON data, such as loading and writing JSON files.
+import json
+# Imports numpy, which is a popular library for numerical computations, including array operations.
+import numpy as np
+# Imports the PyTorch library, which is commonly used for machine learning and deep learning tasks.
+import torch
+# Imports classes from the torchvision.models module that allow for the use of EfficientNet V2 Large model.
+from torchvision.models import efficientnet_v2_l, EfficientNet_V2_L_Weights
+# Imports a neural network-based natural language processing and computer vision AI model by OpenAI. It allows you to train models that can understand the relationship between images and text.
+import open_clip
 
 MODELS = {}
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"  # 'cuda'
 
-#The preds() function takes in a list of images and a model name as input and returns a list of dictionaries 
-#containing the classification results for each image. It first checks if the input is a list and, if not, it wraps 
-#the input in a list. Then, based on the model name, it calls the appropriate function to classify the images. The 
-#supported models are 'efficientnet_v2_l' and 'clip'. If the model name is 'DEFAULT', it will be replaced with 'clip'.
+# The preds() function takes in a list of images and a model name as input and returns a list of dictionaries
+# containing the classification results for each image. It first checks if the input is a list and, if not, it wraps
+# the input in a list. Then, based on the model name, it calls the appropriate function to classify the images. The
+# supported models are 'efficientnet_v2_l' and 'clip'. If the model name is 'DEFAULT', it will be replaced with 'clip'.
+
+
 def preds(images, model_name):
     """This function takes in a list of images and a model name and returns a list of dictionaries containing the classification results for each image.
 
@@ -42,9 +50,11 @@ def preds(images, model_name):
 
     return results
 
-#The old_test_preds() function is a dummy function that returns the same classification results for all input 
-#images. It returns a list of dictionaries with keys 'object_class', 'object_class_probs', 'object_classes', 
-#'object_trash_class', 'object_trash_class_probs', 'trash_class', 'trash_class_probs', and 'trash_classes'.
+# The old_test_preds() function is a dummy function that returns the same classification results for all input
+# images. It returns a list of dictionaries with keys 'object_class', 'object_class_probs', 'object_classes',
+# 'object_trash_class', 'object_trash_class_probs', 'trash_class', 'trash_class_probs', and 'trash_classes'.
+
+
 def old_test_preds(images, model_name):
     result = {
         # 'bounding_box': [((.5, .5), (.7, .7))],
@@ -85,12 +95,14 @@ def old_test_preds(images, model_name):
     }
     return [result for _ in images]
 
-#The efficentnet_preds() function takes in a list of images and an efficientnet model name as input and returns a 
-#list of dictionaries containing the classification results for each image. It checks if the specified model has 
-#been loaded previously, and if so, it uses that model. If the specified model has not been loaded previously, it 
-#loads the default model and saves it to MODELS. It iterates through each input image and predicts its classes. It 
-#then calculates the probability distribution over the four trash classes and returns a dictionary with keys 
-#'object_class_probs', 'object_classes', 'trash_class_probs', and 'trash_classes'.
+# The efficentnet_preds() function takes in a list of images and an efficientnet model name as input and returns a
+# list of dictionaries containing the classification results for each image. It checks if the specified model has
+# been loaded previously, and if so, it uses that model. If the specified model has not been loaded previously, it
+# loads the default model and saves it to MODELS. It iterates through each input image and predicts its classes. It
+# then calculates the probability distribution over the four trash classes and returns a dictionary with keys
+# 'object_class_probs', 'object_classes', 'trash_class_probs', and 'trash_classes'.
+
+
 def efficentnet_preds(images, model_name):
     """This function takes in a list of images and a model name and returns a list of dictionaries containing the classification results for each image.
 
@@ -135,7 +147,8 @@ def efficentnet_preds(images, model_name):
 
         # Calculate probability distribution over the four trash classes
         trash_probs = np.array([0., 0., 0., 0.])
-        trash_classes = ["Garbage", "Recyclable","Organic Waste", "Household hazardous waste"]
+        trash_classes = ["Garbage", "Recyclable",
+                         "Organic Waste", "Household hazardous waste"]
         object_class_probs = outputs[ndxs]
         object_class_probs = object_class_probs / object_class_probs.sum()
         object_classes = [labels[ndx] for ndx in ndxs]
@@ -165,8 +178,18 @@ def efficentnet_preds(images, model_name):
 
     return results
 
-#The code relies on the PyTorch and TorchVision libraries and the clip module for the clip_preds() function.
-def clip_preds(images, model_name):
+
+def get_weights(CLIP_MODELS):
+    m = {'ViT-g-14': 'laion2B-s12B-b42K',
+         'ViT-H-14': 'laion2B-s32B-b79K',
+         'ViT-L-14': 'laion2B-s32B-b82K',
+         'ViT-B-16': 'laion2B-s34B-b88K'}
+    return m[CLIP_MODELS]
+
+# The code relies on the PyTorch and TorchVision libraries and the clip module for the clip_preds() function.
+
+
+def open_clip_preds(images, model_name):
     """This function takes in a list of images and a model name and returns a list of dictionaries containing the classification results for each image.
 
     Args:
@@ -182,8 +205,9 @@ def clip_preds(images, model_name):
             model_name]
     else:
         # Load the CLIP model and preprocess function
-        
-        model, _, preprocess = open_clip.create_model_and_transforms(model_name, pretrained=get_weights(model_name))
+
+        model, _, preprocess = open_clip.create_model_and_transforms(
+            model_name, pretrained=get_weights(model_name))
         tokenizer = open_clip.get_tokenizer(model_name)
 
         # Define the object and trash bin categories and their descriptions

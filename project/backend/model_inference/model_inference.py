@@ -1,4 +1,4 @@
-from ssd import preds
+from model_inference.ssd import preds
 import numpy as np
 import os
 from io import BytesIO

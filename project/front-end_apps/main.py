@@ -18,6 +18,7 @@ menu_options = ['1', '2', '3', '4', '5', '6', 'Q']
 # the text prompt for this menu
 menu_prompt = "1: Annotate\n2: Classify\n3: Trash info\n4: About\n5: Settings\n6: Download model\nQ: Quit"
 
+
 def main() -> int:
     """
     This is the main function. This version will only

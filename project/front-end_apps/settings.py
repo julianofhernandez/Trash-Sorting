@@ -11,7 +11,6 @@ import json
 # defaults
 CONFIG_FILE = 'settings.cfg'
 PROCESS_ONLINE = True
-SINGLE_CLASSIFICATION = False
 FPS_RATE = 10
 MAX_FPS = 30
 MIN_FPS = 5
@@ -59,7 +58,7 @@ menu_options = ['1', '2', 'M']
 sub_options = ['1', '2']
 
 menu_prompt = "1: Toggle Online/Offline Computation (currently: {})\n" \
-              "3: Change FPS for live capture (currently: {})\nM: Exit Settings"
+              "2: Change FPS for live capture (currently: {})\nM: Exit Settings"
 
 
 def main() -> None:
@@ -94,8 +93,6 @@ def handle_key(key: str) -> bool:
     elif (key == menu_options[0]):
         toggle_computation_mode()
     elif (key == menu_options[1]):
-        toggle_classification_mode()
-    elif (key == menu_options[2]):
         toggle_fps()
     else:
         misc.print_menu_return()
@@ -124,29 +121,6 @@ def toggle_computation_mode() -> None:
     else:
         PROCESS_ONLINE = False
         print("Processing is offline")
-
-
-def toggle_classification_mode():
-    """
-    Toggle the classification mode between single and multi-object.
-    """
-    global SINGLE_CLASSIFICATION
-    print("Do you want single or multi object classification?")
-    print("1: single")
-    print("2: multi")
-
-    key = misc.read_input(sub_options)
-
-    if (key == -1):
-        misc.print_invalid_input()
-        return -1
-
-    if (key == sub_options[0]):
-        SINGLE_CLASSIFICATION = True
-        print("classification is singular")
-    else:
-        SINGLE_CLASSIFICATION = False
-        print("classification is multi")
 
 
 def toggle_fps() -> None:
