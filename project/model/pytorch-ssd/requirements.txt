@@ -1,8 +1,0 @@
-# Base
-torch >= 1.12.0
-torchvision >= 0.13.0
-torchmetrics
-albumentations>=1.1.0
-matplotlib
-opencv-python>=4.1.1.26
-opencv-python-headless>=4.1.1.26
