@@ -1,5 +1,7 @@
 ## Annotation Database
 
+This flask app is Deprecated in favor of the Consolidated Server but may be ran individually.
+
 This is the code for the annotation database
 
 * `db_server_app.py` the Flask app for serving api calls 

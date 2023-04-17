@@ -6,12 +6,11 @@ Version: 4_28_2022
 from threading import Thread, Event
 from collections import deque
 
-import numpy as np
 import cv2
 import os
 
 
-class CameraCapturer():
+class CameraCapturer:
     """Class for capturing frames from a camera"""
 
     def __init__(self, camera_device=0, fps=30, frame_width=None, frame_height=None):
@@ -31,7 +30,7 @@ class CameraCapturer():
 
         # CAP_MSMF is for Microsoft Media Foundation API so disable it for other systems
         # 'nt' means OS is Windows
-        if os.name == 'nt':
+        if os.name == "nt":
             self.camera = cv2.VideoCapture(self.camera_device, cv2.CAP_MSMF)
         else:
             self.camera = cv2.VideoCapture(self.camera_device)
@@ -54,15 +53,23 @@ class CameraCapturer():
         """
         grabbed, frame = self.camera.read()
         if not grabbed:
-            raise Exception(f'Could not read frame from '
-                            f'Camera {self.camera_device}')
+            raise Exception(
+                f"Could not read frame from " f"Camera {self.camera_device}"
+            )
         return frame
 
 
 class CameraRecorder:
     """Class for recording frames from a camera."""
 
-    def __init__(self, max_buffer_seconds, camera_device=0, fps=30, frame_width=None, frame_height=None):
+    def __init__(
+        self,
+        max_buffer_seconds,
+        camera_device=0,
+        fps=30,
+        frame_width=None,
+        frame_height=None,
+    ):
         """Initialize the CameraRecorder object.
 
         Args:
@@ -100,7 +107,7 @@ class CameraRecorder:
 
         # CAP_MSMF is for Microsoft Media Foundation API so disable it for other systems
         # 'nt' means OS is Windows
-        if os.name == 'nt':
+        if os.name == "nt":
             self.camera = cv2.VideoCapture(self.camera_device, cv2.CAP_MSMF)
         else:
             self.camera = cv2.VideoCapture(self.camera_device)
@@ -144,7 +151,7 @@ class CameraRecorder:
         if seconds is None:
             return list(self.frames)
         else:
-            return list(self.frames)[-int(self.fps * seconds):]
+            return list(self.frames)[-int(self.fps * seconds) :]
 
     def capture(self):
         """

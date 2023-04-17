@@ -19,7 +19,7 @@ compost_info = """Compost should be disposed of in the nearest green compost bin
 Some examples of compost are fruits, coffee grounds, tea bags, 
 and egg shells. \n"""
 
-menu_options = ['1', '2', '3', 'M']
+menu_options = ["1", "2", "3", "M"]
 
 menu_prompt = "1: Trash\n2: Recycle\n3: Compost\nM: Exit Trash Info"
 
@@ -28,7 +28,7 @@ def main() -> Union[bool, None]:
     """
     Main function to run the trash info application.
     Prompts the user to select a trash type, and then displays relevant information.
-    
+
     Returns:
         False if the user selects 'Exit Trash Info', None otherwise.
     """
@@ -40,16 +40,16 @@ def main() -> Union[bool, None]:
         key = misc.read_input(menu_options)
 
         # If input is invalid, print an error message and prompt again
-        if(key not in menu_options):
+        if key not in menu_options:
             misc.print_invalid_input()
             continue
 
         # Display trash info based on user input
-        if(key == menu_options[0]):
+        if key == menu_options[0]:
             print(trash_info)
-        elif(key == menu_options[1]):
+        elif key == menu_options[1]:
             print(recycle_info)
-        elif(key == menu_options[2]):
+        elif key == menu_options[2]:
             print(compost_info)
 
         # Exit the application if the user selects 'Exit Trash Info'

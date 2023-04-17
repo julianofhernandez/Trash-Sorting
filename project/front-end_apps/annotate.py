@@ -6,18 +6,24 @@ to images for training.
 
 import misc
 from camera import *
+import numpy as np
 import cv2
 import requests
 from typing import List, Tuple, Union, Optional
 
-SECRET_KEY = 'secretkey'
-HOST = 'localhost'
-PORT = 5000
+SECRET_KEY = "secretkey"
+HOST = "localhost"
+PORT = 8000
 CAMERA = None
 
 
 class Annotations:
-    def __init__(self, prev_annotations: Optional[List[Tuple[Tuple[int, int], Tuple[int, int]]]] = None) -> None:
+    def __init__(
+        self,
+        prev_annotations: Optional[
+            List[Tuple[Tuple[int, int], Tuple[int, int]]]
+        ] = None,
+    ) -> None:
         """
         Parameters:
             prev_annotations: A list of previous annotations as tuples containing two tuples (x, y) coordinates.
@@ -127,14 +133,16 @@ class Annotations:
 
 
 # list of valid commands the user should be able to use in this menu
-menu_options = ['1', '2', 'M']
+menu_options = ["1", "2", "M"]
 
 # the text prompt for this menu
-menu_prompt = "1: Opens GUI to capture a photo and annotate\n" \
-              "2: Opens GUI and loads image from path to annotate\nM: Exit Annotation"
+menu_prompt = (
+    "1: Opens GUI to capture a photo and annotate\n"
+    "2: Opens GUI and loads image from path to annotate\nM: Exit Annotation"
+)
 
 
-def main(process_online: bool, fps_rate: int) -> bool:
+def main(process_online: bool, fps_rate: int, model_offline: str) -> bool:
     """
     The main function that runs the menu loop for the annotation tool.
 
@@ -146,14 +154,14 @@ def main(process_online: bool, fps_rate: int) -> bool:
         False when the user exits the menu loop.
     """
     global CAMERA
-    while (True):
+    while True:
         print(menu_prompt)
         key = misc.read_input_tokens(menu_options)
 
-        if (key == -1):
+        if key == -1:
             misc.print_invalid_input()
             continue
-        if (key[0] == menu_options[0]):
+        if key[0] == menu_options[0]:
             image = open_from_camera()
 
             if image is None:
@@ -162,7 +170,7 @@ def main(process_online: bool, fps_rate: int) -> bool:
 
             annotation = handle_annotation_ui(image)
             upload_annotation(annotation, image)
-        elif (key[0] == menu_options[1]):
+        elif key[0] == menu_options[1]:
             image = open_from_path()
 
             if image is None:
@@ -179,7 +187,10 @@ def main(process_online: bool, fps_rate: int) -> bool:
             return False
 
 
-def handle_annotation_ui(image: np.ndarray, prev_annotation: Optional[List[Tuple[Tuple[int, int], Tuple[int, int]]]] = None) -> Annotations:
+def handle_annotation_ui(
+    image: np.ndarray,
+    prev_annotation: Optional[List[Tuple[Tuple[int, int], Tuple[int, int]]]] = None,
+) -> Annotations:
     """
     Handles the user interface for annotation, allowing the user to draw bounding boxes on the image.
 
@@ -190,7 +201,9 @@ def handle_annotation_ui(image: np.ndarray, prev_annotation: Optional[List[Tuple
     Returns:
         An Annotations object containing the annotations made by the user.
     """
-    print("\n Draw: Left click drag\n Reset: Double Right Click\n Done: Ctrl + Right Click\n Exit: Esc")
+    print(
+        "\n Draw: Left click drag\n Reset: Double Right Click\n Done: Ctrl + Right Click\n Exit: Esc"
+    )
     annotation = Annotations(prev_annotation)
 
     # define mouse callback function to draw bounding boxes
@@ -251,7 +264,7 @@ def handle_annotation_ui(image: np.ndarray, prev_annotation: Optional[List[Tuple
 
 
 def open_annotation(live_capture=False, path=False):
-    """ Function to open up the annotation gui as referenced in 
+    """Function to open up the annotation gui as referenced in
     https://github.com/julianofhernandez/Trash-Sorting/blob/main/images/Curated%20Diagrams.pdf
     live_capture     will open it with the option of live capturing
     path        will open it with the image from the path loaded up
@@ -260,7 +273,7 @@ def open_annotation(live_capture=False, path=False):
 
     Feature including
     - add annotation
-    - reset all annotation 
+    - reset all annotation
     - Finish Annotation
 
     Use of this function is deprecated to make code more modular and testable.
@@ -290,12 +303,12 @@ def open_from_camera() -> Union[None, np.ndarray]:
         print("Starting up camera...")
         CAMERA = CameraCapturer()
 
-    print("\nPress SPACE to capture, Press ESCAPE to exit")
+    print("\nPress SPACE to capture, Press ESCAPE to exit (on the camera feed)")
     image = CAMERA.capture()
 
-    while (image is not None):
+    while image is not None:
         image = CAMERA.capture()
-        cv2.imshow('Press SPACE to capture, Press ESCAPE to exit', image)
+        cv2.imshow("Press SPACE to capture, Press ESCAPE to exit", image)
         key = cv2.waitKey(1) & 0xFF
         if key == 32:
             print("\nCaptured")
@@ -334,15 +347,18 @@ def upload_annotation(annotation: Annotations, image: np.ndarray) -> None:
         # Send to server
         print(annotation.annotations)
 
-        res = requests.post(f'http://{HOST}:{PORT}/create/entry', data={
-            'key': SECRET_KEY,
-            'annotation': annotation.annotations,
-            'label': annotation.labels,
-            'num_annotations': 1,
-            'dataset': 'custom',
-            'metadata': ''
-        },
-            files={'image': image})
+        res = requests.post(
+            f"http://{HOST}:{PORT}/create/entry",
+            data={
+                "key": SECRET_KEY,
+                "annotation": annotation.annotations,
+                "label": annotation.labels,
+                "num_annotations": 1,
+                "dataset": "custom",
+                "metadata": "",
+            },
+            files={"image": image},
+        )
         # Option to get entry
     else:
         print("Exited Annotation UI")

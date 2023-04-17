@@ -13,7 +13,7 @@ import download_model
 import misc
 
 # list of valid commands the user should be able to use in this menu
-menu_options = ['1', '2', '3', '4', '5', '6', 'Q']
+menu_options = ["1", "2", "3", "4", "5", "6", "Q"]
 
 # the text prompt for this menu
 menu_prompt = "1: Annotate\n2: Classify\n3: Trash info\n4: About\n5: Settings\n6: Download model\nQ: Quit"
@@ -40,10 +40,14 @@ def main() -> int:
 
         if key == menu_options[0]:
             # open annotate
-            annotate.main(settings.PROCESS_ONLINE, settings.FPS_RATE)
+            annotate.main(
+                settings.PROCESS_ONLINE, settings.FPS_RATE, settings.MODEL_OFFLINE
+            )
         elif key == menu_options[1]:
             # open classify
-            classify.main(settings.PROCESS_ONLINE, settings.FPS_RATE)
+            classify.main(
+                settings.PROCESS_ONLINE, settings.FPS_RATE, settings.MODEL_OFFLINE
+            )
         elif key == menu_options[2]:
             # open trash info
             trash_info.main()
