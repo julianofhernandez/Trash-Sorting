@@ -14,45 +14,49 @@ def main() -> None:
     """
     Main function for interacting with the download menu.
     """
-    print(menu_prompt)
     while (True):
-        key = misc.read_input(menu_options)
+        print(menu_prompt)
+        reprompt = handle_key(key=misc.read_input(menu_options))
+        if not reprompt:
+            break
 
-        if key not in menu_options:
-            misc.print_invalid_input()
+def handle_key(key: str) -> bool:
 
-        if key == menu_options[0]:
-            print("Downloading model...")
-            open_clip.create_model_and_transforms(
-                'ViT-g-14', pretrained='laion2B-s12B-b42K')
-            open_clip.get_tokenizer('ViT-g-14')
-            print("Download complete!")
+    if key not in menu_options:
+        misc.print_invalid_input()
 
-        elif key == menu_options[1]:
-            print("Downloading model...")
-            open_clip.create_model_and_transforms(
-                'ViT-H-14', pretrained='laion2B-s32B-b79K')
-            open_clip.get_tokenizer('ViT-H-14')
-            print("Download complete!")
+    if key == menu_options[0]:
+        print("Downloading model...")
+        open_clip.create_model_and_transforms(
+            'ViT-g-14', pretrained='laion2B-s12B-b42K')
+        open_clip.get_tokenizer('ViT-g-14')
+        print("Download complete!")
 
-        elif key == menu_options[2]:
-            print("Downloading model...")
-            open_clip.create_model_and_transforms(
-                'ViT-L-14', pretrained='laion2B-s32B-b82K')
-            open_clip.get_tokenizer('ViT-L-14')
-            print("Download complete!")
+    elif key == menu_options[1]:
+        print("Downloading model...")
+        open_clip.create_model_and_transforms(
+            'ViT-H-14', pretrained='laion2B-s32B-b79K')
+        open_clip.get_tokenizer('ViT-H-14')
+        print("Download complete!")
 
-        elif key == menu_options[3]:
-            print("Downloading model...")
-            open_clip.create_model_and_transforms(
-                'ViT-B-16', pretrained='laion2B-s34B-b88K')
-            open_clip.get_tokenizer('ViT-B-16')
-            print("Download complete!")
+    elif key == menu_options[2]:
+        print("Downloading model...")
+        open_clip.create_model_and_transforms(
+            'ViT-L-14', pretrained='laion2B-s32B-b82K')
+        open_clip.get_tokenizer('ViT-L-14')
+        print("Download complete!")
 
-        else:
-            misc.print_menu_return()
-            return False
+    elif key == menu_options[3]:
+        print("Downloading model...")
+        open_clip.create_model_and_transforms(
+            'ViT-B-16', pretrained='laion2B-s34B-b88K')
+        open_clip.get_tokenizer('ViT-B-16')
+        print("Download complete!")
 
+    else:
+        misc.print_menu_return()
+        return False
+    return True
 
 if __name__ == "__main__":
     main()
