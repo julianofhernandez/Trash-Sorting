@@ -100,8 +100,6 @@ class TestGetImage:
         assert res.status_code == 200
         assert res.get_json() == None
 
-    # Question for future: possibly want to check if file was downloaded?
-
     def test_image_out_of_bounds(self, client):
         res = client.get('http://localhost:5000/read/entry/image/99999')
         assert res.status_code == 200
@@ -149,9 +147,6 @@ class TestReadEntries:
         assert res.get_json() == {'data': {'annotation': '', 'dataset': 'custom', 'id': 1,
                                        'metadata': '', 'num_annotations': 3}, 'error_code': 0, 'error_msg': None}
 
-    # test empty when db empty?
-    #assert res.get_json() == {'data': None, 'error_code': 3, 'error_msg': 'No results from query'}
-
 
 class TestHandleGetEntryMaxnnotations:
     def test_max_annotation_success(self, client):
@@ -159,10 +154,6 @@ class TestHandleGetEntryMaxnnotations:
         assert res.status_code == 200
         assert res.get_json() == {'data': {'annotation': '', 'dataset': 'custom', 'id': 1,
                                        'metadata': '', 'num_annotations': 3}, 'error_code': 0, 'error_msg': None}
-
-    # test empty when db empty?
-    #assert res.get_json() == {'data': None, 'error_code': 3, 'error_msg': 'No results from query'}
-
 
 class TestHandleAnnotationApproved:
 
@@ -180,7 +171,6 @@ class TestHandleAnnotationApproved:
         assert res.get_json() == {'error_code': 0,
                               'error_msg': None, 'successful': True}
 
-
 class test_handle_annotation_disapproved:
 
     def test_disapproved_invalid_key(client):
@@ -197,7 +187,6 @@ class test_handle_annotation_disapproved:
         assert res.get_json() == {'error_code': 0,
                               'error_msg': None, 'successful': True}
 
-
 class TestHandleEntryUpdate:
 
     def test_update_invalid_key(self, client):
@@ -212,7 +201,6 @@ class TestHandleEntryUpdate:
         assert res.status_code == 200
         assert res.get_json() == {'error_code': 0,
                               'error_msg': None, 'successful': True}
-
 
 class TestDeleteImage:
 

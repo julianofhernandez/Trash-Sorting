@@ -1,6 +1,6 @@
 """
 The Flask server for the purposes of only model inference. 
-This flask app Deprecated in favor of the Consolidated Server but
+This flask app is Deprecated in favor of the Consolidated Server but
 may be ran indivudually for alternative purposes
 """
 
