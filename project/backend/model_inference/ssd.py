@@ -1,27 +1,26 @@
-# Imports os, which provides a way to interact with the operating system and perform tasks such as reading and writing files.
 import os
-# Imports json, which is used to handle JSON data, such as loading and writing JSON files.
 import json
-# Imports numpy, which is a popular library for numerical computations, including array operations.
 import numpy as np
-# Imports the PyTorch library, which is commonly used for machine learning and deep learning tasks.
 import torch
-# Imports classes from the torchvision.models module that allow for the use of EfficientNet V2 Large model.
 from torchvision.models import efficientnet_v2_l, EfficientNet_V2_L_Weights
-# Imports a neural network-based natural language processing and computer vision AI model by OpenAI. It allows you to train models that can understand the relationship between images and text.
 import open_clip
 
 MODELS = {}
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"  # 'cuda'
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# The preds() function takes in a list of images and a model name as input and returns a list of dictionaries
-# containing the classification results for each image. It first checks if the input is a list and, if not, it wraps
-# the input in a list. Then, based on the model name, it calls the appropriate function to classify the images. The
-# supported models are 'efficientnet_v2_l' and 'clip'. If the model name is 'DEFAULT', it will be replaced with 'clip'.
-
+"""
+The preds() function takes in a list of images and a model name as input and 
+returns a list of dictionaries containing the classification results for each image. 
+It first checks if the input is a list and, if not, it wraps the input in a list. Then, 
+based on the model name, it calls the appropriate function to classify the images. The
+supported models are 'efficientnet_v2_l' and 'clip'. If the model name is 'DEFAULT', 
+it will be replaced with 'clip'.
+"""
 
 def preds(images, model_name):
-    """This function takes in a list of images and a model name and returns a list of dictionaries containing the classification results for each image.
+    """
+    This function takes in a list of images and a model name and 
+    eturns a list of dictionaries containing the classification results for each image.
 
     Args:
     images (list or array-like): List of images to classify
@@ -50,12 +49,13 @@ def preds(images, model_name):
 
     return results
 
-# The old_test_preds() function is a dummy function that returns the same classification results for all input
-# images. It returns a list of dictionaries with keys 'object_class', 'object_class_probs', 'object_classes',
-# 'object_trash_class', 'object_trash_class_probs', 'trash_class', 'trash_class_probs', and 'trash_classes'.
-
-
 def old_test_preds(images, model_name):
+    """
+    The old_test_preds() function is a dummy function that returns the same classification 
+    results for all input images. It returns a list of dictionaries with keys 'object_class', 
+    'object_class_probs', 'object_classes', 'object_trash_class', 'object_trash_class_probs', 
+    'trash_class', 'trash_class_probs', and 'trash_classes'.
+    """
     result = {
         # 'bounding_box': [((.5, .5), (.7, .7))],
         # 'class_probs': [1.0, 0, 0, 0, 0],

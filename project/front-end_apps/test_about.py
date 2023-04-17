@@ -6,7 +6,7 @@ class TestHandle:
         invalid_option = -1
         ret = about.handle_key(invalid_option)
         stdout, stderr = capsys.readouterr()
-        assert 'ERROR: invalid option' in stdout
+        assert 'ERROR: Invalid option' in stdout
         assert ret == True
 
     def test_key_about(self, capsys):
@@ -34,5 +34,5 @@ class TestHandle:
         exit_option = 'M'
         ret = about.handle_key(exit_option)
         stdout, stderr = capsys.readouterr()
-        assert 'returning to menu' in stdout
+        assert 'Returning to menu' in stdout
         assert ret == False

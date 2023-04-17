@@ -15,3 +15,8 @@ Change to react-website directory and run following commands:
 # Building
 
 1. `yarn build` generates a build folder in the current directory
+
+
+# Testing
+
+1. 'yarn test' runs the test for the current directory

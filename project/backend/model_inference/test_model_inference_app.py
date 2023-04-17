@@ -103,7 +103,9 @@ class TestReadInference:
         assert 'error_msg' in res_content and res_content['error_msg'] is None
         assert 'model_name' in res_content and res_content['model_name'] == 'test'
         assert 'predictions' in res_content
-        assert set(['bounding_box', 'class_probs', 'obj_label', 'trash_bin_label']
+        assert set(['object_class', 'object_class_probs', 'object_classes',
+                    'object_trash_class', 'object_trash_class_probs',
+                    'trash_class', 'trash_class_probs', 'trash_classes']
                    ).issubset(set(res_content['predictions']))
 
 
@@ -138,11 +140,11 @@ class TestReadBatchInf:
         assert 'error_code' in res_content and res_content['error_code'] == 0
         assert 'error_msg' in res_content and res_content['error_msg'] is None
         assert 'model_name' in res_content and res_content['model_name'] == 'test'
-        assert 'batch_predictions' in res_content
-        assert set(['bounding_box', 'class_probs', 'obj_label', 'trash_bin_label']
-                   ).issubset(set(res_content['batch_predictions'][0]))
-        assert set(['bounding_box', 'class_probs', 'obj_label', 'trash_bin_label']
-                   ).issubset(set(res_content['batch_predictions'][1]))
+        assert 'predictions' in res_content
+        assert set(['object_class', 'object_class_probs', 'object_classes',
+                    'object_trash_class', 'object_trash_class_probs',
+                    'trash_class', 'trash_class_probs', 'trash_classes']
+                   ).issubset(set(res_content['predictions']))
 
 
 class TestReadModelList:
@@ -150,11 +152,15 @@ class TestReadModelList:
         res = client.get('http://localhost:5000/read/model/list')
         assert res.status_code == 200
         assert res.get_json() == {'error_code': 0,
-                                           'error_msg': None,
-                                           'model_list':
-                                           [{'metadata': json.dumps({'a': 5}), 'model_name': 'test'},
-                                            {'metadata': json.dumps({'b': 6}), 'model_name': 'test2'}]
-                                           }
+                                  'error_msg': None,
+                                  'model_list':
+                                  [{'metadata': '', 'model_name': 'ViT-H-14'},
+                                   {'metadata': '{"a": 7}', 'model_name': 'test'},
+                                   {'metadata': '', 'model_name': 'ViT-g-14'},
+                                   {'metadata': '', 'model_name': 'ViT-B-16'},
+                                   {'metadata': '{"b": 6}', 'model_name': 'test2'},
+                                   {'metadata': '', 'model_name': 'ViT-L-14'},
+                                   {'metadata': '', 'model_name': 'efficientnet_v2_l'}]}
 
 
 class TestReadModel:

@@ -1,28 +1,39 @@
-from model_inference.ssd import preds
-import numpy as np
+"""
+The Flask routes for handling predictions and models
+"""
 import os
-from io import BytesIO
-from flask import request, jsonify, send_from_directory, Blueprint
+
 import cv2
+import numpy as np
 from PIL import Image
+from io import BytesIO
+from flask import Blueprint, jsonify, request, send_from_directory
 
-cd = os.path.dirname(__file__)
+from model_inference.ssd import preds
 
-MODELS_DIR = os.path.join(cd, 'models/')
+dirname = os.path.dirname(__file__)
+
+MODELS_DIR = os.path.join(dirname, 'models/')
 MODELS = {}
 DEV_KEY = None
-METADATAS_DIR = os.path.join(cd, 'metadatas/')
+METADATAS_DIR = os.path.join(dirname, 'metadatas/')
 
 model_inference = Blueprint('model_inference', __name__)
 
 
 def existing_models():
+    """
+    Setup for collecting existing models
+    """
     global MODELS_DIR, MODELS
     for model in os.listdir(MODELS_DIR):
         MODELS[model.rsplit('.', 1)[0]] = os.path.join(MODELS_DIR, model)
 
 
 def create_files():
+    """
+    Setup for directories
+    """
     if not os.path.exists(MODELS_DIR):
         os.makedirs(MODELS_DIR)
     if not os.path.exists(METADATAS_DIR):
@@ -263,7 +274,7 @@ def handle_update_model(model_name):
 @model_inference.route('/delete/model/<model_name>', methods=['DELETE'])
 def delete_model(model_name):
     """
-    Delete the model and metadata of the specified model.
+    Deletes the model and metadata of the specified model.
     """
     global DEV_KEY, METADATAS_DIR, MODELS_DIR
     if 'key' in request.form and request.form['key'] == DEV_KEY:

@@ -1,3 +1,10 @@
+"""
+The Flask server for the backend to the website.
+This server is deprecated in favor of consolidated_server.py
+which serves all the flask server. This one remains in the case
+that the webserver wants to be ran on its own
+"""
+
 from flask import Flask
 from web_server import web_server
 

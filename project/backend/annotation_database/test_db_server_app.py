@@ -1,39 +1,29 @@
+"""
+Tests for the flask image database function api calls.
+Tests are divided into classes for reading, getting metadata
+getting images, updating the db and deleting from the db
+"""
+
 import pytest
-from db_server_app import create_app
+from db_server_app import create_annotation_server
 
-"""
-We use fixtures to create the app and client for testing.
-The functions under @pytest.fixture() do not need to be called
-and the resources are already loaded into memory by pytest.
-The resources are loaded under the same name as the function.
-
-To use the fixtures in a function, put the name of the resource
-in the parameters of the function of the test
-
-As long as the tests are ran in the correct order and the db is newly created
-all test should pass. For future see how to set up temporary directories for test
-and confirm the correct files were added/deleted. plus set up the db in a temporary
-state for each test to confirm it works
-
-https://flask.palletsprojects.com/en/2.2.x/testing/
-"""
 
 key = 'secretkey'
 invalid_key = ''
 
-
+# Creates fixtures which simulate a live server
 @pytest.fixture()
 def app():
-    app = create_app()
+    app = create_annotation_server()
     app.config.update({
         "TESTING": True,
     })
 
-    # other setup can go here
+    # additional future setup can go here
 
     yield app
 
-    # clean up / reset resources here
+    # clean up / reset any additional resources here
 
 
 @pytest.fixture()

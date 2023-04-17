@@ -1,5 +1,8 @@
-from flask import Blueprint, send_from_directory
+"""
+The Flask api functions for serving the webserver
+"""
 
+from flask import Blueprint, send_from_directory
 
 web_server = Blueprint('web_server', __name__, static_folder='build')
 
