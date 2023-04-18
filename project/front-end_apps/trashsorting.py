@@ -3,7 +3,7 @@ import shutil
 import cv2
 import json
 
-from ssd import preds
+from model import preds
 from camera import CameraRecorder
 from pprint import pprint
 
@@ -21,28 +21,16 @@ def parse_args() -> argparse.Namespace:
     group.add_argument(
         "-c", "--camera", action="store_true", help="Opens camera and takes a picture"
     )
-    group.add_argument(
-        "-d",
-        "--download",
-        nargs=2,
-        help="Copy model from one location and save it to specified directory",
-    )
 
     # Add other command-line options
     parser.add_argument(
-        "-l", "--local", help="A path to a local model to use for inference"
+        "-l", "--local", help="The name of the model to use for local inference (Possible values: ViT-g-14, ViT-L-14, ViT-B-16)"
     )
     parser.add_argument(
         "-o",
         "--online",
-        default="http://127.0.0.1:5001/",
+        default="http://127.0.0.1:8000/",
         help="A url to the REST API that hosts the inference model",
-    )
-    parser.add_argument(
-        "-s",
-        "--single",
-        action="store_true",
-        help="Only classify a single object in the image",
     )
     parser.add_argument(
         "-j",
@@ -54,12 +42,6 @@ def parse_args() -> argparse.Namespace:
 
 def main(args: argparse.Namespace) -> None:
     """Main function that runs the application."""
-
-    if args.download:
-        print("Downloading model...")
-        model_source, model_destination = args.download
-        shutil.copy(model_source, model_destination)
-        print("File download successful!")
 
     if args.camera:
         with CameraRecorder(0.5, fps=30) as cr:
@@ -77,7 +59,10 @@ def main(args: argparse.Namespace) -> None:
         print("Image could not be read")
     else:
         # Send the image to the Server or Local Model for classification
-        pred = preds(img, args.online is not None, args.single)
+        if args.local is None:
+            pred = preds(img, args.online, None)
+        else:
+            pred = preds(img, False, args.local)
 
         if pred is not None:
             if args.json:

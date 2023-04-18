@@ -78,9 +78,6 @@ def preds(
 
     # Local model processing is not implemented
     else:
-        # raise NotImplementedError("TODO: Local Models are not supported")
-        print("offline", model_offline)
-
         images = [
             Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)) for img in images
         ]
