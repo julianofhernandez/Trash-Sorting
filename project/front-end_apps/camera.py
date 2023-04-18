@@ -97,7 +97,7 @@ class CameraRecorder:
         self.start_recording()
         return self
 
-    def __exit__(self):
+    def __exit__(self, exception_type, exception_value, exception_traceback):
         """Exit method to be used with the "with" statement."""
         self.stop_recording()
 
