@@ -1,39 +1,46 @@
 ![image](https://user-images.githubusercontent.com/39971693/232920379-6389abe8-5b61-4448-8dcc-5bc3ec5e1cd7.png)
 
-## Proposed solution
+## Problem:
 
-The World Bank’s 2012 study of MSW reported that the most important way to reduce consumer greenhouse gas emissions was to educate consumers on best reduction and sorting practices [D Hoornweg]. To help encourage Californian’s to properly separate recyclables and now organic materials, we will use a neural network based program to suggest which bin an item belongs to. Our precision of 82% is better than current Califorian sorting rates of 42% [CalEPA]. Using just your smartphone camera makes searching an item more accessible than using current search tools [Waste Wizard]. This technology can also be deployed in trash cans to provide suggestions to the user [P Tiyajamorn], or to measure waterway plastic reduction efforts [T Hale].
+The mismanagement of waste is a pressing concern that affects the environment and human health. Despite efforts to promote proper waste disposal, many individuals continue to dispose of trash haphazardly, resulting in significant pollution and harm to natural ecosystems.
+
+One of the main issues is the mis-sorting of trash, where items are placed in the wrong bin. This problem is particularly urgent as it can lead to contamination of recycling, rendering it unusable and increasing the amount of waste that ends up in landfills.
+
+Another problem is the lack of awareness around composting and the need for new compost requirements. This results in organic waste being sent to landfills where it releases methane, a potent greenhouse gas that contributes to climate change.
+
+## Proposed Solution:
+
+To address these pressing issues, our team proposes the development of an application that utilizes deep neural network models to locate and classify trash in images. To compare results from multiple models we are using EfficientNetV2 and CLIP. The application allows users to either upload an image, or use their camera live for classification. For privacy we allowed all model to be downloaded and inference to be performed locally, while it performs best on a device with a GPU, we tested it on CPU only as well. The application will help individuals properly dispose of waste by identifying the appropriate bin for each item, reducing the risk of contamination and increasing the amount of waste that can be recycled or composted. Our solution will not only mitigate the impact of waste on the environment but also promote healthier communities and cleaner cities.
 
 ![image](https://user-images.githubusercontent.com/39971693/232918769-e3da0eeb-07ef-4e7b-abe6-251e3450ef8a.png)
 
 ## Installation
 
-Python Version: 3.9
+### Python 
 
-Run ```python3 -m pip install -r requirements.txt```
+Python Version 3.9 available at https://www.python.org/downloads/release/python-390/. Then run ```python3 -m pip install -r requirements.txt```
+
+### NodeJS 
+
+Download and install the latest version of Node.js from the official website: https://nodejs.org/en/download/. Follow the installation instructions for your operating system.
+
+### Yarn
+
+Once NPM is installed with NodeJS you can run
+```npm install --global yarn```
 
 ## How to run the server
-# Setup Local Copy
-
-Make sure you have Node.js 8+ and yarn installed.
 
 Change to react-website directory and run following commands:
+```cd project\front-end_apps\website\react-website\```
 
 1. `yarn install` (may also need to run `yarn add tabler-react tabler-icons-react`)
 
-# Running
+2. `yarn build` generates a build folder in the current directory
 
-1. `yarn start` to run on http://localhost:3000/
+2. `yarn start` to run on http://localhost:3000/
 
-2. start model_inference_app.py in separate terminal to test submitting images
-
-# Building
-
-1. `yarn build` generates a build folder in the current directory
-
-# Testing
-```cd project\front-end_apps\website\react-website\```
-```yarn test``` runs the test for the this directory
+3. start model_inference_app.py in separate terminal to test submitting images
 
 
 ## Testing
@@ -41,7 +48,10 @@ Change to react-website directory and run following commands:
 ```
 cd project/front-end-apps
 pytest
+cd project\front-end_apps\website\react-website
+yarn test
 ```
+
 ![image](https://user-images.githubusercontent.com/39971693/232919996-99350a1e-305a-4129-ae45-52511b1debb3.png)
 #### Backend
 ```
