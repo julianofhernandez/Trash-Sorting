@@ -48,11 +48,18 @@ Change to react-website directory and run following commands:
 ```
 cd project/front-end-apps
 pytest
+```
+
+![image](https://user-images.githubusercontent.com/39971693/232919996-99350a1e-305a-4129-ae45-52511b1debb3.png)
+
+```
 cd project\front-end_apps\website\react-website
 yarn test
 ```
 
-![image](https://user-images.githubusercontent.com/39971693/232919996-99350a1e-305a-4129-ae45-52511b1debb3.png)
+![image](https://user-images.githubusercontent.com/39971693/232924965-5f8c446e-5adc-4520-b1f3-067fbd0cf3db.png)
+
+
 #### Backend
 ```
 cd project/backend
