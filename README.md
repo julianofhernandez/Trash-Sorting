@@ -1,5 +1,3 @@
-![image](https://user-images.githubusercontent.com/39971693/232920379-6389abe8-5b61-4448-8dcc-5bc3ec5e1cd7.png)
-
 ## Problem:
 
 The mismanagement of waste is a pressing concern that affects the environment and human health. Despite efforts to promote proper waste disposal, many individuals continue to dispose of trash haphazardly, resulting in significant pollution and harm to natural ecosystems.
@@ -12,13 +10,36 @@ Another problem is the lack of awareness around composting and the need for new 
 
 To address these pressing issues, our team proposes the development of an application that utilizes deep neural network models to locate and classify trash in images. To compare results from multiple models we are using EfficientNetV2 and CLIP. The application allows users to either upload an image, or use their camera live for classification. For privacy we allowed all model to be downloaded and inference to be performed locally, while it performs best on a device with a GPU, we tested it on CPU only as well. The application will help individuals properly dispose of waste by identifying the appropriate bin for each item, reducing the risk of contamination and increasing the amount of waste that can be recycled or composted. Our solution will not only mitigate the impact of waste on the environment but also promote healthier communities and cleaner cities.
 
+Website:
+
 ![image](https://user-images.githubusercontent.com/39971693/232918769-e3da0eeb-07ef-4e7b-abe6-251e3450ef8a.png)
+
+Terminal App:
+
+`python projects/front-end_apps/main.py`
+
+![image](https://user-images.githubusercontent.com/47340315/235587196-e1dd438b-1d8e-45f9-8b39-ffa71f7b101a.png)
+
+Terminal Script:
+
+`python projects/front-end_apps/trashsorting.py`
+
+![image](https://user-images.githubusercontent.com/47340315/235587100-d3fe83ab-d060-4aab-91c0-39a30bb0287c.png)
+
 
 ## Installation
 
 ### Python 
 
 Python Version 3.9 available at https://www.python.org/downloads/release/python-390/. Then run ```python3 -m pip install -r requirements.txt```
+
+OR
+
+Conda: install Anaconda, create an environment `conda create --name trashsorting`, activate environment `conda activate trashsorting`, install requirements `pip install -r requirements.txt`
+
+For GPU torch, instead of installing torch in requirements.txt do the below:
+
+Windows/Linux: `conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia`
 
 ### NodeJS 
 
@@ -49,8 +70,7 @@ Change to react-website directory and run following commands:
 cd project/front-end-apps
 pytest
 ```
-
-![image](https://user-images.githubusercontent.com/39971693/232919996-99350a1e-305a-4129-ae45-52511b1debb3.png)
+![image](https://user-images.githubusercontent.com/47340315/235586207-a89e2338-49ca-4b29-a3f1-da1273373592.png)
 
 ```
 cd project\front-end_apps\website\react-website
@@ -62,10 +82,20 @@ yarn test
 
 #### Backend
 ```
-cd project/backend
+cd project/backend/annotation_database
 pytest
 ```
-![image](https://user-images.githubusercontent.com/39971693/232920270-739e8288-9244-4b6f-b444-d81e917d336e.png)
+
+![image](https://user-images.githubusercontent.com/47340315/235585828-c5991630-7889-47c0-8fba-3b12884d8e86.png)
+
+
+```
+cd project/backend/model_inference
+pytest
+```
+
+![image](https://user-images.githubusercontent.com/47340315/235586790-cc21b96c-d91a-4dcf-9b70-18b50042c3ad.png)
+
 
 ## Development Instructions
 
