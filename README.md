@@ -1,3 +1,6 @@
+![image](https://github.com/julianofhernandez/Trash-Sorting/assets/39971693/27b97de6-c49f-4a99-8e29-f9d85d636a0c)
+
+
 ## Problem:
 
 The mismanagement of waste is a pressing concern that affects the environment and human health. Despite efforts to promote proper waste disposal, many individuals continue to dispose of trash haphazardly, resulting in significant pollution and harm to natural ecosystems.
@@ -137,6 +140,9 @@ Julian Hernandez
 Jeffrey de Jesus
 ⁢
 
+Christopher Allen
+
+
 Bryan Burch
 ⁢
 
@@ -144,6 +150,4 @@ Daniel Smagly
 ⁢
 
 Santiago Bermudez
-
-![image](https://user-images.githubusercontent.com/39971693/232920553-e0294477-c6a2-4bb7-aa7c-44de416e9c5a.png)
 
