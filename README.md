@@ -110,6 +110,15 @@ The front-end and backend work on Windows, Mac, and Linux operating systems. How
 
 Please make sure that your system meets these requirements before proceeding with the setup.
 
+## Awards
+
+1st place at the Annual CSU Wide Research Competition
+
+2nd place at the Sacramento Spring Research Symposium
+
+![image](https://github.com/julianofhernandez/Trash-Sorting/assets/39971693/eba30d5e-a52b-4ede-a5c1-e30b495f8530)
+
+
 ## Client
 
 Dr. Clark Fitzgerald
