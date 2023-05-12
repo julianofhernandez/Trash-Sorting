@@ -5,6 +5,7 @@ torchmetrics
 albumentations>=1.1.0
 matplotlib
 opencv-python>=4.1.1.26
-opencv-python-headless>=4.1.1.26
-pycocotools
-open_clip
+opencv-contrib-python>=4.7.0
+#opencv-python-headless>=4.1.1.26
+#pycocotools  # NOT REQUIRED for basic running
+open_clip_torch
